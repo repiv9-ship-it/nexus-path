@@ -4,8 +4,11 @@ export const ROLES = {
   GUEST: 'Wanderer',
   STUDENT: 'Vanguard',
   PROFESSOR: 'Architect',
-  ADMIN: 'Overlord',
+  UNIVERSITY_ADMIN: 'Overlord',
+  ADMIN: 'Supreme',
 } as const;
+
+export type RoleType = typeof ROLES[keyof typeof ROLES];
 
 export const GUILDS = [
   { id: 'mit', name: 'MIT Tech-Nexus', location: 'Cambridge Sector', members: '12k', rating: 4.9, icon: 'M' },
@@ -70,10 +73,38 @@ export const SUBSCRIPTION_TIERS = [
   },
 ] as const;
 
+export const FIELDS = [
+  'Computer Science',
+  'Mathematics',
+  'Physics',
+  'Engineering',
+  'Business',
+  'Medicine',
+  'Law',
+  'Arts',
+] as const;
+
+export const LEVELS = ['L1', 'L2', 'L3', 'M1', 'M2', 'PhD'] as const;
+
+export const MOCK_STUDENTS = [
+  { id: '1', name: 'Alice Chen', email: 'alice@uni.edu', level: 'L2', xp: 4500, progress: 78, streak: 15, avatar: 'AC' },
+  { id: '2', name: 'Bob Smith', email: 'bob@uni.edu', level: 'L1', xp: 2300, progress: 45, streak: 8, avatar: 'BS' },
+  { id: '3', name: 'Carol Davis', email: 'carol@uni.edu', level: 'L3', xp: 8200, progress: 92, streak: 32, avatar: 'CD' },
+  { id: '4', name: 'David Lee', email: 'david@uni.edu', level: 'M1', xp: 6100, progress: 67, streak: 21, avatar: 'DL' },
+  { id: '5', name: 'Emma Wilson', email: 'emma@uni.edu', level: 'L2', xp: 3800, progress: 55, streak: 12, avatar: 'EW' },
+] as const;
+
+export const MOCK_PROFESSOR_COURSES = [
+  { id: 'p1', title: 'Data Structures', students: 156, completion: 72, avgScore: 85, status: 'active' },
+  { id: 'p2', title: 'Machine Learning', students: 89, completion: 45, avgScore: 78, status: 'active' },
+  { id: 'p3', title: 'Web Development', students: 234, completion: 88, avgScore: 91, status: 'completed' },
+] as const;
+
 export type User = {
   name: string;
-  role: typeof ROLES[keyof typeof ROLES];
+  role: string;
   xp: number;
   streak: number;
   gems: number;
+  university?: string;
 } | null;

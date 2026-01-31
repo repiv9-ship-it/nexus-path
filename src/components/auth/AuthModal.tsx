@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Zap, X, User, Mail, Lock, Building2, ChevronRight, ArrowLeft } from 'lucide-react';
+import { Zap, X, User, Mail, Lock, Building2, ChevronRight, ArrowLeft, GraduationCap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { XPBar } from '@/components/ui/xp-bar';
+import { ROLES } from '@/lib/constants';
 import type { User as UserType } from '@/lib/constants';
 
 interface AuthModalProps {
@@ -12,12 +13,13 @@ interface AuthModalProps {
   initialMode?: 'login' | 'signup';
 }
 
-type Step = 'choice' | 'personal' | 'university' | 'welcome';
+type Step = 'choice' | 'role' | 'personal' | 'university' | 'welcome';
+type JoinType = 'free' | 'invited' | 'professor' | 'university_admin';
 
 export function AuthModal({ isOpen, onClose, onAuth, initialMode = 'signup' }: AuthModalProps) {
   const [mode, setMode] = useState<'login' | 'signup'>(initialMode);
   const [step, setStep] = useState<Step>(initialMode === 'login' ? 'personal' : 'choice');
-  const [joinType, setJoinType] = useState<'free' | 'invited' | null>(null);
+  const [joinType, setJoinType] = useState<JoinType | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -32,12 +34,21 @@ export function AuthModal({ isOpen, onClose, onAuth, initialMode = 'signup' }: A
 
   const handleSubmit = () => {
     if (mode === 'login') {
+      // For demo: check email domain to determine role
+      let role: string = ROLES.STUDENT;
+      if (formData.email.includes('prof')) {
+        role = ROLES.PROFESSOR;
+      } else if (formData.email.includes('admin')) {
+        role = ROLES.UNIVERSITY_ADMIN;
+      }
+      
       onAuth({
-        name: formData.name || 'Student',
-        role: 'Vanguard',
+        name: formData.name || 'User',
+        role,
         xp: 1240,
         streak: 12,
         gems: 350,
+        university: 'MIT Tech-Nexus',
       });
     } else {
       setStep('welcome');
@@ -45,17 +56,44 @@ export function AuthModal({ isOpen, onClose, onAuth, initialMode = 'signup' }: A
   };
 
   const handleComplete = () => {
+    let role: string = ROLES.STUDENT;
+    switch (joinType) {
+      case 'professor':
+        role = ROLES.PROFESSOR;
+        break;
+      case 'university_admin':
+        role = ROLES.UNIVERSITY_ADMIN;
+        break;
+      case 'invited':
+        role = ROLES.STUDENT;
+        break;
+      default:
+        role = ROLES.GUEST;
+    }
+
     onAuth({
-      name: formData.name || 'New Vanguard',
-      role: joinType === 'invited' ? 'Vanguard' : 'Wanderer',
+      name: formData.name || 'New User',
+      role,
       xp: 0,
       streak: 0,
       gems: 100,
+      university: joinType !== 'free' ? formData.university || 'MIT Tech-Nexus' : undefined,
     });
   };
 
-  const stepIndex = ['choice', 'personal', 'university', 'welcome'].indexOf(step);
-  const totalSteps = joinType === 'invited' ? 4 : 3;
+  const getSteps = () => {
+    if (joinType === 'professor' || joinType === 'university_admin') {
+      return ['choice', 'role', 'personal', 'welcome'];
+    }
+    if (joinType === 'invited') {
+      return ['choice', 'role', 'personal', 'university', 'welcome'];
+    }
+    return ['choice', 'role', 'personal', 'welcome'];
+  };
+
+  const steps = getSteps();
+  const stepIndex = steps.indexOf(step);
+  const totalSteps = steps.length;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -97,7 +135,7 @@ export function AuthModal({ isOpen, onClose, onAuth, initialMode = 'signup' }: A
           {mode === 'login' && (
             <div className="space-y-6">
               <div className="text-center">
-                <h2 className="text-2xl font-black italic tracking-tighter">Welcome Back, Vanguard</h2>
+                <h2 className="text-2xl font-black italic tracking-tighter">Welcome Back</h2>
                 <p className="text-muted-foreground text-sm mt-1">Enter the Nexus</p>
               </div>
 
@@ -116,13 +154,17 @@ export function AuthModal({ isOpen, onClose, onAuth, initialMode = 'signup' }: A
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
                   <Input 
                     type="password"
-                    placeholder="Secret Key"
+                    placeholder="Password"
                     className="pl-12 h-14 rounded-xl font-bold"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   />
                 </div>
               </div>
+
+              <p className="text-xs text-muted-foreground text-center">
+                Demo: Use "prof@" for professor, "admin@" for university admin
+              </p>
 
               <Button 
                 onClick={handleSubmit}
@@ -147,21 +189,21 @@ export function AuthModal({ isOpen, onClose, onAuth, initialMode = 'signup' }: A
           {mode === 'signup' && step === 'choice' && (
             <div className="space-y-6">
               <div className="text-center">
-                <h2 className="text-2xl font-black italic tracking-tighter">Initiate Protocol</h2>
+                <h2 className="text-2xl font-black italic tracking-tighter">Join the Nexus</h2>
                 <p className="text-muted-foreground text-sm mt-1">Choose your path</p>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <button
                   onClick={() => { setJoinType('free'); setStep('personal'); }}
-                  className="w-full p-6 rounded-2xl border-2 border-border hover:border-primary bg-card text-left transition-all group"
+                  className="w-full p-5 rounded-2xl border-2 border-border hover:border-primary bg-card text-left transition-all group"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-muted rounded-xl flex items-center justify-center group-hover:gradient-primary transition-all">
                       <User className="group-hover:text-primary-foreground" size={24} />
                     </div>
                     <div className="flex-1">
-                      <p className="font-black">I'm a Free User</p>
+                      <p className="font-black">Free User</p>
                       <p className="text-sm text-muted-foreground">Access free courses</p>
                     </div>
                     <ChevronRight className="text-muted-foreground group-hover:text-primary" />
@@ -170,17 +212,49 @@ export function AuthModal({ isOpen, onClose, onAuth, initialMode = 'signup' }: A
 
                 <button
                   onClick={() => { setJoinType('invited'); setStep('personal'); }}
-                  className="w-full p-6 rounded-2xl border-2 border-border hover:border-primary bg-card text-left transition-all group"
+                  className="w-full p-5 rounded-2xl border-2 border-border hover:border-primary bg-card text-left transition-all group"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-muted rounded-xl flex items-center justify-center group-hover:gradient-primary transition-all">
                       <Building2 className="group-hover:text-primary-foreground" size={24} />
                     </div>
                     <div className="flex-1">
-                      <p className="font-black">I Was Invited by a University</p>
-                      <p className="text-sm text-muted-foreground">Enter invitation code</p>
+                      <p className="font-black">University Student</p>
+                      <p className="text-sm text-muted-foreground">Invited by university</p>
                     </div>
                     <ChevronRight className="text-muted-foreground group-hover:text-primary" />
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => { setJoinType('professor'); setStep('personal'); }}
+                  className="w-full p-5 rounded-2xl border-2 border-border hover:border-secondary bg-card text-left transition-all group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-muted rounded-xl flex items-center justify-center group-hover:bg-secondary transition-all">
+                      <GraduationCap className="group-hover:text-secondary-foreground" size={24} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-black">Professor</p>
+                      <p className="text-sm text-muted-foreground">Create and manage courses</p>
+                    </div>
+                    <ChevronRight className="text-muted-foreground group-hover:text-secondary" />
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => { setJoinType('university_admin'); setStep('personal'); }}
+                  className="w-full p-5 rounded-2xl border-2 border-border hover:border-warning bg-card text-left transition-all group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-muted rounded-xl flex items-center justify-center group-hover:bg-warning transition-all">
+                      <Building2 className="group-hover:text-warning-foreground" size={24} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-black">University Admin</p>
+                      <p className="text-sm text-muted-foreground">Manage your institution</p>
+                    </div>
+                    <ChevronRight className="text-muted-foreground group-hover:text-warning" />
                   </div>
                 </button>
               </div>
@@ -217,7 +291,7 @@ export function AuthModal({ isOpen, onClose, onAuth, initialMode = 'signup' }: A
                 <div className="relative">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
                   <Input 
-                    placeholder="Your Codename"
+                    placeholder="Your Name"
                     className="pl-12 h-14 rounded-xl font-bold"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -237,7 +311,7 @@ export function AuthModal({ isOpen, onClose, onAuth, initialMode = 'signup' }: A
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
                   <Input 
                     type="password"
-                    placeholder="Create Secret Key"
+                    placeholder="Create Password"
                     className="pl-12 h-14 rounded-xl font-bold"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -318,18 +392,26 @@ export function AuthModal({ isOpen, onClose, onAuth, initialMode = 'signup' }: A
               </div>
 
               <div>
-                <h2 className="text-3xl font-black italic tracking-tighter">Welcome, {formData.name || 'Vanguard'}!</h2>
-                <p className="text-muted-foreground mt-2">Your journey begins now</p>
+                <h2 className="text-3xl font-black italic tracking-tighter">Welcome, {formData.name || 'User'}!</h2>
+                <p className="text-muted-foreground mt-2">
+                  {joinType === 'professor' ? 'Your teaching journey begins' : 
+                   joinType === 'university_admin' ? 'Ready to manage your institution' :
+                   'Your learning journey begins'}
+                </p>
               </div>
 
               <div className="glass-card p-6 rounded-2xl text-left space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-success/10 rounded-xl flex items-center justify-center text-success">✓</div>
-                  <p className="font-bold">XP Bar activated</p>
+                  <p className="font-bold">Account created</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-warning/10 rounded-xl flex items-center justify-center">🏆</div>
-                  <p className="font-bold">Badges unlocked</p>
+                  <div className="w-10 h-10 bg-warning/10 rounded-xl flex items-center justify-center">🎯</div>
+                  <p className="font-bold">
+                    {joinType === 'professor' ? 'Course creation unlocked' : 
+                     joinType === 'university_admin' ? 'Admin panel ready' :
+                     'Badges unlocked'}
+                  </p>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">💎</div>
