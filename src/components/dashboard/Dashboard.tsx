@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Sidebar } from './Sidebar';
+import { Sidebar, ViewType } from './Sidebar';
 import { Header } from './Header';
 import { QuestMap } from './views/QuestMap';
 import { NexusHub } from './views/NexusHub';
@@ -8,9 +8,10 @@ import { CoursePath } from './views/CoursePath';
 import { LevelContent } from './views/LevelContent';
 import { SubscriptionPage } from './views/SubscriptionPage';
 import { Achievements } from './views/Achievements';
+import { ProfessorDashboard } from './views/professor/ProfessorDashboard';
+import { UniversityDashboard } from './views/university/UniversityDashboard';
+import { ROLES } from '@/lib/constants';
 import type { User } from '@/lib/constants';
-
-type ViewType = 'dashboard' | 'nexus' | 'courses' | 'subscription' | 'achievements';
 
 interface DashboardProps {
   user: User;
@@ -36,7 +37,19 @@ interface Level {
 }
 
 export function Dashboard({ user, onLogout }: DashboardProps) {
-  const [view, setView] = useState<ViewType>('dashboard');
+  const getDefaultView = (): ViewType => {
+    if (!user) return 'dashboard';
+    switch (user.role) {
+      case ROLES.PROFESSOR:
+        return 'professor';
+      case ROLES.UNIVERSITY_ADMIN:
+        return 'university';
+      default:
+        return 'dashboard';
+    }
+  };
+
+  const [view, setView] = useState<ViewType>(getDefaultView());
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [activeLevel, setActiveLevel] = useState<Level | null>(null);
 
@@ -72,6 +85,10 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
         return <SubscriptionPage />;
       case 'achievements':
         return <Achievements />;
+      case 'professor':
+        return <ProfessorDashboard />;
+      case 'university':
+        return <UniversityDashboard />;
       default:
         return <QuestMap user={user} onNavigate={handleViewChange} />;
     }

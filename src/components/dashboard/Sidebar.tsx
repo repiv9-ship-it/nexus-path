@@ -1,7 +1,8 @@
-import { Zap, Globe, Compass, Scroll, Crown, Shield, LogOut } from 'lucide-react';
+import { Zap, Globe, Compass, Scroll, Crown, Shield, LogOut, BookOpen, Users, BarChart3, Settings, Building2 } from 'lucide-react';
+import { ROLES } from '@/lib/constants';
 import type { User } from '@/lib/constants';
 
-type ViewType = 'dashboard' | 'nexus' | 'courses' | 'subscription' | 'achievements';
+export type ViewType = 'dashboard' | 'nexus' | 'courses' | 'subscription' | 'achievements' | 'professor' | 'university';
 
 interface SidebarProps {
   user: User;
@@ -10,7 +11,7 @@ interface SidebarProps {
   onLogout: () => void;
 }
 
-const navItems: { id: ViewType; label: string; icon: typeof Globe }[] = [
+const studentNavItems: { id: ViewType; label: string; icon: typeof Globe }[] = [
   { id: 'dashboard', label: 'Quest Map', icon: Globe },
   { id: 'nexus', label: 'Nexus Hub', icon: Compass },
   { id: 'courses', label: 'Spellbook', icon: Scroll },
@@ -18,7 +19,35 @@ const navItems: { id: ViewType; label: string; icon: typeof Globe }[] = [
   { id: 'achievements', label: 'Armory', icon: Shield },
 ];
 
+const professorNavItems: { id: ViewType; label: string; icon: typeof Globe }[] = [
+  { id: 'professor', label: 'Command Center', icon: BarChart3 },
+  { id: 'courses', label: 'My Courses', icon: BookOpen },
+  { id: 'achievements', label: 'Armory', icon: Shield },
+];
+
+const universityNavItems: { id: ViewType; label: string; icon: typeof Globe }[] = [
+  { id: 'university', label: 'Control Tower', icon: Building2 },
+  { id: 'nexus', label: 'Staff', icon: Users },
+  { id: 'courses', label: 'All Courses', icon: BookOpen },
+  { id: 'subscription', label: 'Billing', icon: Crown },
+];
+
 export function Sidebar({ user, currentView, onViewChange, onLogout }: SidebarProps) {
+  const getNavItems = () => {
+    if (!user) return studentNavItems;
+    
+    switch (user.role) {
+      case ROLES.PROFESSOR:
+        return professorNavItems;
+      case ROLES.UNIVERSITY_ADMIN:
+        return universityNavItems;
+      default:
+        return studentNavItems;
+    }
+  };
+
+  const navItems = getNavItems();
+
   return (
     <aside className="w-72 bg-sidebar h-screen fixed left-0 top-0 z-50 text-sidebar-foreground p-6 flex flex-col shadow-[10px_0_30px_rgba(0,0,0,0.2)]">
       {/* Logo */}
@@ -28,6 +57,14 @@ export function Sidebar({ user, currentView, onViewChange, onLogout }: SidebarPr
         </div>
         <h1 className="font-black text-2xl tracking-tighter italic">UNILINGO</h1>
       </div>
+
+      {/* Role Badge */}
+      {user && (
+        <div className="mb-6 px-4 py-2 bg-sidebar-accent rounded-xl">
+          <p className="text-xs font-bold text-sidebar-muted uppercase tracking-widest">Logged in as</p>
+          <p className="font-black text-primary">{user.role}</p>
+        </div>
+      )}
 
       {/* Navigation */}
       <nav className="flex-1 space-y-2">
@@ -56,7 +93,7 @@ export function Sidebar({ user, currentView, onViewChange, onLogout }: SidebarPr
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-black text-sm truncate">{user.name}</p>
-              <p className="text-xs text-sidebar-muted">{user.role}</p>
+              <p className="text-xs text-sidebar-muted">{user.university || 'Free User'}</p>
             </div>
           </div>
         </div>
