@@ -1,5 +1,4 @@
-import { ArrowLeft, Play, FileText, Skull, Gem } from 'lucide-react';
-import { XPBar } from '@/components/ui/xp-bar';
+import { ArrowLeft, Skull, Play, FileText } from "lucide-react";
 
 interface Level {
   id: number;
@@ -7,6 +6,7 @@ interface Level {
   type: 'text' | 'video' | 'quiz';
   xp: number;
   status: 'completed' | 'active' | 'locked';
+  boss?: boolean;
 }
 
 interface Course {
@@ -22,68 +22,76 @@ interface CoursePathProps {
 }
 
 const levels: Level[] = [
-  { id: 1, title: 'The First Scroll', type: 'text', xp: 100, status: 'completed' },
-  { id: 2, title: 'Binary Oracles', type: 'video', xp: 150, status: 'active' },
-  { id: 3, title: 'The Mid-Term Boss', type: 'quiz', xp: 1000, status: 'active' },
-  { id: 4, title: 'Graph Secrets', type: 'text', xp: 200, status: 'locked' },
-  { id: 5, title: 'Recursive Loops', type: 'video', xp: 250, status: 'locked' },
+  { id: 1, title: "The First Scroll", type: "text", xp: 100, status: "completed" },
+  { id: 2, title: "Binary Oracles", type: "video", xp: 150, status: "active" },
+  { id: 3, title: "The Mid-Term Boss", type: "quiz", xp: 1000, status: "active", boss: true },
+  { id: 4, title: "Graph Secrets", type: "text", xp: 200, status: "locked" },
 ];
+
+const iconByType = {
+  text: FileText,
+  video: Play,
+  quiz: Skull,
+};
 
 export function CoursePath({ course, onSelectLevel, onBack }: CoursePathProps) {
   return (
-    <div className="max-w-md mx-auto py-10 animate-fade-in">
+    <div className="max-w-sm mx-auto py-10">
+      {/* Header */}
       <div className="flex items-center justify-between mb-16">
-        <button 
+        <button
           onClick={onBack}
-          className="w-12 h-12 rounded-2xl glass-card flex items-center justify-center hover:bg-muted transition-colors"
+          className="w-12 h-12 rounded-2xl bg-white shadow flex items-center justify-center"
         >
           <ArrowLeft size={20} />
         </button>
-        <div className="text-center">
-          <h2 className="font-black italic text-xl tracking-tighter">{course.title}</h2>
-          <XPBar progress={course.progress} size="sm" className="w-32 mx-auto mt-2" />
-        </div>
-        <div className="w-12 h-12 bg-warning/10 rounded-2xl flex items-center justify-center text-warning font-black">
-          <Gem size={18} fill="currentColor" />
-        </div>
+        <h2 className="font-black uppercase tracking-tight">
+          {course.title}
+        </h2>
+        <div className="w-12 h-12" />
       </div>
 
-      <div className="relative flex flex-col items-center gap-12">
+      {/* Path */}
+      <div className="relative flex flex-col items-center gap-14">
         {levels.map((lvl, i) => {
-          const isOffset = i % 2 !== 0;
+          const Icon = iconByType[lvl.type];
+          const offset = i % 2 === 0 ? "-translate-x-14" : "translate-x-14";
+
           return (
-            <div 
-              key={lvl.id} 
-              className={`relative flex flex-col items-center ${isOffset ? 'translate-x-12' : '-translate-x-12'}`}
-            >
-              {/* Connector Line */}
-              {i < levels.length - 1 && (
-                <div className={`absolute top-20 h-16 w-1 bg-muted rounded-full z-0 ${isOffset ? '-left-6 rotate-[25deg]' : '-right-6 -rotate-[25deg]'}`} />
+            <div key={lvl.id} className={`relative ${offset}`}>
+              {/* Connector */}
+              {i !== levels.length - 1 && (
+                <div className="absolute top-20 left-1/2 -translate-x-1/2 h-16 w-[2px] bg-gray-200 rounded-full" />
               )}
 
-              {/* Level Button */}
+              {/* Boss label */}
+              {lvl.boss && (
+                <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-red-600 text-white text-[10px] font-black px-3 py-1 rounded-full animate-pulse">
+                  BOSS!
+                </span>
+              )}
+
+              {/* Node */}
               <button
-                disabled={lvl.status === 'locked'}
+                disabled={lvl.status === "locked"}
                 onClick={() => onSelectLevel(lvl)}
-                className={`w-20 h-20 rounded-4xl z-10 flex items-center justify-center border-b-[10px] transition-all active:scale-90 relative group
-                  ${lvl.status === 'completed' 
-                    ? 'gradient-primary border-primary/50 text-primary-foreground' 
-                    : lvl.status === 'active' 
-                      ? 'bg-card border-muted text-primary shadow-[0_15px_40px_rgba(99,102,241,0.2)]' 
-                      : 'bg-muted border-muted/50 text-muted-foreground'
-                  }`}
+                className={`
+                  w-20 h-20 rounded-3xl flex items-center justify-center
+                  border-b-[8px] transition-all active:scale-90
+                  ${
+                    lvl.status === "completed"
+                      ? "bg-indigo-600 border-indigo-800 text-white"
+                      : lvl.status === "active"
+                      ? "bg-white border-gray-300 text-indigo-600 shadow-xl"
+                      : "bg-gray-200 border-gray-300 text-gray-400"
+                  }
+                `}
               >
-                {lvl.status === 'active' && lvl.type === 'quiz' && (
-                  <div className="absolute -top-12 bg-destructive text-destructive-foreground px-3 py-1 rounded-lg font-black text-[10px] uppercase animate-pulse whitespace-nowrap">
-                    BOSS!
-                  </div>
-                )}
-                {lvl.type === 'quiz' ? <Skull size={32} /> : lvl.type === 'video' ? <Play size={32} /> : <FileText size={32} />}
+                <Icon size={32} />
               </button>
-              
-              <p className={`mt-3 font-black text-[10px] uppercase tracking-tighter text-center max-w-[100px] ${
-                lvl.status === 'locked' ? 'text-muted-foreground' : 'text-foreground'
-              }`}>
+
+              {/* Title */}
+              <p className="mt-3 text-center text-[10px] font-black uppercase tracking-tight">
                 {lvl.title}
               </p>
             </div>
