@@ -1,4 +1,5 @@
-import { ArrowLeft, FileText, Play, Skull, Gem } from "lucide-react";
+import { useRef, useEffect, useState } from "react";
+import { ArrowLeft, Play, FileText, Skull, Gem } from "lucide-react";
 
 interface Level {
   id: number;
@@ -36,57 +37,141 @@ const iconByType = {
 };
 
 export function CoursePath({ course, onSelectLevel, onBack }: CoursePathProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const nodeRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [paths, setPaths] = useState<string[]>([]);
+
+  useEffect(() => {
+    const calculatePaths = () => {
+      if (!containerRef.current) return;
+
+      const newPaths: string[] = [];
+
+      for (let i = 0; i < levels.length - 1; i++) {
+        const a = nodeRefs.current[i];
+        const b = nodeRefs.current[i + 1];
+        if (!a || !b) continue;
+
+        const rectA = a.getBoundingClientRect();
+        const rectB = b.getBoundingClientRect();
+        const containerRect = containerRef.current.getBoundingClientRect();
+
+        const x1 = rectA.left + rectA.width / 2 - containerRect.left;
+        const y1 = rectA.top + rectA.height / 2 - containerRect.top;
+        const x2 = rectB.left + rectB.width / 2 - containerRect.left;
+        const y2 = rectB.top + rectB.height / 2 - containerRect.top;
+
+        const dx = Math.abs(x2 - x1) * 0.6;
+
+        const d = `
+          M ${x1} ${y1}
+          C ${x1} ${y1 + dx},
+            ${x2} ${y2 - dx},
+            ${x2} ${y2}
+        `;
+
+        newPaths.push(d);
+      }
+
+      setPaths(newPaths);
+    };
+
+    // Calculate after a brief delay to ensure DOM is ready
+    const timer = setTimeout(calculatePaths, 100);
+    window.addEventListener('resize', calculatePaths);
+    
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', calculatePaths);
+    };
+  }, []);
+
   return (
-    <div className="relative min-h-screen py-12 bg-gradient-to-b from-[#F7F8FF] via-[#F2F4FF] to-[#ECEFFF] -mx-12 -mt-12 px-4">
-      
+    <div
+      ref={containerRef}
+      className="relative min-h-screen py-12 overflow-hidden -mx-12 -mt-12 px-4
+                 bg-gradient-to-b from-[#1B1E3C] via-[#24285A] to-[#2F3470]"
+    >
       {/* Header */}
-      <div className="flex items-center justify-between mb-16 max-w-sm mx-auto">
+      <div className="relative z-20 flex items-center justify-between mb-16 max-w-sm mx-auto">
         <button
           onClick={onBack}
-          className="w-12 h-12 rounded-2xl bg-white shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
+          className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all text-white"
         >
           <ArrowLeft size={20} />
         </button>
-        <h2 className="font-black uppercase tracking-tight text-lg">
+        <h2 className="font-black uppercase tracking-tight text-lg text-white">
           {course.title}
         </h2>
-        <div className="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600">
+        <div className="w-12 h-12 bg-amber-500/20 backdrop-blur-md border border-amber-500/30 rounded-2xl flex items-center justify-center text-amber-400">
           <Gem size={18} fill="currentColor" />
         </div>
       </div>
 
-      {/* Single vertical path line - centered */}
-      <div className="absolute left-1/2 top-32 bottom-12 w-[3px] bg-indigo-200/60 rounded-full -translate-x-1/2" />
+      {/* SVG connections */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
+        <defs>
+          <linearGradient id="pathGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#7C83FF" />
+            <stop offset="100%" stopColor="#A5B4FF" />
+          </linearGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="4" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+
+        {paths.map((d, i) => (
+          <path
+            key={i}
+            d={d}
+            fill="none"
+            stroke="url(#pathGradient)"
+            strokeWidth="4"
+            filter="url(#glow)"
+            className="animate-pulse"
+            style={{ animationDuration: '3s' }}
+          />
+        ))}
+      </svg>
 
       {/* Nodes */}
-      <div className="relative flex flex-col items-center gap-20 pb-12">
+      <div className="relative z-10 flex flex-col items-center gap-28 pb-12">
         {levels.map((lvl, i) => {
           const Icon = iconByType[lvl.type];
-          const offset = i % 2 === 0 ? "-translate-x-16" : "translate-x-16";
+          const side = i % 2 === 0 ? "-translate-x-32" : "translate-x-32";
 
           return (
-            <div key={lvl.id} className={`relative ${offset} z-10`}>
-              
+            <div
+              key={lvl.id}
+              ref={(el) => (nodeRefs.current[i] = el)}
+              className={`relative ${side}`}
+            >
               {/* Boss badge */}
               {lvl.boss && (
-                <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-red-500 text-white text-[10px] font-black px-3 py-1 rounded-full animate-pulse shadow-lg">
+                <span className="absolute -top-9 left-1/2 -translate-x-1/2
+                                 bg-red-500 text-white text-[10px]
+                                 font-black px-3 py-1 rounded-full shadow-lg shadow-red-500/50 animate-pulse">
                   BOSS!
                 </span>
               )}
 
-              {/* Node */}
+              {/* Node button */}
               <button
                 onClick={() => onSelectLevel(lvl)}
                 disabled={lvl.status === "locked"}
                 className={`
                   w-20 h-20 rounded-3xl flex items-center justify-center
-                  shadow-lg transition-all active:scale-90 border-b-[6px]
+                  shadow-xl backdrop-blur transition-all active:scale-90 border-b-[6px]
                   ${
                     lvl.status === "completed"
-                      ? "bg-indigo-600 border-indigo-800 text-white"
+                      ? "bg-indigo-500 border-indigo-700 text-white shadow-indigo-500/30"
                       : lvl.status === "active"
-                      ? "bg-white border-gray-200 text-indigo-600 shadow-xl"
-                      : "bg-gray-200 border-gray-300 text-gray-400 opacity-60"
+                      ? "bg-white border-gray-200 text-indigo-600 shadow-white/20"
+                      : "bg-gray-600/50 border-gray-700 text-gray-400 opacity-60"
                   }
                 `}
               >
@@ -95,7 +180,7 @@ export function CoursePath({ course, onSelectLevel, onBack }: CoursePathProps) {
 
               {/* Title */}
               <p className={`mt-3 text-center text-[10px] font-black uppercase tracking-tight max-w-[100px] ${
-                lvl.status === "locked" ? "text-gray-400" : "text-gray-800"
+                lvl.status === "locked" ? "text-indigo-300/50" : "text-indigo-100"
               }`}>
                 {lvl.title}
               </p>
