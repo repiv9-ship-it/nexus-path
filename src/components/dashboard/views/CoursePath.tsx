@@ -51,13 +51,19 @@ export function CoursePath({ course, onSelectLevel, onBack }: CoursePathProps) {
   const nodeRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [paths, setPaths] = useState<string[]>([]);
 
+  // Find the last unlocked level index (completed or active)
+  const lastUnlockedIndex = levels.reduce((lastIdx, lvl, idx) => {
+    return lvl.status !== 'locked' ? idx : lastIdx;
+  }, 0);
+
   useEffect(() => {
     const calculatePaths = () => {
       if (!containerRef.current) return;
 
       const newPaths: string[] = [];
 
-      for (let i = 0; i < levels.length - 1; i++) {
+      // Only draw paths up to the last unlocked level
+      for (let i = 0; i < lastUnlockedIndex; i++) {
         const a = nodeRefs.current[i];
         const b = nodeRefs.current[i + 1];
         if (!a || !b) continue;
@@ -205,15 +211,18 @@ export function CoursePath({ course, onSelectLevel, onBack }: CoursePathProps) {
                 disabled={lvl.status === "locked"}
                 className={`
                   w-20 h-20 rounded-3xl flex items-center justify-center
-                  shadow-xl backdrop-blur transition-all active:scale-90 border-b-[6px]
+                  shadow-xl backdrop-blur transition-all duration-300 active:scale-90 border-b-[6px]
                   ${
                     lvl.status === "completed"
-                      ? "bg-indigo-500 border-indigo-700 text-white shadow-indigo-500/30"
+                      ? "bg-indigo-500 border-indigo-700 text-white shadow-indigo-500/30 hover:shadow-indigo-500/60 hover:shadow-2xl hover:scale-105"
                       : lvl.status === "active"
-                      ? "bg-white border-gray-200 text-indigo-600 shadow-white/20"
-                      : "bg-gray-600/50 border-gray-700 text-gray-400 opacity-60"
+                      ? "bg-white border-gray-200 text-indigo-600 shadow-white/20 hover:shadow-indigo-400/50 hover:shadow-2xl hover:scale-105"
+                      : "bg-gray-600/50 border-gray-700 text-gray-400 opacity-60 cursor-not-allowed"
                   }
                 `}
+                style={{
+                  transition: 'all 0.3s ease, box-shadow 0.3s ease',
+                }}
               >
                 <Icon size={32} />
               </button>
