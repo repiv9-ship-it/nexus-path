@@ -36,6 +36,16 @@ const iconByType = {
   quiz: Skull,
 };
 
+// Generate random particles for background
+const particles = Array.from({ length: 30 }, (_, i) => ({
+  id: i,
+  left: Math.random() * 100,
+  top: Math.random() * 100,
+  size: Math.random() * 3 + 1,
+  delay: Math.random() * 5,
+  duration: Math.random() * 3 + 4,
+}));
+
 export function CoursePath({ course, onSelectLevel, onBack }: CoursePathProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const nodeRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -108,6 +118,23 @@ export function CoursePath({ course, onSelectLevel, onBack }: CoursePathProps) {
         </div>
       </div>
 
+      {/* Floating particles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        {particles.map((particle) => (
+          <div
+            key={particle.id}
+            className="absolute rounded-full bg-white/30"
+            style={{
+              left: `${particle.left}%`,
+              top: `${particle.top}%`,
+              width: `${particle.size}px`,
+              height: `${particle.size}px`,
+              animation: `float ${particle.duration}s ease-in-out ${particle.delay}s infinite`,
+            }}
+          />
+        ))}
+      </div>
+
       {/* SVG connections */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
         <defs>
@@ -125,16 +152,29 @@ export function CoursePath({ course, onSelectLevel, onBack }: CoursePathProps) {
         </defs>
 
         {paths.map((d, i) => (
-          <path
-            key={i}
-            d={d}
-            fill="none"
-            stroke="url(#pathGradient)"
-            strokeWidth="4"
-            filter="url(#glow)"
-            className="animate-pulse"
-            style={{ animationDuration: '3s' }}
-          />
+          <g key={i}>
+            {/* Base glow path */}
+            <path
+              d={d}
+              fill="none"
+              stroke="url(#pathGradient)"
+              strokeWidth="4"
+              filter="url(#glow)"
+              opacity="0.5"
+            />
+            {/* Animated flowing path */}
+            <path
+              d={d}
+              fill="none"
+              stroke="url(#pathGradient)"
+              strokeWidth="3"
+              strokeDasharray="12 8"
+              filter="url(#glow)"
+              style={{
+                animation: `flowPath 2s linear infinite`,
+              }}
+            />
+          </g>
         ))}
       </svg>
 
