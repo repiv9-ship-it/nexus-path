@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { LandingNavbar } from '@/components/landing/LandingNavbar';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { StatsSection } from '@/components/landing/StatsSection';
 import { PartnersSection } from '@/components/landing/PartnersSection';
@@ -34,7 +35,12 @@ const Index = () => {
 
   // Show landing page
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
+      <LandingNavbar 
+        onLogin={() => setAuthModal({ open: true, mode: 'login' })}
+        onSignUp={() => setAuthModal({ open: true, mode: 'signup' })}
+      />
+      
       <HeroSection
         onGetStarted={() => setAuthModal({ open: true, mode: 'signup' })}
         onExploreCourses={() => {
@@ -47,7 +53,9 @@ const Index = () => {
         <FreeCoursesSection onPreviewCourse={(id) => console.log('Preview:', id)} />
       </div>
       <HowItWorksSection />
-      <TestimonialsSection />
+      <div id="testimonials">
+        <TestimonialsSection />
+      </div>
       <CTASection
         onSignUp={() => setAuthModal({ open: true, mode: 'signup' })}
         onLogin={() => setAuthModal({ open: true, mode: 'login' })}

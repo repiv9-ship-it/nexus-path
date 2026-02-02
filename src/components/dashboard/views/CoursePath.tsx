@@ -107,22 +107,22 @@ export function CoursePath({ course, onSelectLevel, onBack }: CoursePathProps) {
   return (
     <div
       ref={containerRef}
-      className="relative min-h-screen py-12 overflow-hidden -mx-12 -mt-12 px-4
-                 bg-gradient-to-b from-[#1B1E3C] via-[#24285A] to-[#2F3470]"
+      className="relative min-h-screen py-8 sm:py-12 overflow-hidden -mx-4 sm:-mx-8 lg:-mx-12 -mt-4 sm:-mt-8 lg:-mt-12 px-2 sm:px-4
+                 bg-gradient-to-b from-[#1B1E3C] via-[#24285A] to-[#2F3470] dark:from-[#0f1029] dark:via-[#151838] dark:to-[#1a1f4a]"
     >
       {/* Header */}
-      <div className="relative z-20 flex items-center justify-between mb-16 max-w-sm mx-auto">
+      <div className="relative z-20 flex items-center justify-between mb-8 sm:mb-12 lg:mb-16 max-w-sm mx-auto px-2">
         <button
           onClick={onBack}
-          className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all text-white"
+          className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all text-white"
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={18} />
         </button>
-        <h2 className="font-black uppercase tracking-tight text-lg text-white">
+        <h2 className="font-black uppercase tracking-tight text-sm sm:text-lg text-white text-center flex-1 mx-2">
           {course.title}
         </h2>
-        <div className="w-12 h-12 bg-amber-500/20 backdrop-blur-md border border-amber-500/30 rounded-2xl flex items-center justify-center text-amber-400">
-          <Gem size={18} fill="currentColor" />
+        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-amber-500/20 backdrop-blur-md border border-amber-500/30 rounded-xl sm:rounded-2xl flex items-center justify-center text-amber-400">
+          <Gem size={16} fill="currentColor" />
         </div>
       </div>
 
@@ -205,10 +205,13 @@ export function CoursePath({ course, onSelectLevel, onBack }: CoursePathProps) {
       </svg>
 
       {/* Nodes */}
-      <div className="relative z-10 flex flex-col items-center gap-28 pb-12">
+      <div className="relative z-10 flex flex-col items-center gap-16 sm:gap-20 lg:gap-28 pb-8 sm:pb-12">
         {levels.map((lvl, i) => {
           const Icon = iconByType[lvl.type];
-          const side = i % 2 === 0 ? "-translate-x-32" : "translate-x-32";
+          // Smaller offset on mobile
+          const side = i % 2 === 0 
+            ? "-translate-x-12 sm:-translate-x-20 lg:-translate-x-32" 
+            : "translate-x-12 sm:translate-x-20 lg:translate-x-32";
 
           return (
             <div
@@ -218,9 +221,9 @@ export function CoursePath({ course, onSelectLevel, onBack }: CoursePathProps) {
             >
               {/* Boss badge */}
               {lvl.boss && (
-                <span className="absolute -top-9 left-1/2 -translate-x-1/2
-                                 bg-red-500 text-white text-[10px]
-                                 font-black px-3 py-1 rounded-full shadow-lg shadow-red-500/50 animate-pulse">
+                <span className="absolute -top-7 sm:-top-9 left-1/2 -translate-x-1/2
+                                 bg-red-500 text-white text-[9px] sm:text-[10px]
+                                 font-black px-2 sm:px-3 py-1 rounded-full shadow-lg shadow-red-500/50 animate-pulse">
                   BOSS!
                 </span>
               )}
@@ -230,8 +233,8 @@ export function CoursePath({ course, onSelectLevel, onBack }: CoursePathProps) {
                 onClick={() => onSelectLevel(lvl)}
                 disabled={lvl.status === "locked"}
                 className={`
-                  w-20 h-20 rounded-3xl flex items-center justify-center
-                  shadow-xl backdrop-blur transition-all duration-300 active:scale-90 border-b-[6px]
+                  w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-2xl sm:rounded-3xl flex items-center justify-center
+                  shadow-xl backdrop-blur transition-all duration-300 active:scale-90 border-b-4 sm:border-b-[6px]
                   ${
                     lvl.status === "completed"
                       ? "bg-indigo-500 border-indigo-700 text-white shadow-indigo-500/30 hover:shadow-indigo-500/60 hover:shadow-2xl hover:scale-105"
@@ -244,11 +247,11 @@ export function CoursePath({ course, onSelectLevel, onBack }: CoursePathProps) {
                   transition: 'all 0.3s ease, box-shadow 0.3s ease',
                 }}
               >
-                <Icon size={32} />
+                <Icon className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />
               </button>
 
               {/* Title */}
-              <p className={`mt-3 text-center text-[10px] font-black uppercase tracking-tight max-w-[100px] ${
+              <p className={`mt-2 sm:mt-3 text-center text-[9px] sm:text-[10px] font-black uppercase tracking-tight max-w-[80px] sm:max-w-[100px] ${
                 lvl.status === "locked" ? "text-indigo-300/50" : "text-indigo-100"
               }`}>
                 {lvl.title}

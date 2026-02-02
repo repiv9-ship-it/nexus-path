@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Sidebar, ViewType } from './Sidebar';
+import { MobileSidebar } from './MobileSidebar';
 import { Header } from './Header';
 import { QuestMap } from './views/QuestMap';
 import { NexusHub } from './views/NexusHub';
@@ -37,6 +38,8 @@ interface Level {
 }
 
 export function Dashboard({ user, onLogout }: DashboardProps) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   const getDefaultView = (): ViewType => {
     if (!user) return 'dashboard';
     switch (user.role) {
@@ -57,6 +60,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
     setView(newView);
     setSelectedCourse(null);
     setActiveLevel(null);
+    setMobileMenuOpen(false);
   };
 
   const renderContent = () => {
@@ -96,6 +100,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      {/* Desktop Sidebar */}
       <Sidebar
         user={user}
         currentView={view}
@@ -103,9 +108,19 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
         onLogout={onLogout}
       />
 
-      <main className="ml-72 min-h-screen relative pb-20">
-        <Header user={user} />
-        <div className="p-12 max-w-7xl mx-auto">
+      {/* Mobile Sidebar */}
+      <MobileSidebar
+        user={user}
+        currentView={view}
+        onViewChange={handleViewChange}
+        onLogout={onLogout}
+        isOpen={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+      />
+
+      <main className="lg:ml-72 min-h-screen relative pb-12 sm:pb-20">
+        <Header user={user} onMenuClick={() => setMobileMenuOpen(true)} />
+        <div className="p-4 sm:p-8 lg:p-12 max-w-7xl mx-auto">
           {renderContent()}
         </div>
       </main>
