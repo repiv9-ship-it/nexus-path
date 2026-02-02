@@ -49,7 +49,7 @@ const particles = Array.from({ length: 30 }, (_, i) => ({
 export function CoursePath({ course, onSelectLevel, onBack }: CoursePathProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const nodeRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const [paths, setPaths] = useState<string[]>([]);
+  const [paths, setPaths] = useState<{ d: string; isLit: boolean }[]>([]);
 
   // Find the last unlocked level index (completed or active)
   const lastUnlockedIndex = levels.reduce((lastIdx, lvl, idx) => {
@@ -60,10 +60,10 @@ export function CoursePath({ course, onSelectLevel, onBack }: CoursePathProps) {
     const calculatePaths = () => {
       if (!containerRef.current) return;
 
-      const newPaths: string[] = [];
+      const newPaths: { d: string; isLit: boolean }[] = [];
 
-      // Only draw paths up to the last unlocked level
-      for (let i = 0; i < lastUnlockedIndex; i++) {
+      // Draw ALL paths, but mark which ones are lit
+      for (let i = 0; i < levels.length - 1; i++) {
         const a = nodeRefs.current[i];
         const b = nodeRefs.current[i + 1];
         if (!a || !b) continue;
@@ -86,7 +86,9 @@ export function CoursePath({ course, onSelectLevel, onBack }: CoursePathProps) {
             ${x2} ${y2}
         `;
 
-        newPaths.push(d);
+        // Path is lit only if it connects two unlocked levels
+        const isLit = i < lastUnlockedIndex;
+        newPaths.push({ d, isLit });
       }
 
       setPaths(newPaths);
@@ -144,9 +146,13 @@ export function CoursePath({ course, onSelectLevel, onBack }: CoursePathProps) {
       {/* SVG connections */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
         <defs>
-          <linearGradient id="pathGradient" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id="pathGradientLit" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#7C83FF" />
             <stop offset="100%" stopColor="#A5B4FF" />
+          </linearGradient>
+          <linearGradient id="pathGradientDim" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#4B4F6A" />
+            <stop offset="100%" stopColor="#3D405C" />
           </linearGradient>
           <filter id="glow">
             <feGaussianBlur stdDeviation="4" result="blur" />
@@ -157,29 +163,43 @@ export function CoursePath({ course, onSelectLevel, onBack }: CoursePathProps) {
           </filter>
         </defs>
 
-        {paths.map((d, i) => (
+        {paths.map((path, i) => (
           <g key={i}>
-            {/* Base glow path */}
-            <path
-              d={d}
-              fill="none"
-              stroke="url(#pathGradient)"
-              strokeWidth="4"
-              filter="url(#glow)"
-              opacity="0.5"
-            />
-            {/* Animated flowing path */}
-            <path
-              d={d}
-              fill="none"
-              stroke="url(#pathGradient)"
-              strokeWidth="3"
-              strokeDasharray="12 8"
-              filter="url(#glow)"
-              style={{
-                animation: `flowPath 2s linear infinite`,
-              }}
-            />
+            {path.isLit ? (
+              <>
+                {/* Base glow path - lit */}
+                <path
+                  d={path.d}
+                  fill="none"
+                  stroke="url(#pathGradientLit)"
+                  strokeWidth="4"
+                  filter="url(#glow)"
+                  opacity="0.5"
+                />
+                {/* Animated flowing path - lit */}
+                <path
+                  d={path.d}
+                  fill="none"
+                  stroke="url(#pathGradientLit)"
+                  strokeWidth="3"
+                  strokeDasharray="12 8"
+                  filter="url(#glow)"
+                  style={{
+                    animation: `flowPath 2s linear infinite`,
+                  }}
+                />
+              </>
+            ) : (
+              /* Dimmed path for locked sections */
+              <path
+                d={path.d}
+                fill="none"
+                stroke="url(#pathGradientDim)"
+                strokeWidth="3"
+                strokeDasharray="8 6"
+                opacity="0.4"
+              />
+            )}
           </g>
         ))}
       </svg>
