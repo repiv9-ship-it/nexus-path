@@ -30,18 +30,18 @@ const steps = [
 
 export function HowItWorksSection() {
   return (
-    <section className="py-24 px-6 bg-sidebar text-sidebar-foreground">
+    <section className="py-16 sm:py-24 px-4 sm:px-6 bg-muted/30">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-black italic tracking-tighter mb-4">
+        <div className="text-center mb-12 sm:mb-16">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black italic tracking-tighter mb-4">
             How It Works
           </h2>
-          <p className="text-sidebar-muted font-bold uppercase tracking-widest text-sm">
+          <p className="text-muted-foreground font-bold uppercase tracking-widest text-xs sm:text-sm">
             Your journey to mastery
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 sm:gap-8">
           {steps.map((step, i) => (
             <div 
               key={i}
@@ -50,7 +50,7 @@ export function HowItWorksSection() {
             >
               {/* Connector Line */}
               {i < steps.length - 1 && (
-                <div className="hidden md:block absolute top-12 left-[60%] w-full h-0.5 bg-gradient-to-r from-primary/50 to-transparent" />
+                <div className="hidden md:block absolute top-12 left-[60%] w-full h-0.5 bg-gradient-to-r from-primary/30 to-transparent" />
               )}
 
               {/* Step Number */}
@@ -59,12 +59,12 @@ export function HowItWorksSection() {
               </div>
 
               {/* Icon */}
-              <div className="w-24 h-24 mx-auto mb-6 bg-sidebar-accent rounded-3xl flex items-center justify-center group-hover:gradient-primary transition-all duration-300">
-                <step.icon className="text-sidebar-foreground group-hover:text-primary-foreground transition-colors" size={36} />
+              <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-4 sm:mb-6 bg-card border border-border rounded-2xl sm:rounded-3xl flex items-center justify-center group-hover:gradient-primary transition-all duration-300">
+                <step.icon className="text-muted-foreground group-hover:text-primary-foreground transition-colors" size={32} />
               </div>
 
-              <h3 className="text-lg font-black italic mb-2">{step.title}</h3>
-              <p className="text-sm text-sidebar-muted leading-relaxed">
+              <h3 className="text-sm sm:text-lg font-black italic mb-2">{step.title}</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                 {step.description}
               </p>
             </div>

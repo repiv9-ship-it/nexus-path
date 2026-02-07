@@ -65,14 +65,14 @@
   }
 
   .dark {
-    --background: 222 47% 5%;
-    --foreground: 0 0% 98%;
+    --background: 230 20% 7%;
+    --foreground: 220 20% 95%;
 
-    --card: 222 47% 8%;
-    --card-foreground: 0 0% 98%;
+    --card: 230 20% 10%;
+    --card-foreground: 220 20% 95%;
 
-    --popover: 222 47% 8%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 230 20% 10%;
+    --popover-foreground: 220 20% 95%;
 
     --primary: 239 84% 67%;
     --primary-foreground: 0 0% 100%;
@@ -80,18 +80,34 @@
     --secondary: 270 75% 60%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 222 47% 15%;
-    --muted-foreground: 220 9% 65%;
+    --muted: 230 15% 16%;
+    --muted-foreground: 220 10% 55%;
 
-    --accent: 239 84% 67%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 230 15% 16%;
+    --accent-foreground: 220 20% 95%;
 
-    --destructive: 0 62% 30%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 222 47% 15%;
-    --input: 222 47% 15%;
+    --success: 142 70% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --border: 230 15% 18%;
+    --input: 230 15% 18%;
     --ring: 239 84% 67%;
+
+    --sidebar-background: 230 25% 5%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 239 84% 67%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 230 15% 14%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 230 15% 18%;
+    --sidebar-ring: 239 84% 67%;
+    --sidebar-muted: 220 10% 50%;
   }
 }
 
@@ -108,7 +124,12 @@
 
 @layer components {
   .glass-card {
-    @apply bg-white/70 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)];
+    @apply bg-card/80 backdrop-blur-xl border border-border shadow-lg;
+  }
+
+  .dark .glass-card {
+    @apply bg-card/60 border-border/60;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255,255,255,0.03);
   }
 
   .gradient-primary {
@@ -122,6 +143,10 @@
 
   .glow-primary {
     box-shadow: 0 0 50px rgba(99, 102, 241, 0.4);
+  }
+
+  .dark .glow-primary {
+    box-shadow: 0 0 60px rgba(99, 102, 241, 0.3), 0 0 120px rgba(99, 102, 241, 0.1);
   }
 
   .glow-text {

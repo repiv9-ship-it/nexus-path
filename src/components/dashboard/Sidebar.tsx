@@ -1,4 +1,4 @@
-import { Zap, Globe, Compass, Scroll, Crown, Shield, LogOut, BookOpen, Users, BarChart3, Settings, Building2 } from 'lucide-react';
+import { Zap, Globe, Compass, Scroll, Crown, Shield, LogOut, BookOpen, Users, BarChart3, Building2 } from 'lucide-react';
 import { ROLES } from '@/lib/constants';
 import type { User } from '@/lib/constants';
 
@@ -35,86 +35,73 @@ const universityNavItems: { id: ViewType; label: string; icon: typeof Globe }[] 
 export function Sidebar({ user, currentView, onViewChange, onLogout }: SidebarProps) {
   const getNavItems = () => {
     if (!user) return studentNavItems;
-    
     switch (user.role) {
-      case ROLES.PROFESSOR:
-        return professorNavItems;
-      case ROLES.UNIVERSITY_ADMIN:
-        return universityNavItems;
-      default:
-        return studentNavItems;
+      case ROLES.PROFESSOR: return professorNavItems;
+      case ROLES.UNIVERSITY_ADMIN: return universityNavItems;
+      default: return studentNavItems;
     }
   };
 
   const navItems = getNavItems();
 
   return (
-    <>
-      {/* Mobile Overlay */}
-      <div 
-        className={`fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity ${
-          false ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
-      />
-
-      <aside className="w-64 lg:w-72 bg-sidebar h-screen fixed left-0 top-0 z-50 text-sidebar-foreground p-4 lg:p-6 flex flex-col shadow-[10px_0_30px_rgba(0,0,0,0.2)] transform transition-transform lg:translate-x-0 -translate-x-full lg:block hidden">
-        {/* Logo */}
-        <div className="flex items-center gap-3 lg:gap-4 mb-8 lg:mb-12">
-          <div className="w-10 h-10 lg:w-12 lg:h-12 gradient-primary rounded-xl lg:rounded-2xl flex items-center justify-center shadow-xl glow-primary">
-            <Zap className="text-primary-foreground fill-primary-foreground" size={20} />
-          </div>
-          <h1 className="font-black text-xl lg:text-2xl tracking-tighter italic">UNILINGO</h1>
+    <aside className="w-64 lg:w-72 bg-sidebar h-screen fixed left-0 top-0 z-50 text-sidebar-foreground p-4 lg:p-6 flex flex-col shadow-2xl transform transition-transform lg:translate-x-0 -translate-x-full lg:block hidden">
+      {/* Logo */}
+      <div className="flex items-center gap-3 mb-8 lg:mb-10">
+        <div className="w-10 h-10 lg:w-11 lg:h-11 gradient-primary rounded-lg lg:rounded-xl flex items-center justify-center shadow-xl glow-primary">
+          <Zap className="text-primary-foreground fill-primary-foreground" size={18} />
         </div>
+        <h1 className="font-black text-xl tracking-tighter italic">UNILINGO</h1>
+      </div>
 
-        {/* Role Badge */}
-        {user && (
-          <div className="mb-4 lg:mb-6 px-3 lg:px-4 py-2 bg-sidebar-accent rounded-xl">
-            <p className="text-[10px] lg:text-xs font-bold text-sidebar-muted uppercase tracking-widest">Logged in as</p>
-            <p className="font-black text-sm lg:text-base text-primary">{user.role}</p>
-          </div>
-        )}
+      {/* Role Badge */}
+      {user && (
+        <div className="mb-4 lg:mb-6 px-3 py-2 bg-sidebar-accent rounded-lg lg:rounded-xl">
+          <p className="text-[10px] font-bold text-sidebar-muted uppercase tracking-widest">Logged in as</p>
+          <p className="font-black text-sm text-primary">{user.role}</p>
+        </div>
+      )}
 
-        {/* Navigation */}
-        <nav className="flex-1 space-y-1 lg:space-y-2">
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => onViewChange(item.id)}
-              className={`w-full flex items-center gap-3 lg:gap-4 px-4 lg:px-6 py-3 lg:py-4 rounded-xl lg:rounded-2xl transition-all group ${
-                currentView === item.id 
-                  ? 'gradient-primary text-primary-foreground shadow-xl' 
-                  : 'text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent'
-              }`}
-            >
-              <item.icon size={18} className={currentView === item.id ? 'text-primary-foreground' : 'group-hover:text-primary'} />
-              <span className="font-black text-sm lg:text-base tracking-tight">{item.label}</span>
-            </button>
-          ))}
-        </nav>
+      {/* Navigation */}
+      <nav className="flex-1 space-y-1">
+        {navItems.map((item) => (
+          <button
+            key={item.id}
+            onClick={() => onViewChange(item.id)}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg lg:rounded-xl transition-all group ${
+              currentView === item.id 
+                ? 'gradient-primary text-primary-foreground shadow-lg' 
+                : 'text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent'
+            }`}
+          >
+            <item.icon size={18} className={currentView === item.id ? 'text-primary-foreground' : 'group-hover:text-primary'} />
+            <span className="font-black text-sm tracking-tight">{item.label}</span>
+          </button>
+        ))}
+      </nav>
 
-        {/* User Info */}
-        {user && (
-          <div className="pt-4 lg:pt-6 border-t border-sidebar-border">
-            <div className="flex items-center gap-3 mb-3 lg:mb-4">
-              <div className="w-8 h-8 lg:w-10 lg:h-10 gradient-primary rounded-lg lg:rounded-xl flex items-center justify-center text-primary-foreground font-black text-xs lg:text-sm">
-                {user.name.charAt(0).toUpperCase()}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-black text-xs lg:text-sm truncate">{user.name}</p>
-                <p className="text-[10px] lg:text-xs text-sidebar-muted">{user.university || 'Free User'}</p>
-              </div>
+      {/* User Info */}
+      {user && (
+        <div className="pt-4 border-t border-sidebar-border">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-9 h-9 gradient-primary rounded-lg flex items-center justify-center text-primary-foreground font-black text-xs">
+              {user.name.charAt(0).toUpperCase()}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-black text-sm truncate">{user.name}</p>
+              <p className="text-[10px] text-sidebar-muted">{user.university || 'Free User'}</p>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Logout */}
-        <button 
-          onClick={onLogout}
-          className="flex items-center gap-3 text-sidebar-muted hover:text-destructive font-bold p-3 lg:p-4 transition-colors text-sm"
-        >
-          <LogOut size={18} /> Sign Off
-        </button>
-      </aside>
-    </>
+      {/* Logout */}
+      <button 
+        onClick={onLogout}
+        className="flex items-center gap-3 text-sidebar-muted hover:text-destructive font-bold p-3 transition-colors text-sm"
+      >
+        <LogOut size={18} /> Sign Off
+      </button>
+    </aside>
   );
 }
