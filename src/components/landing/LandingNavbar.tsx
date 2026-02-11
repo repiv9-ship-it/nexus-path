@@ -27,11 +27,11 @@ export function LandingNavbar({ onLogin, onSignUp }: LandingNavbarProps) {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
-            <a href="#features" className="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">
-              Features
-            </a>
-            <a href="#free-courses" className="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">
+            <a href="#courses" className="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">
               Courses
+            </a>
+            <a href="#how-it-works" className="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">
+              How It Works
             </a>
             <a href="#testimonials" className="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">
               Testimonials
@@ -71,18 +71,18 @@ export function LandingNavbar({ onLogin, onSignUp }: LandingNavbarProps) {
         {mobileMenuOpen && (
           <div className="md:hidden mt-2 glass-card rounded-xl p-3 space-y-1 animate-fade-in">
             <a 
-              href="#features" 
-              className="block py-2.5 px-4 text-sm font-bold text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Features
-            </a>
-            <a 
-              href="#free-courses" 
+              href="#courses" 
               className="block py-2.5 px-4 text-sm font-bold text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
               Courses
+            </a>
+            <a 
+              href="#how-it-works" 
+              className="block py-2.5 px-4 text-sm font-bold text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              How It Works
             </a>
             <a 
               href="#testimonials" 

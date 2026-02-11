@@ -84,7 +84,7 @@ const Index = () => {
       ) : (
         <>
           <CourseSection
-            title="🔥 Most Popular"
+            title="Most Popular"
             subtitle="Top-rated courses loved by thousands of students"
             courses={POPULAR_COURSES}
             onPreviewCourse={(id) => console.log('Preview:', id)}
@@ -92,7 +92,7 @@ const Index = () => {
           />
           <div className="border-t border-border/50" />
           <CourseSection
-            title="🆕 Newest Courses"
+            title="Newest Courses"
             subtitle="Just launched — be among the first to enroll"
             courses={NEWEST_COURSES}
             onPreviewCourse={(id) => console.log('Preview:', id)}
@@ -100,7 +100,7 @@ const Index = () => {
           />
           <div className="border-t border-border/50" />
           <CourseSection
-            title="🎯 Recommended for You"
+            title="Recommended for You"
             subtitle="Curated picks based on trending topics"
             courses={RECOMMENDED_COURSES}
             onPreviewCourse={(id) => console.log('Preview:', id)}
@@ -108,7 +108,7 @@ const Index = () => {
           />
           <div className="border-t border-border/50" />
           <CourseSection
-            title="🎓 Free Courses"
+            title="Free Courses"
             subtitle="Start learning today — completely free"
             courses={FREE_COURSES}
             onPreviewCourse={(id) => console.log('Preview:', id)}
@@ -117,7 +117,9 @@ const Index = () => {
         </>
       )}
 
-      <HowItWorksSection />
+      <div id="how-it-works">
+        <HowItWorksSection />
+      </div>
       <div id="testimonials">
         <TestimonialsSection />
       </div>
