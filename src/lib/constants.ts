@@ -27,11 +27,52 @@ export const COURSES = [
   { id: 'ethics', title: 'Digital Ethics', instructor: 'Master Sokrates', color: 'bg-success', icon: Shield, xp: 1500, progress: 0 },
 ] as const;
 
-export const FREE_COURSES = [
-  { id: 'intro-cs', title: 'Introduction to Computer Science', instructor: 'Dr. Ada', level: 'Beginner', students: 15000, rating: 4.8 },
-  { id: 'web-basics', title: 'Web Development Fundamentals', instructor: 'Prof. Tim', level: 'Beginner', students: 12000, rating: 4.7 },
-  { id: 'data-science', title: 'Data Science Essentials', instructor: 'Dr. Stats', level: 'Intermediate', students: 8500, rating: 4.6 },
+export const CATEGORIES = [
+  'All', 'Computer Science', 'Data Science', 'Business', 'Design', 'Mathematics', 'Engineering', 'Medicine', 'Languages'
 ] as const;
+
+export interface Course {
+  id: string;
+  title: string;
+  instructor: string;
+  rating: number;
+  students: number;
+  price: number;
+  originalPrice?: number;
+  level: 'Beginner' | 'Intermediate' | 'Advanced';
+  category: string;
+  thumbnail: string;
+  bestseller?: boolean;
+  isNew?: boolean;
+  hours: number;
+  lectures: number;
+}
+
+export const ALL_COURSES: Course[] = [
+  // Popular
+  { id: 'cs50', title: 'The Complete Computer Science Bootcamp', instructor: 'Dr. Ada Lovelace', rating: 4.8, students: 42500, price: 0, level: 'Beginner', category: 'Computer Science', thumbnail: '', bestseller: true, hours: 52, lectures: 340 },
+  { id: 'ml-101', title: 'Machine Learning A-Z: From Zero to Hero', instructor: 'Prof. Andrew Ng', rating: 4.9, students: 38200, price: 19.99, originalPrice: 89.99, level: 'Intermediate', category: 'Data Science', thumbnail: '', bestseller: true, hours: 44, lectures: 280 },
+  { id: 'web-dev', title: 'Full-Stack Web Development 2025', instructor: 'Tim Berners-Lee Jr.', rating: 4.7, students: 31000, price: 24.99, originalPrice: 99.99, level: 'Beginner', category: 'Computer Science', thumbnail: '', hours: 63, lectures: 420 },
+  { id: 'python', title: 'Python for Data Science & AI', instructor: 'Dr. Guido van R.', rating: 4.8, students: 28500, price: 14.99, originalPrice: 79.99, level: 'Beginner', category: 'Data Science', thumbnail: '', bestseller: true, hours: 38, lectures: 250 },
+  { id: 'design-ux', title: 'UX/UI Design Masterclass', instructor: 'Sarah Chen', rating: 4.6, students: 19800, price: 29.99, originalPrice: 109.99, level: 'Intermediate', category: 'Design', thumbnail: '', hours: 32, lectures: 210 },
+  // Newest
+  { id: 'quantum-2', title: 'Quantum Computing Fundamentals', instructor: 'Dr. Quantum', rating: 4.5, students: 3200, price: 34.99, originalPrice: 119.99, level: 'Advanced', category: 'Computer Science', thumbnail: '', isNew: true, hours: 28, lectures: 180 },
+  { id: 'ai-agents', title: 'Building AI Agents with LLMs', instructor: 'Prof. Transformer', rating: 4.7, students: 5100, price: 39.99, originalPrice: 129.99, level: 'Advanced', category: 'Data Science', thumbnail: '', isNew: true, hours: 22, lectures: 150 },
+  { id: 'rust-prog', title: 'Systems Programming with Rust', instructor: 'Ferris Crabson', rating: 4.6, students: 4800, price: 19.99, originalPrice: 89.99, level: 'Intermediate', category: 'Computer Science', thumbnail: '', isNew: true, hours: 35, lectures: 230 },
+  { id: 'biotech', title: 'Introduction to Biotechnology', instructor: 'Dr. Gene Splice', rating: 4.4, students: 2100, price: 0, level: 'Beginner', category: 'Medicine', thumbnail: '', isNew: true, hours: 18, lectures: 120 },
+  { id: 'blockchain', title: 'Blockchain & Smart Contracts', instructor: 'Satoshi Jr.', rating: 4.3, students: 6700, price: 24.99, originalPrice: 94.99, level: 'Intermediate', category: 'Engineering', thumbnail: '', isNew: true, hours: 26, lectures: 170 },
+  // Recommended
+  { id: 'math-lin', title: 'Linear Algebra for Machine Learning', instructor: 'Prof. Eigenvalue', rating: 4.7, students: 14200, price: 0, level: 'Intermediate', category: 'Mathematics', thumbnail: '', hours: 24, lectures: 160 },
+  { id: 'startup-101', title: 'Startup Masterclass: Idea to IPO', instructor: 'ElonUsk', rating: 4.5, students: 22300, price: 29.99, originalPrice: 99.99, level: 'Beginner', category: 'Business', thumbnail: '', hours: 30, lectures: 200 },
+  { id: 'cyber-sec', title: 'Cybersecurity Essentials', instructor: 'Agent Shield', rating: 4.8, students: 17600, price: 19.99, originalPrice: 84.99, level: 'Beginner', category: 'Engineering', thumbnail: '', hours: 28, lectures: 190 },
+  { id: 'german-a1', title: 'German for Beginners (A1-A2)', instructor: 'Frau Schmidt', rating: 4.6, students: 9400, price: 0, level: 'Beginner', category: 'Languages', thumbnail: '', hours: 20, lectures: 140 },
+  { id: 'deep-learn', title: 'Deep Learning Specialization', instructor: 'Prof. Neural', rating: 4.9, students: 25600, price: 44.99, originalPrice: 149.99, level: 'Advanced', category: 'Data Science', thumbnail: '', bestseller: true, hours: 48, lectures: 310 },
+];
+
+export const FREE_COURSES = ALL_COURSES.filter(c => c.price === 0);
+export const POPULAR_COURSES = ALL_COURSES.filter(c => c.bestseller);
+export const NEWEST_COURSES = ALL_COURSES.filter(c => c.isNew);
+export const RECOMMENDED_COURSES = ALL_COURSES.slice(10);
 
 export const STATS = [
   { label: 'Students Enrolled', value: 50000, suffix: '+' },
@@ -50,38 +91,13 @@ export const PARTNERS = [
 ] as const;
 
 export const SUBSCRIPTION_TIERS = [
-  { 
-    name: 'Wanderer', 
-    price: 'Free', 
-    features: ['3 Daily Lessons', 'Global Chat Access', 'Public Guilds'], 
-    icon: Ghost, 
-    popular: false 
-  },
-  { 
-    name: 'Vanguard', 
-    price: '$9.99', 
-    features: ['Unlimited Energy', 'Exclusive Badges', 'Private Guilds', 'Offline Mode'], 
-    icon: Zap, 
-    popular: true 
-  },
-  { 
-    name: 'Guild Master', 
-    price: '$24.99', 
-    features: ['All Vanguard Perks', 'Create Your Own Guild', '1-on-1 Mentorship', 'Early Beta Access'], 
-    icon: Crown, 
-    popular: false 
-  },
+  { name: 'Wanderer', price: 'Free', features: ['3 Daily Lessons', 'Global Chat Access', 'Public Guilds'], icon: Ghost, popular: false },
+  { name: 'Vanguard', price: '$9.99', features: ['Unlimited Energy', 'Exclusive Badges', 'Private Guilds', 'Offline Mode'], icon: Zap, popular: true },
+  { name: 'Guild Master', price: '$24.99', features: ['All Vanguard Perks', 'Create Your Own Guild', '1-on-1 Mentorship', 'Early Beta Access'], icon: Crown, popular: false },
 ] as const;
 
 export const FIELDS = [
-  'Computer Science',
-  'Mathematics',
-  'Physics',
-  'Engineering',
-  'Business',
-  'Medicine',
-  'Law',
-  'Arts',
+  'Computer Science', 'Mathematics', 'Physics', 'Engineering', 'Business', 'Medicine', 'Law', 'Arts',
 ] as const;
 
 export const LEVELS = ['L1', 'L2', 'L3', 'M1', 'M2', 'PhD'] as const;
