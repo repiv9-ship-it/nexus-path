@@ -33,9 +33,9 @@ export function HeroSection({ onGetStarted, onExploreCourses, onSearch }: HeroSe
         </div>
 
         {/* Headline */}
-        <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-foreground leading-[1.1]">
-          Learn without limits,{' '}
-          <span className="gradient-text">advance your career</span>
+        <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight leading-[1.1]">
+          <span className="text-foreground">Learn without limits,</span>{' '}
+          <span className="text-primary">advance your career</span>
         </h1>
         <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
           Access thousands of courses from world-class universities and instructors. Start learning today — for free.
