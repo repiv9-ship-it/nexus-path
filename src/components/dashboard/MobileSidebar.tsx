@@ -1,4 +1,4 @@
-import { Zap, Globe, Compass, Scroll, Crown, Shield, LogOut, BookOpen, Users, BarChart3, Building2, X } from 'lucide-react';
+import { Zap, Globe, Compass, Scroll, Crown, Shield, LogOut, BookOpen, Users, BarChart3, Building2, X, ClipboardList } from 'lucide-react';
 import { ROLES } from '@/lib/constants';
 import type { User } from '@/lib/constants';
 import type { ViewType } from './Sidebar';
@@ -15,7 +15,8 @@ interface MobileSidebarProps {
 const studentNavItems: { id: ViewType; label: string; icon: typeof Globe }[] = [
   { id: 'dashboard', label: 'Quest Map', icon: Globe },
   { id: 'nexus', label: 'Nexus Hub', icon: Compass },
-  { id: 'courses', label: 'Spellbook', icon: Scroll },
+  { id: 'courses', label: 'Courses', icon: Scroll },
+  { id: 'marks', label: 'Marks', icon: ClipboardList },
   { id: 'subscription', label: 'Power-Up', icon: Crown },
   { id: 'achievements', label: 'Armory', icon: Shield },
 ];
@@ -23,13 +24,16 @@ const studentNavItems: { id: ViewType; label: string; icon: typeof Globe }[] = [
 const professorNavItems: { id: ViewType; label: string; icon: typeof Globe }[] = [
   { id: 'professor', label: 'Command Center', icon: BarChart3 },
   { id: 'courses', label: 'My Courses', icon: BookOpen },
+  { id: 'marks', label: 'Student Marks', icon: ClipboardList },
   { id: 'achievements', label: 'Armory', icon: Shield },
 ];
 
 const universityNavItems: { id: ViewType; label: string; icon: typeof Globe }[] = [
   { id: 'university', label: 'Control Tower', icon: Building2 },
-  { id: 'nexus', label: 'Staff', icon: Users },
+  { id: 'dashboard', label: 'Dashboard', icon: Globe },
   { id: 'courses', label: 'All Courses', icon: BookOpen },
+  { id: 'marks', label: 'Marks', icon: ClipboardList },
+  { id: 'nexus', label: 'Staff', icon: Users },
   { id: 'subscription', label: 'Billing', icon: Crown },
 ];
 
