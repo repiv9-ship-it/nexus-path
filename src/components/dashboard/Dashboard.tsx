@@ -9,6 +9,7 @@ import { CoursePath } from './views/CoursePath';
 import { LevelContent } from './views/LevelContent';
 import { SubscriptionPage } from './views/SubscriptionPage';
 import { Achievements } from './views/Achievements';
+import { MarksSection } from './views/MarksSection';
 import { ProfessorDashboard } from './views/professor/ProfessorDashboard';
 import { UniversityDashboard } from './views/university/UniversityDashboard';
 import { ROLES } from '@/lib/constants';
@@ -84,9 +85,11 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
       case 'nexus':
         return <NexusHub />;
       case 'courses':
-        return <SpellbookLibrary onSelectCourse={setSelectedCourse} />;
+        return <SpellbookLibrary onSelectCourse={setSelectedCourse} user={user} />;
       case 'subscription':
         return <SubscriptionPage />;
+      case 'marks':
+        return <MarksSection />;
       case 'achievements':
         return <Achievements />;
       case 'professor':
