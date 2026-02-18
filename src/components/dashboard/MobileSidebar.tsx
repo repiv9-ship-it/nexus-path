@@ -1,4 +1,4 @@
-import { Zap, Globe, Compass, Scroll, Crown, Shield, LogOut, BookOpen, Users, BarChart3, Building2, X, ClipboardList } from 'lucide-react';
+import { Home, BookOpen, Compass, Trophy, Crown, LogOut, BarChart3, Users, Building2, ClipboardList, Calendar, GraduationCap, Zap, X } from 'lucide-react';
 import { ROLES } from '@/lib/constants';
 import type { User } from '@/lib/constants';
 import type { ViewType } from './Sidebar';
@@ -12,25 +12,39 @@ interface MobileSidebarProps {
   onClose: () => void;
 }
 
-const studentNavItems: { id: ViewType; label: string; icon: typeof Globe }[] = [
-  { id: 'dashboard', label: 'Quest Map', icon: Globe },
-  { id: 'nexus', label: 'Nexus Hub', icon: Compass },
-  { id: 'courses', label: 'Courses', icon: Scroll },
-  { id: 'marks', label: 'Marks', icon: ClipboardList },
-  { id: 'subscription', label: 'Power-Up', icon: Crown },
-  { id: 'achievements', label: 'Armory', icon: Shield },
+const studentNavItems: { id: ViewType; label: string; icon: typeof Home }[] = [
+  { id: 'home', label: 'Home', icon: Home },
+  { id: 'my-courses', label: 'My Courses', icon: BookOpen },
+  { id: 'explore', label: 'Explore', icon: Compass },
+  { id: 'badges', label: 'Badges & Rewards', icon: Trophy },
+  { id: 'subscription', label: 'Plans', icon: Crown },
 ];
 
-const professorNavItems: { id: ViewType; label: string; icon: typeof Globe }[] = [
+const uniStudentMainNavItems: { id: ViewType; label: string; icon: typeof Home }[] = [
+  { id: 'home', label: 'Home', icon: Home },
+  { id: 'my-courses', label: 'My Courses', icon: BookOpen },
+  { id: 'explore', label: 'Explore', icon: Compass },
+  { id: 'badges', label: 'Badges & Rewards', icon: Trophy },
+  { id: 'subscription', label: 'Plans', icon: Crown },
+];
+
+const uniStudentUniNavItems: { id: ViewType; label: string; icon: typeof Home }[] = [
+  { id: 'uni_courses', label: 'Courses', icon: ClipboardList },
+  { id: 'uni_marks', label: 'Marks', icon: BarChart3 },
+  { id: 'schedule', label: 'Schedule', icon: Calendar },
+  { id: 'academic_center', label: 'Academic Center', icon: GraduationCap },
+];
+
+const professorNavItems: { id: ViewType; label: string; icon: typeof Home }[] = [
   { id: 'professor', label: 'Command Center', icon: BarChart3 },
   { id: 'courses', label: 'My Courses', icon: BookOpen },
   { id: 'marks', label: 'Student Marks', icon: ClipboardList },
-  { id: 'achievements', label: 'Armory', icon: Shield },
+  { id: 'achievements', label: 'Armory', icon: Trophy },
 ];
 
-const universityNavItems: { id: ViewType; label: string; icon: typeof Globe }[] = [
+const universityNavItems: { id: ViewType; label: string; icon: typeof Home }[] = [
   { id: 'university', label: 'Control Tower', icon: Building2 },
-  { id: 'dashboard', label: 'Dashboard', icon: Globe },
+  { id: 'dashboard', label: 'Dashboard', icon: Home },
   { id: 'courses', label: 'All Courses', icon: BookOpen },
   { id: 'marks', label: 'Marks', icon: ClipboardList },
   { id: 'nexus', label: 'Staff', icon: Users },
@@ -38,38 +52,39 @@ const universityNavItems: { id: ViewType; label: string; icon: typeof Globe }[] 
 ];
 
 export function MobileSidebar({ user, currentView, onViewChange, onLogout, isOpen, onClose }: MobileSidebarProps) {
-  const getNavItems = () => {
-    if (!user) return studentNavItems;
-    
-    switch (user.role) {
-      case ROLES.PROFESSOR:
-        return professorNavItems;
-      case ROLES.UNIVERSITY_ADMIN:
-        return universityNavItems;
-      default:
-        return studentNavItems;
-    }
+  const isUniStudent = user?.role === ROLES.UNIVERSITY_STUDENT;
+  const isProfessor = user?.role === ROLES.PROFESSOR;
+  const isUniAdmin = user?.role === ROLES.UNIVERSITY_ADMIN;
+
+  const getNavData = () => {
+    if (isProfessor) return { main: professorNavItems, uni: [] };
+    if (isUniAdmin) return { main: universityNavItems, uni: [] };
+    if (isUniStudent) return { main: uniStudentMainNavItems, uni: uniStudentUniNavItems };
+    return { main: studentNavItems, uni: [] };
   };
 
-  const navItems = getNavItems();
+  const { main: mainNavItems, uni: uniNavItems } = getNavData();
+
+  const handleNavClick = (view: ViewType) => {
+    onViewChange(view);
+    onClose();
+  };
 
   return (
     <>
-      {/* Overlay */}
-      <div 
+      <div
         className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300 ${
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
         onClick={onClose}
       />
 
-      {/* Sidebar */}
-      <aside 
-        className={`fixed left-0 top-0 bottom-0 w-72 bg-sidebar z-50 text-sidebar-foreground p-5 flex flex-col shadow-2xl lg:hidden transform transition-transform duration-300 ease-out ${
+      <aside
+        className={`fixed left-0 top-0 bottom-0 w-72 bg-sidebar z-50 text-sidebar-foreground p-5 flex flex-col shadow-2xl lg:hidden transform transition-transform duration-300 ease-out overflow-y-auto ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        {/* Header with close button */}
+        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center shadow-xl glow-primary">
@@ -95,13 +110,13 @@ export function MobileSidebar({ user, currentView, onViewChange, onLogout, isOpe
 
         {/* Navigation */}
         <nav className="flex-1 space-y-1">
-          {navItems.map((item) => (
+          {mainNavItems.map((item) => (
             <button
               key={item.id}
-              onClick={() => onViewChange(item.id)}
+              onClick={() => handleNavClick(item.id)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all group ${
-                currentView === item.id 
-                  ? 'gradient-primary text-primary-foreground shadow-xl' 
+                currentView === item.id
+                  ? 'gradient-primary text-primary-foreground shadow-xl'
                   : 'text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent'
               }`}
             >
@@ -109,6 +124,34 @@ export function MobileSidebar({ user, currentView, onViewChange, onLogout, isOpe
               <span className="font-black text-sm tracking-tight">{item.label}</span>
             </button>
           ))}
+
+          {uniNavItems.length > 0 && (
+            <>
+              <div className="pt-4 pb-2">
+                <div className="flex items-center gap-2 px-2">
+                  <div className="flex-1 h-px bg-sidebar-border" />
+                  <span className="text-[10px] font-black text-sidebar-muted uppercase tracking-widest flex items-center gap-1">
+                    <GraduationCap size={10} /> University
+                  </span>
+                  <div className="flex-1 h-px bg-sidebar-border" />
+                </div>
+              </div>
+              {uniNavItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavClick(item.id)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all group ${
+                    currentView === item.id
+                      ? 'gradient-primary text-primary-foreground shadow-xl'
+                      : 'text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent'
+                  }`}
+                >
+                  <item.icon size={18} className={currentView === item.id ? 'text-primary-foreground' : 'group-hover:text-primary'} />
+                  <span className="font-black text-sm tracking-tight">{item.label}</span>
+                </button>
+              ))}
+            </>
+          )}
         </nav>
 
         {/* User Info */}
@@ -120,18 +163,18 @@ export function MobileSidebar({ user, currentView, onViewChange, onLogout, isOpe
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-black text-xs truncate">{user.name}</p>
-                <p className="text-[10px] text-sidebar-muted">{user.university || 'Free User'}</p>
+                <p className="text-[10px] text-sidebar-muted">{user.university || 'Free Learner'}</p>
               </div>
             </div>
           </div>
         )}
 
         {/* Logout */}
-        <button 
+        <button
           onClick={onLogout}
           className="flex items-center gap-3 text-sidebar-muted hover:text-destructive font-bold p-3 transition-colors text-sm"
         >
-          <LogOut size={18} /> Sign Off
+          <LogOut size={18} /> Sign Out
         </button>
       </aside>
     </>

@@ -2,7 +2,8 @@ import { Scroll, Zap, Shield, Sparkles, Rocket, Globe, Crown, Ghost, Lock } from
 
 export const ROLES = {
   GUEST: 'Wanderer',
-  STUDENT: 'Vanguard',
+  STUDENT: 'Student',
+  UNIVERSITY_STUDENT: 'University Student',
   PROFESSOR: 'Architect',
   UNIVERSITY_ADMIN: 'Overlord',
   ADMIN: 'Supreme',
