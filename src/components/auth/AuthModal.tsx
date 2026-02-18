@@ -89,14 +89,15 @@ export function AuthModal({ isOpen, onClose, onAuth, initialMode = 'signup' }: A
   const handleLogin = async () => {
     if (!validateLoginForm()) return;
     setIsLoading(true);
-    
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
     let role: string = ROLES.STUDENT;
+    let university: string | undefined;
     if (formData.email.includes('prof')) role = ROLES.PROFESSOR;
     else if (formData.email.includes('admin')) role = ROLES.UNIVERSITY_ADMIN;
-    
+    else if (formData.email.includes('uni')) {
+      role = ROLES.UNIVERSITY_STUDENT;
+      university = 'MIT Tech-Nexus';
+    }
     setIsLoading(false);
     onAuth({
       name: formData.email.split('@')[0],
@@ -104,7 +105,7 @@ export function AuthModal({ isOpen, onClose, onAuth, initialMode = 'signup' }: A
       xp: 1240,
       streak: 12,
       gems: 350,
-      university: 'MIT Tech-Nexus',
+      university,
     });
   };
 
@@ -134,8 +135,8 @@ export function AuthModal({ isOpen, onClose, onAuth, initialMode = 'signup' }: A
     switch (joinType) {
       case 'professor': role = ROLES.PROFESSOR; break;
       case 'university_admin': role = ROLES.UNIVERSITY_ADMIN; break;
-      case 'invited': role = ROLES.STUDENT; break;
-      default: role = ROLES.GUEST;
+      case 'invited': role = ROLES.UNIVERSITY_STUDENT; break;
+      default: role = ROLES.STUDENT;
     }
     onAuth({
       name: formData.name || 'New User',
@@ -143,7 +144,7 @@ export function AuthModal({ isOpen, onClose, onAuth, initialMode = 'signup' }: A
       xp: 0,
       streak: 0,
       gems: 100,
-      university: joinType !== 'free' ? formData.university || undefined : undefined,
+      university: joinType === 'invited' ? formData.university || 'MIT Tech-Nexus' : undefined,
     });
   };
 

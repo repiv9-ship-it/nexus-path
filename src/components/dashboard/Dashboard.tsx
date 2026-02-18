@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Sidebar, ViewType } from './Sidebar';
 import { MobileSidebar } from './MobileSidebar';
 import { Header } from './Header';
-import { QuestMap } from './views/QuestMap';
+import { HomeView } from './views/HomeView';
 import { NexusHub } from './views/NexusHub';
 import { SpellbookLibrary } from './views/SpellbookLibrary';
 import { CoursePath } from './views/CoursePath';
@@ -12,6 +12,10 @@ import { Achievements } from './views/Achievements';
 import { MarksSection } from './views/MarksSection';
 import { ProfessorDashboard } from './views/professor/ProfessorDashboard';
 import { UniversityDashboard } from './views/university/UniversityDashboard';
+import { UniCoursesView } from './views/university/UniCoursesView';
+import { UniMarksView } from './views/university/UniMarksView';
+import { ScheduleView } from './views/university/ScheduleView';
+import { AcademicCenterView } from './views/university/AcademicCenterView';
 import { ROLES } from '@/lib/constants';
 import type { User } from '@/lib/constants';
 
@@ -42,14 +46,11 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const getDefaultView = (): ViewType => {
-    if (!user) return 'dashboard';
+    if (!user) return 'home';
     switch (user.role) {
-      case ROLES.PROFESSOR:
-        return 'professor';
-      case ROLES.UNIVERSITY_ADMIN:
-        return 'university';
-      default:
-        return 'dashboard';
+      case ROLES.PROFESSOR: return 'professor';
+      case ROLES.UNIVERSITY_ADMIN: return 'university';
+      default: return 'home';
     }
   };
 
@@ -80,30 +81,54 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
     }
 
     switch (view) {
-      case 'dashboard':
-        return <QuestMap user={user} onNavigate={handleViewChange} />;
-      case 'nexus':
-        return <NexusHub />;
-      case 'courses':
+      // New student views (clean labels)
+      case 'home':
+        return <HomeView user={user} onNavigate={handleViewChange} />;
+      case 'my-courses':
         return <SpellbookLibrary onSelectCourse={setSelectedCourse} user={user} />;
-      case 'subscription':
-        return <SubscriptionPage />;
-      case 'marks':
-        return <MarksSection />;
+      case 'explore':
+        return <NexusHub />;
+      case 'badges':
       case 'achievements':
         return <Achievements />;
+      case 'subscription':
+        return <SubscriptionPage />;
+
+      // University-specific views
+      case 'uni_courses':
+        return <UniCoursesView />;
+      case 'uni_marks':
+        return <UniMarksView />;
+      case 'schedule':
+        return <ScheduleView />;
+      case 'academic_center':
+        return <AcademicCenterView />;
+
+      // Legacy marks (professor context)
+      case 'marks':
+        return <MarksSection />;
+
+      // Admin/Professor views (unchanged)
       case 'professor':
         return <ProfessorDashboard />;
       case 'university':
         return <UniversityDashboard />;
+
+      // Legacy support
+      case 'courses':
+        return <SpellbookLibrary onSelectCourse={setSelectedCourse} user={user} />;
+      case 'nexus':
+        return <NexusHub />;
+      case 'dashboard':
+        return <HomeView user={user} onNavigate={handleViewChange} />;
+
       default:
-        return <QuestMap user={user} onNavigate={handleViewChange} />;
+        return <HomeView user={user} onNavigate={handleViewChange} />;
     }
   };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Desktop Sidebar */}
       <Sidebar
         user={user}
         currentView={view}
@@ -111,7 +136,6 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
         onLogout={onLogout}
       />
 
-      {/* Mobile Sidebar */}
       <MobileSidebar
         user={user}
         currentView={view}
@@ -122,7 +146,11 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
       />
 
       <main className="lg:ml-72 min-h-screen relative pb-12 sm:pb-20">
-        <Header user={user} onMenuClick={() => setMobileMenuOpen(true)} />
+        <Header
+          user={user}
+          onMenuClick={() => setMobileMenuOpen(true)}
+          onNavigate={handleViewChange}
+        />
         <div className="p-4 sm:p-8 lg:p-12 max-w-7xl mx-auto">
           {renderContent()}
         </div>
