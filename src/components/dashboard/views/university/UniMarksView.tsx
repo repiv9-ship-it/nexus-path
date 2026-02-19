@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, TrendingUp, Award, Download, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { ChevronDown, ChevronUp, TrendingUp, Award, Download, CheckCircle, XCircle, Clock, Eye, FileText, X } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
 
 interface SubjectMark {
   id: string;
@@ -113,10 +114,12 @@ function StatusBadge({ status }: { status: SubjectMark['status'] }) {
   );
 }
 
-function SemesterSection({ semester, isExpanded, onToggle }: {
+function SemesterSection({ semester, isExpanded, onToggle, viewingPaperId, onViewPaper }: {
   semester: SemesterData;
   isExpanded: boolean;
   onToggle: () => void;
+  viewingPaperId: string | null;
+  onViewPaper: (id: string | null) => void;
 }) {
   const groupedSubjects = semester.subjects.reduce((acc, s) => {
     if (!acc[s.moduleGroup]) acc[s.moduleGroup] = [];
@@ -171,28 +174,71 @@ function SemesterSection({ semester, isExpanded, onToggle }: {
                       <th className="text-center px-3 py-2 text-[10px] font-black uppercase tracking-wider text-muted-foreground">Average</th>
                       <th className="text-center px-3 py-2 text-[10px] font-black uppercase tracking-wider text-muted-foreground">Credits</th>
                       <th className="text-center px-3 py-2 text-[10px] font-black uppercase tracking-wider text-muted-foreground">Status</th>
+                      <th className="text-center px-3 py-2 text-[10px] font-black uppercase tracking-wider text-muted-foreground">Paper</th>
                     </tr>
                   </thead>
                   <tbody>
                     {subjects.map(s => (
-                      <tr key={s.id} className="border-b border-border/30 hover:bg-muted/20 transition-colors">
-                        <td className="px-4 sm:px-5 py-3">
-                          <p className="font-black text-sm">{s.name}</p>
-                          <p className="text-muted-foreground text-[10px] font-bold">{s.code}</p>
-                        </td>
-                        <td className="text-center px-3 py-3"><GradeCell value={s.tdGrade} max={s.maxGrade} /></td>
-                        <td className="text-center px-3 py-3"><GradeCell value={s.examGrade} max={s.maxGrade} /></td>
-                        <td className="text-center px-3 py-3">
-                          {s.average !== undefined ? (
-                            <div>
-                              <GradeCell value={s.average} max={s.maxGrade} />
-                              <span className="text-muted-foreground text-[10px]">/20</span>
-                            </div>
-                          ) : <span className="text-muted-foreground text-xs">—</span>}
-                        </td>
-                        <td className="text-center px-3 py-3 font-bold text-sm">{s.credits}</td>
-                        <td className="text-center px-3 py-3"><StatusBadge status={s.status} /></td>
-                      </tr>
+                      <>
+                        <tr key={s.id} className="border-b border-border/30 hover:bg-muted/20 transition-colors">
+                          <td className="px-4 sm:px-5 py-3">
+                            <p className="font-black text-sm">{s.name}</p>
+                            <p className="text-muted-foreground text-[10px] font-bold">{s.code}</p>
+                          </td>
+                          <td className="text-center px-3 py-3"><GradeCell value={s.tdGrade} max={s.maxGrade} /></td>
+                          <td className="text-center px-3 py-3"><GradeCell value={s.examGrade} max={s.maxGrade} /></td>
+                          <td className="text-center px-3 py-3">
+                            {s.average !== undefined ? (
+                              <div>
+                                <GradeCell value={s.average} max={s.maxGrade} />
+                                <span className="text-muted-foreground text-[10px]">/20</span>
+                              </div>
+                            ) : <span className="text-muted-foreground text-xs">—</span>}
+                          </td>
+                          <td className="text-center px-3 py-3 font-bold text-sm">{s.credits}</td>
+                          <td className="text-center px-3 py-3"><StatusBadge status={s.status} /></td>
+                          <td className="text-center px-3 py-3">
+                            {s.examGrade !== undefined ? (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2 text-xs font-black text-primary hover:text-primary"
+                                onClick={() => onViewPaper(s.id === viewingPaperId ? null : s.id)}
+                              >
+                                <Eye size={13} className="mr-1" />
+                                {s.id === viewingPaperId ? 'Close' : 'View'}
+                              </Button>
+                            ) : <span className="text-muted-foreground text-xs">—</span>}
+                          </td>
+                        </tr>
+                        {s.id === viewingPaperId && (
+                          <tr key={`paper-${s.id}`}>
+                            <td colSpan={7} className="px-4 sm:px-5 pb-4 pt-2">
+                              <div className="glass-card rounded-xl p-5 border-primary/20">
+                                <div className="flex items-center justify-between mb-4">
+                                  <div className="flex items-center gap-2">
+                                    <FileText size={16} className="text-primary" />
+                                    <span className="font-black text-sm">Exam Paper — {s.name}</span>
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <Button variant="outline" size="sm" className="h-7 text-xs font-black">
+                                      <Download size={12} className="mr-1" /> PDF
+                                    </Button>
+                                    <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => onViewPaper(null)}>
+                                      <X size={12} />
+                                    </Button>
+                                  </div>
+                                </div>
+                                <div className="bg-muted/30 rounded-xl p-8 min-h-[180px] flex flex-col items-center justify-center text-center border border-dashed border-border">
+                                  <FileText size={40} className="text-muted-foreground/30 mb-3" />
+                                  <p className="font-bold text-sm text-muted-foreground">Exam paper preview</p>
+                                  <p className="text-muted-foreground text-xs mt-1">PDF viewer integration coming soon</p>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </>
                     ))}
                   </tbody>
                 </table>
@@ -208,6 +254,7 @@ function SemesterSection({ semester, isExpanded, onToggle }: {
 export function UniMarksView() {
   const [selectedYear, setSelectedYear] = useState<YearData>(MARKS_DATA[1]); // Year 2 by default
   const [expandedSems, setExpandedSems] = useState<Set<string>>(new Set(['s3']));
+  const [viewingPaperId, setViewingPaperId] = useState<string | null>(null);
 
   const toggleSem = (id: string) => {
     setExpandedSems(prev => {
@@ -335,6 +382,8 @@ export function UniMarksView() {
             semester={sem}
             isExpanded={expandedSems.has(sem.id)}
             onToggle={() => toggleSem(sem.id)}
+            viewingPaperId={viewingPaperId}
+            onViewPaper={setViewingPaperId}
           />
         ))}
       </div>
