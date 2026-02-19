@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { Users, Briefcase, BookOpen, Mail, Clock, MapPin, MessageSquare, Upload, CheckCircle, AlertTriangle, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
+import { Users, Briefcase, BookOpen, Mail, Clock, MapPin, MessageSquare, Upload, CheckCircle, AlertTriangle, ExternalLink, ChevronDown, ChevronUp, FileText, Plus, X, ChevronRight, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 
 // ===================== DATA =====================
 interface Professor {
@@ -321,12 +323,241 @@ function AttendanceTab() {
   );
 }
 
+// ===================== DOCUMENT REQUESTS TAB =====================
+
+type RequestType = 'attestation_presence' | 'attestation_inscription' | 'recorrection_examen';
+type RequestStatus = 'en_attente' | 'en_cours' | 'traite' | 'rejete';
+
+interface DocumentRequest {
+  id: string;
+  type: RequestType;
+  status: RequestStatus;
+  createdAt: string;
+  comment?: string;
+  examSubject?: string;
+  examType?: string;
+  adminNote?: string;
+}
+
+const REQUEST_TYPE_CONFIG: Record<RequestType, { label: string; description: string; icon: typeof FileText }> = {
+  attestation_presence: { label: 'Attestation de Présence', description: 'Certifie votre présence régulière aux cours', icon: CheckCircle },
+  attestation_inscription: { label: "Attestation d'Inscription", description: 'Confirme votre inscription à l\'université pour l\'année en cours', icon: FileText },
+  recorrection_examen: { label: "Demande de Recorrection", description: 'Demande une révision de la correction d\'un examen', icon: RefreshCw },
+};
+
+const STATUS_CONFIG: Record<RequestStatus, { label: string; color: string; bg: string }> = {
+  en_attente:  { label: 'En attente',           color: 'text-warning',     bg: 'bg-warning/10 border-warning/30' },
+  en_cours:    { label: 'En cours de traitement', color: 'text-primary',    bg: 'bg-primary/10 border-primary/30' },
+  traite:      { label: 'Traité',                color: 'text-success',     bg: 'bg-success/10 border-success/30' },
+  rejete:      { label: 'Rejeté',                color: 'text-destructive', bg: 'bg-destructive/10 border-destructive/30' },
+};
+
+const MOCK_SUBJECTS = [
+  { id: 's1', name: 'Advanced Algorithms', exams: ['Midterm', 'Final'] },
+  { id: 's2', name: 'Neural Networks', exams: ['Midterm', 'Quiz 1'] },
+  { id: 's3', name: 'Digital Ethics', exams: ['Final'] },
+  { id: 's4', name: 'Operating Systems', exams: ['Midterm', 'Final'] },
+  { id: 's5', name: 'Software Engineering', exams: ['Assignment 1', 'Midterm'] },
+];
+
+function DocumentRequestsTab() {
+  const [requests, setRequests] = useState<DocumentRequest[]>([
+    { id: 'r1', type: 'attestation_inscription', status: 'traite', createdAt: '2026-01-10', adminNote: 'Document disponible au secrétariat.' },
+    { id: 'r2', type: 'recorrection_examen', status: 'en_cours', createdAt: '2026-02-12', examSubject: 'Neural Networks', examType: 'Midterm', comment: 'Je pense que la question 3 a été mal corrigée.' },
+  ]);
+
+  const [showForm, setShowForm] = useState(false);
+  const [formType, setFormType] = useState<RequestType>('attestation_presence');
+  const [formSubject, setFormSubject] = useState('');
+  const [formExam, setFormExam] = useState('');
+  const [formComment, setFormComment] = useState('');
+
+  const selectedSubjectData = MOCK_SUBJECTS.find(s => s.id === formSubject);
+
+  const handleSubmit = () => {
+    const newReq: DocumentRequest = {
+      id: `r${Date.now()}`,
+      type: formType,
+      status: 'en_attente',
+      createdAt: new Date().toISOString().split('T')[0],
+      comment: formComment || undefined,
+      examSubject: formType === 'recorrection_examen' ? selectedSubjectData?.name : undefined,
+      examType: formType === 'recorrection_examen' ? formExam : undefined,
+    };
+    setRequests(prev => [newReq, ...prev]);
+    setShowForm(false);
+    setFormType('attestation_presence');
+    setFormSubject('');
+    setFormExam('');
+    setFormComment('');
+  };
+
+  return (
+    <div className="space-y-5">
+      {/* New request button */}
+      <div className="flex justify-between items-center">
+        <p className="text-muted-foreground font-bold text-sm">{requests.length} demande{requests.length > 1 ? 's' : ''} soumise{requests.length > 1 ? 's' : ''}</p>
+        <Button
+          className="gradient-primary font-black text-sm h-9"
+          onClick={() => setShowForm(v => !v)}
+        >
+          {showForm ? <><X size={14} className="mr-1.5" /> Annuler</> : <><Plus size={14} className="mr-1.5" /> Nouvelle Demande</>}
+        </Button>
+      </div>
+
+      {/* New Request Form */}
+      {showForm && (
+        <div className="glass-card p-5 rounded-2xl space-y-4 border-primary/20">
+          <h4 className="font-black text-sm uppercase tracking-widest text-primary">Nouvelle Demande</h4>
+
+          {/* Type selector */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {(Object.entries(REQUEST_TYPE_CONFIG) as [RequestType, typeof REQUEST_TYPE_CONFIG[RequestType]][]).map(([key, cfg]) => {
+              const Icon = cfg.icon;
+              return (
+                <button
+                  key={key}
+                  onClick={() => { setFormType(key); setFormSubject(''); setFormExam(''); }}
+                  className={`p-4 rounded-xl text-left transition-all border ${
+                    formType === key
+                      ? 'border-primary bg-primary/10'
+                      : 'glass-card hover:border-primary/30'
+                  }`}
+                >
+                  <Icon size={18} className={`mb-2 ${formType === key ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <p className={`font-black text-xs leading-tight ${formType === key ? 'text-primary' : ''}`}>{cfg.label}</p>
+                  <p className="text-muted-foreground text-[10px] mt-1">{cfg.description}</p>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Exam selection for recorrection */}
+          {formType === 'recorrection_examen' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-black uppercase tracking-wider text-muted-foreground mb-1.5 block">Matière *</label>
+                <Select value={formSubject} onValueChange={(v) => { setFormSubject(v); setFormExam(''); }}>
+                  <SelectTrigger className="h-10 rounded-xl font-bold text-sm">
+                    <SelectValue placeholder="Sélectionner une matière" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {MOCK_SUBJECTS.map(s => (
+                      <SelectItem key={s.id} value={s.id} className="font-bold">{s.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {formSubject && (
+                <div>
+                  <label className="text-xs font-black uppercase tracking-wider text-muted-foreground mb-1.5 block">Examen *</label>
+                  <Select value={formExam} onValueChange={setFormExam}>
+                    <SelectTrigger className="h-10 rounded-xl font-bold text-sm">
+                      <SelectValue placeholder="Sélectionner un examen" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {selectedSubjectData?.exams.map(e => (
+                        <SelectItem key={e} value={e} className="font-bold">{e}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Comment */}
+          <div>
+            <label className="text-xs font-black uppercase tracking-wider text-muted-foreground mb-1.5 block">
+              {formType === 'recorrection_examen' ? 'Motif de la demande' : 'Commentaire (optionnel)'}
+            </label>
+            <Textarea
+              value={formComment}
+              onChange={e => setFormComment(e.target.value)}
+              placeholder={formType === 'recorrection_examen' ? 'Expliquez pourquoi vous demandez une recorrection...' : 'Informations supplémentaires...'}
+              className="rounded-xl text-sm min-h-[80px] resize-none"
+            />
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" size="sm" className="font-black" onClick={() => setShowForm(false)}>Annuler</Button>
+            <Button
+              className="gradient-primary font-black text-sm"
+              size="sm"
+              disabled={formType === 'recorrection_examen' && (!formSubject || !formExam)}
+              onClick={handleSubmit}
+            >
+              Soumettre la Demande
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Requests list */}
+      {requests.length === 0 ? (
+        <div className="text-center py-16 text-muted-foreground">
+          <FileText size={40} className="mx-auto mb-3 opacity-30" />
+          <p className="font-bold">Aucune demande soumise</p>
+          <p className="text-xs mt-1">Cliquez sur "Nouvelle Demande" pour commencer</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {requests.map(req => {
+            const cfg = REQUEST_TYPE_CONFIG[req.type];
+            const statusCfg = STATUS_CONFIG[req.status];
+            const Icon = cfg.icon;
+            return (
+              <div key={req.id} className="glass-card p-4 sm:p-5 rounded-2xl">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+                    <Icon size={18} className="text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-3 flex-wrap">
+                      <div>
+                        <p className="font-black text-sm">{cfg.label}</p>
+                        {req.examSubject && (
+                          <p className="text-muted-foreground text-xs font-bold mt-0.5">
+                            {req.examSubject} — {req.examType}
+                          </p>
+                        )}
+                        {req.comment && (
+                          <p className="text-muted-foreground text-xs mt-1 italic">"{req.comment}"</p>
+                        )}
+                        {req.adminNote && (
+                          <div className="mt-2 px-3 py-2 bg-muted/50 rounded-lg">
+                            <p className="text-xs font-black text-muted-foreground uppercase tracking-wider mb-0.5">Note administrative</p>
+                            <p className="text-xs">{req.adminNote}</p>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-col items-end gap-2 shrink-0">
+                        <span className={`px-3 py-1 rounded-full text-[11px] font-black border ${statusCfg.bg} ${statusCfg.color}`}>
+                          {statusCfg.label}
+                        </span>
+                        <p className="text-[10px] text-muted-foreground font-bold">
+                          {new Date(req.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ===================== MAIN COMPONENT =====================
 
 const TABS = [
   { id: 'professors', label: 'Professors Directory', icon: Users },
   { id: 'internships', label: 'Internships', icon: Briefcase },
   { id: 'attendance', label: 'Attendance', icon: BookOpen },
+  { id: 'requests', label: 'Mes Demandes', icon: FileText },
 ] as const;
 
 type Tab = typeof TABS[number]['id'];
@@ -340,7 +571,7 @@ export function AcademicCenterView() {
       <div>
         <h2 className="text-2xl sm:text-4xl font-black italic tracking-tighter leading-none">ACADEMIC CENTER</h2>
         <p className="text-muted-foreground font-bold uppercase text-xs tracking-widest mt-1">
-          Faculty · Internships · Attendance
+          Faculty · Internships · Attendance · Demandes
         </p>
       </div>
 
@@ -369,6 +600,7 @@ export function AcademicCenterView() {
       {activeTab === 'professors' && <ProfessorsTab />}
       {activeTab === 'internships' && <InternshipsTab />}
       {activeTab === 'attendance' && <AttendanceTab />}
+      {activeTab === 'requests' && <DocumentRequestsTab />}
     </div>
   );
 }

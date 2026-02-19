@@ -82,6 +82,53 @@ export type Database = {
           },
         ]
       }
+      document_requests: {
+        Row: {
+          admin_note: string | null
+          comment: string | null
+          created_at: string
+          exam_type: string | null
+          id: string
+          request_type: string
+          status: string
+          subject_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          comment?: string | null
+          created_at?: string
+          exam_type?: string | null
+          id?: string
+          request_type: string
+          status?: string
+          subject_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          comment?: string | null
+          created_at?: string
+          exam_type?: string | null
+          id?: string
+          request_type?: string
+          status?: string
+          subject_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_requests_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exam_schedule: {
         Row: {
           created_at: string
