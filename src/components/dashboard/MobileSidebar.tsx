@@ -29,6 +29,7 @@ const uniStudentMainNavItems: { id: ViewType; label: string; icon: typeof Home }
 ];
 
 const uniStudentUniNavItems: { id: ViewType; label: string; icon: typeof Home }[] = [
+  { id: 'uni_home', label: 'University Home', icon: Building2 },
   { id: 'uni_courses', label: 'Courses', icon: ClipboardList },
   { id: 'uni_marks', label: 'Marks', icon: BarChart3 },
   { id: 'schedule', label: 'Schedule', icon: Calendar },
