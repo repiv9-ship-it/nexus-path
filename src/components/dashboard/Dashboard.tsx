@@ -12,6 +12,7 @@ import { Achievements } from './views/Achievements';
 import { MarksSection } from './views/MarksSection';
 import { ProfessorDashboard } from './views/professor/ProfessorDashboard';
 import { UniversityDashboard } from './views/university/UniversityDashboard';
+import { UniHomeView } from './views/university/UniHomeView';
 import { UniCoursesView } from './views/university/UniCoursesView';
 import { UniMarksView } from './views/university/UniMarksView';
 import { ScheduleView } from './views/university/ScheduleView';
@@ -50,6 +51,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
     switch (user.role) {
       case ROLES.PROFESSOR: return 'professor';
       case ROLES.UNIVERSITY_ADMIN: return 'university';
+      case ROLES.UNIVERSITY_STUDENT: return 'uni_home';
       default: return 'home';
     }
   };
@@ -95,6 +97,8 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
         return <SubscriptionPage />;
 
       // University-specific views
+      case 'uni_home':
+        return <UniHomeView onNavigate={handleViewChange} />;
       case 'uni_courses':
         return <UniCoursesView />;
       case 'uni_marks':

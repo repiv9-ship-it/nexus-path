@@ -468,8 +468,8 @@ function SubjectPage({ subject, onBack }: { subject: Subject; onBack: () => void
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 overflow-x-auto scrollbar-hide">
+      {/* Tabs — scrollable on small screens, wraps on large */}
+      <div className="flex gap-1.5 overflow-x-auto pb-1 lg:flex-wrap scrollbar-hide">
         {TAB_CONFIG.map(tab => {
           const Icon = tab.icon;
           const count = (subject.materials as any)[tab.id]?.length || 0;
@@ -480,14 +480,14 @@ function SubjectPage({ subject, onBack }: { subject: Subject; onBack: () => void
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-sm shrink-0 transition-all relative ${
+              className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-black text-xs sm:text-sm shrink-0 lg:shrink transition-all relative ${
                 activeTab === tab.id
                   ? 'gradient-primary text-primary-foreground shadow-md'
                   : 'glass-card text-muted-foreground hover:text-foreground'
               }`}
             >
-              <Icon size={14} />
-              {tab.label}
+              <Icon size={13} />
+              <span className="whitespace-nowrap">{tab.label}</span>
               {count > 0 && (
                 <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
                   activeTab === tab.id ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-muted text-muted-foreground'

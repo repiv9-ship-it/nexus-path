@@ -6,7 +6,7 @@ export type ViewType =
   // Student views (clean labels)
   | 'home' | 'my-courses' | 'explore' | 'badges' | 'subscription'
   // University student exclusive
-  | 'uni_courses' | 'uni_marks' | 'schedule' | 'academic_center'
+  | 'uni_home' | 'uni_courses' | 'uni_marks' | 'schedule' | 'academic_center'
   // Professor/Admin (unchanged)
   | 'professor' | 'university'
   // Legacy (professor/admin navs)
@@ -36,6 +36,7 @@ const uniStudentMainNavItems: { id: ViewType; label: string; icon: typeof Home }
 ];
 
 const uniStudentUniNavItems: { id: ViewType; label: string; icon: typeof Home }[] = [
+  { id: 'uni_home', label: 'University Home', icon: Building2 },
   { id: 'uni_courses', label: 'Courses', icon: ClipboardList },
   { id: 'uni_marks', label: 'Marks', icon: BarChart3 },
   { id: 'schedule', label: 'Schedule', icon: Calendar },
