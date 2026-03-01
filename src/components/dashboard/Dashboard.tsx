@@ -83,7 +83,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
     }
 
     switch (view) {
-      // New student views (clean labels)
+      // Student views
       case 'home':
         return <HomeView user={user} onNavigate={handleViewChange} />;
       case 'my-courses':
@@ -96,7 +96,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
       case 'subscription':
         return <SubscriptionPage />;
 
-      // University-specific views
+      // University student views
       case 'uni_home':
         return <UniHomeView onNavigate={handleViewChange} />;
       case 'uni_courses':
@@ -108,17 +108,30 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
       case 'academic_center':
         return <AcademicCenterView />;
 
-      // Legacy marks (professor context)
-      case 'marks':
-        return <MarksSection />;
-
-      // Admin/Professor views (unchanged)
+      // Professor views — all handled by ProfessorDashboard's internal tabs
       case 'professor':
+      case 'prof_sessions':
+      case 'prof_attendance':
+      case 'prof_courses':
+      case 'prof_schedule':
+      case 'prof_payments':
+      case 'prof_messages':
         return <ProfessorDashboard />;
+
+      // University admin views — all handled by UniversityDashboard's internal tabs
       case 'university':
+      case 'uni_classes':
+      case 'uni_students':
+      case 'uni_professors':
+      case 'uni_salaries':
+      case 'uni_announcements':
+      case 'uni_documents':
+      case 'uni_reports':
         return <UniversityDashboard />;
 
-      // Legacy support
+      // Legacy
+      case 'marks':
+        return <MarksSection />;
       case 'courses':
         return <SpellbookLibrary onSelectCourse={setSelectedCourse} user={user} />;
       case 'nexus':

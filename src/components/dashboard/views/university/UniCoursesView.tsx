@@ -468,28 +468,33 @@ function SubjectPage({ subject, onBack }: { subject: Subject; onBack: () => void
         </div>
       </div>
 
-      {/* Tabs — scrollable on small screens, wraps on large */}
-      <div className="flex gap-1.5 overflow-x-auto pb-1 lg:flex-wrap scrollbar-hide">
+      {/* Tabs — responsive grid that never overflows */}
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
         {TAB_CONFIG.map(tab => {
           const Icon = tab.icon;
           const count = (subject.materials as any)[tab.id]?.length || 0;
           const hasNew = tab.id !== 'announcements'
             ? ((subject.materials as any)[tab.id] || []).some((m: any) => m.isNew)
             : subject.materials.announcements.some(a => a.isNew);
+          const isSummarize = tab.id === 'summarize';
           return (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-black text-xs sm:text-sm shrink-0 lg:shrink transition-all relative ${
+              className={`flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl font-black text-[11px] transition-all relative ${
                 activeTab === tab.id
-                  ? 'gradient-primary text-primary-foreground shadow-md'
-                  : 'glass-card text-muted-foreground hover:text-foreground'
+                  ? isSummarize
+                    ? 'bg-gradient-to-br from-primary via-secondary to-primary text-primary-foreground shadow-lg shadow-primary/25'
+                    : 'gradient-primary text-primary-foreground shadow-md'
+                  : isSummarize
+                    ? 'glass-card text-primary border-primary/30 border-dashed hover:border-primary/60'
+                    : 'glass-card text-muted-foreground hover:text-foreground'
               }`}
             >
-              <Icon size={13} />
-              <span className="whitespace-nowrap">{tab.label}</span>
-              {count > 0 && (
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
+              <Icon size={15} />
+              <span className="whitespace-nowrap leading-none">{tab.label}</span>
+              {count > 0 && !isSummarize && (
+                <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-black ${
                   activeTab === tab.id ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-muted text-muted-foreground'
                 }`}>{count}</span>
               )}

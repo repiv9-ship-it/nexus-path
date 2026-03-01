@@ -1,4 +1,4 @@
-import { Home, BookOpen, Compass, Trophy, Crown, LogOut, BarChart3, Users, Building2, ClipboardList, Calendar, GraduationCap, Zap, X } from 'lucide-react';
+import { Home, BookOpen, Compass, Trophy, Crown, LogOut, BarChart3, Users, Building2, ClipboardList, Calendar, GraduationCap, Zap, X, DollarSign, MessageSquare, Clock, Bell, FileText, TrendingUp } from 'lucide-react';
 import { ROLES } from '@/lib/constants';
 import type { User } from '@/lib/constants';
 import type { ViewType } from './Sidebar';
@@ -37,19 +37,24 @@ const uniStudentUniNavItems: { id: ViewType; label: string; icon: typeof Home }[
 ];
 
 const professorNavItems: { id: ViewType; label: string; icon: typeof Home }[] = [
-  { id: 'professor', label: 'Command Center', icon: BarChart3 },
-  { id: 'courses', label: 'My Courses', icon: BookOpen },
-  { id: 'marks', label: 'Student Marks', icon: ClipboardList },
-  { id: 'achievements', label: 'Armory', icon: Trophy },
+  { id: 'professor', label: 'Overview', icon: BarChart3 },
+  { id: 'prof_sessions', label: 'Sessions', icon: Calendar },
+  { id: 'prof_attendance', label: 'Attendance', icon: ClipboardList },
+  { id: 'prof_courses', label: 'My Courses', icon: BookOpen },
+  { id: 'prof_schedule', label: 'Schedule', icon: Clock },
+  { id: 'prof_payments', label: 'Payments', icon: DollarSign },
+  { id: 'prof_messages', label: 'Messages', icon: MessageSquare },
 ];
 
 const universityNavItems: { id: ViewType; label: string; icon: typeof Home }[] = [
-  { id: 'university', label: 'Control Tower', icon: Building2 },
-  { id: 'dashboard', label: 'Dashboard', icon: Home },
-  { id: 'courses', label: 'All Courses', icon: BookOpen },
-  { id: 'marks', label: 'Marks', icon: ClipboardList },
-  { id: 'nexus', label: 'Staff', icon: Users },
-  { id: 'subscription', label: 'Billing', icon: Crown },
+  { id: 'university', label: 'Overview', icon: Building2 },
+  { id: 'uni_classes', label: 'Classes', icon: Calendar },
+  { id: 'uni_students', label: 'Students', icon: Users },
+  { id: 'uni_professors', label: 'Professors', icon: GraduationCap },
+  { id: 'uni_salaries', label: 'Salaries', icon: DollarSign },
+  { id: 'uni_announcements', label: 'Announcements', icon: Bell },
+  { id: 'uni_documents', label: 'Requests', icon: FileText },
+  { id: 'uni_reports', label: 'Reports', icon: TrendingUp },
 ];
 
 export function MobileSidebar({ user, currentView, onViewChange, onLogout, isOpen, onClose }: MobileSidebarProps) {
