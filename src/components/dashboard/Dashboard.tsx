@@ -108,7 +108,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
       case 'academic_center':
         return <AcademicCenterView />;
 
-      // Professor views — all handled by ProfessorDashboard's internal tabs
+      // Professor views
       case 'professor':
       case 'prof_sessions':
       case 'prof_attendance':
@@ -116,9 +116,9 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
       case 'prof_schedule':
       case 'prof_payments':
       case 'prof_messages':
-        return <ProfessorDashboard />;
+        return <ProfessorDashboard activeSection={view} />;
 
-      // University admin views — all handled by UniversityDashboard's internal tabs
+      // University admin views
       case 'university':
       case 'uni_classes':
       case 'uni_students':
@@ -127,7 +127,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
       case 'uni_announcements':
       case 'uni_documents':
       case 'uni_reports':
-        return <UniversityDashboard />;
+        return <UniversityDashboard activeSection={view} />;
 
       // Legacy
       case 'marks':
