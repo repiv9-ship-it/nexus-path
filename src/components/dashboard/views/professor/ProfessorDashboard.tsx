@@ -4,10 +4,13 @@ import {
   Calendar, Clock, CheckSquare, DollarSign, MessageSquare, Upload, 
   FileText, Bell, MapPin, User, Eye, Send, Briefcase,
   ClipboardList, GraduationCap, Filter, Phone, Mail, AlertCircle,
-  CheckCircle, XCircle, ChevronDown
+  CheckCircle, XCircle, ChevronDown, ArrowLeft, X, ChevronLeft
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription
+} from '@/components/ui/dialog';
 
 interface ProfessorDashboardProps {
   activeSection?: string;
@@ -25,11 +28,11 @@ const MY_CLASSES = [
 ];
 
 const UPCOMING_SESSIONS = [
-  { id: 's1', subject: 'Data Structures', code: 'CS201', type: 'Lecture', date: '2026-03-02', startTime: '08:00', endTime: '10:00', room: 'A101', group: 'L2-CS-A', level: 'L2' },
-  { id: 's2', subject: 'Machine Learning', code: 'AI301', type: 'TD', date: '2026-03-02', startTime: '14:00', endTime: '16:00', room: 'Lab 3', group: 'L3-CS-A', level: 'L3' },
-  { id: 's3', subject: 'Data Structures', code: 'CS201', type: 'TD', date: '2026-03-03', startTime: '10:00', endTime: '12:00', room: 'Lab 1', group: 'L2-CS-A', level: 'L2' },
-  { id: 's4', subject: 'Web Development', code: 'CS102', type: 'Lecture', date: '2026-03-04', startTime: '08:00', endTime: '10:00', room: 'B205', group: 'L1-CS', level: 'L1' },
-  { id: 's5', subject: 'Machine Learning', code: 'AI301', type: 'Lecture', date: '2026-03-05', startTime: '08:00', endTime: '10:00', room: 'Amphi A', group: 'L3-All', level: 'L3' },
+  { id: 's1', subject: 'Data Structures', code: 'CS201', type: 'Lecture', date: '2026-03-15', startTime: '08:00', endTime: '10:00', room: 'A101', group: 'L2-CS-A', level: 'L2', studentCount: 156 },
+  { id: 's2', subject: 'Machine Learning', code: 'AI301', type: 'TD', date: '2026-03-15', startTime: '14:00', endTime: '16:00', room: 'Lab 3', group: 'L3-CS-A', level: 'L3', studentCount: 45 },
+  { id: 's3', subject: 'Data Structures', code: 'CS201', type: 'TD', date: '2026-03-16', startTime: '10:00', endTime: '12:00', room: 'Lab 1', group: 'L2-CS-A', level: 'L2', studentCount: 32 },
+  { id: 's4', subject: 'Web Development', code: 'CS102', type: 'Lecture', date: '2026-03-17', startTime: '08:00', endTime: '10:00', room: 'B205', group: 'L1-CS', level: 'L1', studentCount: 234 },
+  { id: 's5', subject: 'Machine Learning', code: 'AI301', type: 'Lecture', date: '2026-03-18', startTime: '08:00', endTime: '10:00', room: 'Amphi A', group: 'L3-All', level: 'L3', studentCount: 89 },
 ];
 
 const ATTENDANCE_STUDENTS = [
@@ -41,6 +44,10 @@ const ATTENDANCE_STUDENTS = [
   { id: '6', name: 'Frank Miller', avatar: '/placeholder.svg', matricule: '2024CS006', status: 'present' as const },
   { id: '7', name: 'Grace Park', avatar: '/placeholder.svg', matricule: '2024CS007', status: 'absent' as const },
   { id: '8', name: 'Henry Zhang', avatar: '/placeholder.svg', matricule: '2024CS008', status: 'present' as const },
+  { id: '9', name: 'Ines Bouaziz', avatar: '/placeholder.svg', matricule: '2024CS009', status: 'present' as const },
+  { id: '10', name: 'Jamal Trabelsi', avatar: '/placeholder.svg', matricule: '2024CS010', status: 'present' as const },
+  { id: '11', name: 'Karim Ferjani', avatar: '/placeholder.svg', matricule: '2024CS011', status: 'late' as const },
+  { id: '12', name: 'Lina Mansour', avatar: '/placeholder.svg', matricule: '2024CS012', status: 'present' as const },
 ];
 
 const SALARY_HISTORY = [
@@ -51,20 +58,20 @@ const SALARY_HISTORY = [
 ];
 
 const EXAM_SCHEDULE = [
-  { id: 'ex1', subject: 'Data Structures', type: 'Final Exam', date: '2026-02-25', startTime: '09:00', room: 'Amphi A', duration: '2h', level: 'L2' },
-  { id: 'ex2', subject: 'Machine Learning', type: 'Midterm', date: '2026-03-10', startTime: '14:00', room: 'B205', duration: '1h30', level: 'L3' },
-  { id: 'ex3', subject: 'Web Development', type: 'Final Exam', date: '2026-03-15', startTime: '09:00', room: 'Amphi B', duration: '2h', level: 'L1' },
+  { id: 'ex1', subject: 'Data Structures', type: 'Final Exam', date: '2026-03-25', startTime: '09:00', room: 'Amphi A', duration: '2h', level: 'L2' },
+  { id: 'ex2', subject: 'Machine Learning', type: 'Midterm', date: '2026-04-10', startTime: '14:00', room: 'B205', duration: '1h30', level: 'L3' },
+  { id: 'ex3', subject: 'Web Development', type: 'Final Exam', date: '2026-04-15', startTime: '09:00', room: 'Amphi B', duration: '2h', level: 'L1' },
 ];
 
 const MEETINGS = [
-  { id: 'mt1', title: 'Réunion de département', date: '2026-03-05', time: '10:00', location: 'Salle de conférence', organizer: 'Doyen' },
-  { id: 'mt2', title: 'Soutenance - Alice Chen', date: '2026-03-12', time: '14:00', location: 'Salle 302', organizer: 'Département CS' },
+  { id: 'mt1', title: 'Réunion de département', date: '2026-03-20', time: '10:00', location: 'Salle de conférence', organizer: 'Doyen' },
+  { id: 'mt2', title: 'Soutenance - Alice Chen', date: '2026-04-12', time: '14:00', location: 'Salle 302', organizer: 'Département CS' },
 ];
 
 const STUDENT_MESSAGES = [
-  { id: 'msg1', student: 'Alice Chen', subject: 'Question sur le TP 3', message: 'Professeur, j\'ai une question sur l\'exercice de parcours de graphe. Puis-je passer pendant les heures de bureau ?', date: '2026-02-28', read: false },
-  { id: 'msg2', student: 'David Lee', subject: 'Justification d\'absence', message: 'Je n\'ai pas pu assister au TD du 27 février pour raisons médicales. J\'ai le certificat.', date: '2026-02-27', read: false },
-  { id: 'msg3', student: 'Carol Davis', subject: 'Lettre de recommandation', message: 'Pourriez-vous rédiger une lettre de recommandation pour ma candidature de stage ?', date: '2026-02-25', read: true },
+  { id: 'msg1', student: 'Alice Chen', subject: 'Question sur le TP 3', message: 'Professeur, j\'ai une question sur l\'exercice de parcours de graphe. Puis-je passer pendant les heures de bureau ?', date: '2026-03-12', read: false },
+  { id: 'msg2', student: 'David Lee', subject: 'Justification d\'absence', message: 'Je n\'ai pas pu assister au TD du 10 mars pour raisons médicales. J\'ai le certificat.', date: '2026-03-11', read: false },
+  { id: 'msg3', student: 'Carol Davis', subject: 'Lettre de recommandation', message: 'Pourriez-vous rédiger une lettre de recommandation pour ma candidature de stage ?', date: '2026-03-08', read: true },
 ];
 
 const MY_COURSES_MATERIALS = [
@@ -85,26 +92,45 @@ const MY_COURSES_MATERIALS = [
 ];
 
 const ADMIN_CONTACT_MESSAGES = [
-  { id: 'ac1', subject: 'Report de séance', message: 'Demande de report de la séance du 05/03 pour raison personnelle.', date: '2026-02-28', status: 'pending' as const },
+  { id: 'ac1', subject: 'Report de séance', message: 'Demande de report de la séance du 05/03 pour raison personnelle.', date: '2026-03-10', status: 'pending' as const },
   { id: 'ac2', subject: 'Demande de salle', message: 'Besoin d\'une salle informatique pour un TP le 10/03.', date: '2026-02-20', status: 'approved' as const },
+];
+
+// Available classes for upload target
+const UPLOAD_TARGET_CLASSES = [
+  { id: 'ing1a', label: 'ING1-A', level: 'L1' },
+  { id: 'ing1b', label: 'ING1-B', level: 'L1' },
+  { id: 'ing2a', label: 'ING2-A', level: 'L2' },
+  { id: 'ing2b', label: 'ING2-B', level: 'L2' },
+  { id: 'ing3a', label: 'ING3-A', level: 'L3' },
+  { id: 'ing3b', label: 'ING3-B', level: 'L3' },
+  { id: 'all-l2', label: 'All L2', level: 'L2' },
+  { id: 'all-l3', label: 'All L3', level: 'L3' },
 ];
 
 export function ProfessorDashboard({ activeSection = 'overview' }: ProfessorDashboardProps) {
   const [attendanceData, setAttendanceData] = useState<Record<string, string>>({});
-  const [selectedSession, setSelectedSession] = useState<string | null>(null);
+  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [filterLevel, setFilterLevel] = useState('all');
   const [filterType, setFilterType] = useState('all');
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [uploadData, setUploadData] = useState({ title: '', type: 'cours', subject: '', targetClasses: [] as string[] });
 
   const unreadMessages = STUDENT_MESSAGES.filter(m => !m.read).length;
   const totalStudents = MY_CLASSES.filter(c => c.type === 'Lecture').reduce((a, c) => a + c.students, 0);
   const uniqueSubjects = [...new Set(MY_CLASSES.map(c => c.subject))];
 
-  const filteredClasses = MY_CLASSES.filter(c => {
-    if (filterLevel !== 'all' && c.level !== filterLevel) return false;
-    if (filterType !== 'all' && c.type !== filterType) return false;
-    return true;
-  });
+  const selectedSession = UPCOMING_SESSIONS.find(s => s.id === selectedSessionId);
+
+  const toggleTargetClass = (id: string) => {
+    setUploadData(prev => ({
+      ...prev,
+      targetClasses: prev.targetClasses.includes(id) 
+        ? prev.targetClasses.filter(c => c !== id)
+        : [...prev.targetClasses, id]
+    }));
+  };
 
   // ═══════════ OVERVIEW ═══════════
   if (activeSection === 'overview' || activeSection === 'professor') {
@@ -137,7 +163,7 @@ export function ProfessorDashboard({ activeSection = 'overview' }: ProfessorDash
           ))}
         </div>
 
-        {/* Next sessions + My classes */}
+        {/* Next sessions + My subjects */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="glass-card p-4 rounded-2xl space-y-3">
             <h3 className="font-black text-sm uppercase tracking-wider flex items-center gap-2">
@@ -192,17 +218,95 @@ export function ProfessorDashboard({ activeSection = 'overview' }: ProfessorDash
     );
   }
 
-  // ═══════════ SESSIONS ═══════════
+  // ═══════════ SESSIONS (with inline attendance) ═══════════
   if (activeSection === 'prof_sessions') {
+    // If a session is selected, show attendance for that session
+    if (selectedSession) {
+      return (
+        <div className="space-y-5 animate-fade-in">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <button onClick={() => setSelectedSessionId(null)} className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors">
+                <ChevronLeft size={18} />
+              </button>
+              <div>
+                <h2 className="text-xl sm:text-2xl font-black tracking-tight">Présence — {selectedSession.subject}</h2>
+                <p className="text-muted-foreground text-xs mt-0.5">
+                  {selectedSession.type} · {selectedSession.group} · {selectedSession.room} · {new Date(selectedSession.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })} · {selectedSession.startTime}–{selectedSession.endTime}
+                </p>
+              </div>
+            </div>
+            <Button className="gradient-primary font-black rounded-xl text-xs"><Send size={14} className="mr-1" /> Soumettre la présence</Button>
+          </div>
+
+          {/* Summary bar */}
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              { label: 'Présents', count: ATTENDANCE_STUDENTS.filter(s => (attendanceData[s.id] || s.status) === 'present').length, color: 'text-success', bg: 'bg-success/10' },
+              { label: 'Absents', count: ATTENDANCE_STUDENTS.filter(s => (attendanceData[s.id] || s.status) === 'absent').length, color: 'text-destructive', bg: 'bg-destructive/10' },
+              { label: 'En retard', count: ATTENDANCE_STUDENTS.filter(s => (attendanceData[s.id] || s.status) === 'late').length, color: 'text-warning', bg: 'bg-warning/10' },
+            ].map((item, i) => (
+              <div key={i} className={`${item.bg} p-3 rounded-xl text-center`}>
+                <p className={`text-2xl font-black ${item.color}`}>{item.count}</p>
+                <p className="text-[10px] font-bold uppercase text-muted-foreground">{item.label}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Student grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+            {ATTENDANCE_STUDENTS.map(student => {
+              const status = attendanceData[student.id] || student.status;
+              return (
+                <div key={student.id} className={`glass-card p-3 rounded-xl border-2 transition-all ${
+                  status === 'present' ? 'border-success/40' : status === 'absent' ? 'border-destructive/40' : status === 'late' ? 'border-warning/40' : 'border-transparent'
+                }`}>
+                  <div className="flex flex-col items-center text-center mb-3">
+                    <div className="w-12 h-12 rounded-full bg-muted overflow-hidden flex items-center justify-center mb-2">
+                      <User size={24} className="text-muted-foreground" />
+                    </div>
+                    <p className="font-black text-[11px] leading-tight">{student.name}</p>
+                    <p className="text-[9px] text-muted-foreground">{student.matricule}</p>
+                  </div>
+                  <div className="grid grid-cols-3 gap-1">
+                    {(['present', 'absent', 'late'] as const).map(s => (
+                      <button
+                        key={s}
+                        onClick={() => setAttendanceData(prev => ({ ...prev, [student.id]: s }))}
+                        className={`py-1.5 rounded-lg text-[9px] font-black uppercase transition-all ${
+                          status === s
+                            ? s === 'present' ? 'bg-success text-success-foreground'
+                            : s === 'absent' ? 'bg-destructive text-destructive-foreground'
+                            : 'bg-warning text-warning-foreground'
+                            : 'glass-card text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        {s === 'present' ? 'P' : s === 'absent' ? 'A' : 'R'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    // Sessions list
     return (
       <div className="space-y-5 animate-fade-in">
         <div>
           <h2 className="text-2xl font-black tracking-tight">Séances</h2>
-          <p className="text-muted-foreground text-sm mt-1">Vos prochaines séances programmées</p>
+          <p className="text-muted-foreground text-sm mt-1">Cliquez sur une séance pour gérer la présence</p>
         </div>
         <div className="space-y-2">
           {UPCOMING_SESSIONS.map(s => (
-            <div key={s.id} className="glass-card p-4 rounded-xl flex items-center gap-4">
+            <button
+              key={s.id}
+              onClick={() => setSelectedSessionId(s.id)}
+              className="w-full glass-card p-4 rounded-xl flex items-center gap-4 hover:border-primary/30 transition-all text-left group"
+            >
               <div className="text-center shrink-0 min-w-[56px] glass-card p-2 rounded-lg">
                 <p className="font-black text-xs">{new Date(s.date).toLocaleDateString('fr-FR', { weekday: 'short' })}</p>
                 <p className="font-black text-lg text-primary">{new Date(s.date).getDate()}</p>
@@ -214,82 +318,17 @@ export function ProfessorDashboard({ activeSection = 'overview' }: ProfessorDash
                   <span className={`text-[10px] font-black px-2 py-0.5 rounded ${s.type === 'Lecture' ? 'bg-primary/10 text-primary' : 'bg-warning/10 text-warning'}`}>{s.type}</span>
                   <span className="text-muted-foreground text-xs flex items-center gap-1"><Clock size={11} />{s.startTime} – {s.endTime}</span>
                   <span className="text-muted-foreground text-xs flex items-center gap-1"><MapPin size={11} />{s.room}</span>
-                  <span className="text-muted-foreground text-xs flex items-center gap-1"><Users size={11} />{s.group}</span>
+                  <span className="text-muted-foreground text-xs flex items-center gap-1"><Users size={11} />{s.group} · {s.studentCount}</span>
                 </div>
               </div>
-              <Button size="sm" className="gradient-primary font-black rounded-lg text-xs shrink-0" onClick={() => setSelectedSession(s.id)}>
-                <CheckSquare size={14} className="mr-1" /> Présence
-              </Button>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // ═══════════ ATTENDANCE ═══════════
-  if (activeSection === 'prof_attendance') {
-    return (
-      <div className="space-y-5 animate-fade-in">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h2 className="text-2xl font-black tracking-tight">Gestion de présence</h2>
-            <p className="text-muted-foreground text-sm mt-1">Data Structures — TD · L2-CS-A · 01 Mars 2026</p>
-          </div>
-          <Button className="gradient-primary font-black rounded-xl text-xs"><Send size={14} className="mr-1" /> Soumettre</Button>
-        </div>
-
-        {/* Summary bar */}
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { label: 'Présents', count: ATTENDANCE_STUDENTS.filter(s => (attendanceData[s.id] || s.status) === 'present').length, color: 'text-success', bg: 'bg-success/10' },
-            { label: 'Absents', count: ATTENDANCE_STUDENTS.filter(s => (attendanceData[s.id] || s.status) === 'absent').length, color: 'text-destructive', bg: 'bg-destructive/10' },
-            { label: 'En retard', count: ATTENDANCE_STUDENTS.filter(s => (attendanceData[s.id] || s.status) === 'late').length, color: 'text-warning', bg: 'bg-warning/10' },
-          ].map((item, i) => (
-            <div key={i} className={`${item.bg} p-3 rounded-xl text-center`}>
-              <p className={`text-2xl font-black ${item.color}`}>{item.count}</p>
-              <p className="text-[10px] font-bold uppercase text-muted-foreground">{item.label}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Student grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {ATTENDANCE_STUDENTS.map(student => {
-            const status = attendanceData[student.id] || student.status;
-            return (
-              <div key={student.id} className={`glass-card p-3 rounded-xl border-2 transition-all ${
-                status === 'present' ? 'border-success/30' : status === 'absent' ? 'border-destructive/30' : status === 'late' ? 'border-warning/30' : 'border-transparent'
-              }`}>
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-xl bg-muted overflow-hidden flex items-center justify-center">
-                    <User size={20} className="text-muted-foreground" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-black text-xs truncate">{student.name}</p>
-                    <p className="text-[10px] text-muted-foreground">{student.matricule}</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-1">
-                  {(['present', 'absent', 'late'] as const).map(s => (
-                    <button
-                      key={s}
-                      onClick={() => setAttendanceData(prev => ({ ...prev, [student.id]: s }))}
-                      className={`py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${
-                        status === s
-                          ? s === 'present' ? 'bg-success text-success-foreground'
-                          : s === 'absent' ? 'bg-destructive text-destructive-foreground'
-                          : 'bg-warning text-warning-foreground'
-                          : 'glass-card text-muted-foreground hover:text-foreground'
-                      }`}
-                    >
-                      {s === 'present' ? 'P' : s === 'absent' ? 'A' : 'R'}
-                    </button>
-                  ))}
-                </div>
+              <div className="shrink-0 flex items-center gap-2">
+                <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-1 rounded-lg group-hover:bg-primary group-hover:text-primary-foreground transition-colors flex items-center gap-1">
+                  <CheckSquare size={12} /> Présence
+                </span>
+                <ChevronRight size={16} className="text-muted-foreground" />
               </div>
-            );
-          })}
+            </button>
+          ))}
         </div>
       </div>
     );
@@ -302,18 +341,16 @@ export function ProfessorDashboard({ activeSection = 'overview' }: ProfessorDash
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 className="text-2xl font-black tracking-tight">Mes cours</h2>
-            <p className="text-muted-foreground text-sm mt-1">Gérer les supports pédagogiques</p>
+            <p className="text-muted-foreground text-sm mt-1">Gérer et publier les supports pédagogiques</p>
           </div>
           <div className="flex gap-2">
-            <select value={filterLevel} onChange={e => setFilterLevel(e.target.value)} className="h-8 px-3 rounded-lg border border-input bg-background font-bold text-xs">
-              <option value="all">Tous niveaux</option>
-              <option value="L1">L1</option><option value="L2">L2</option><option value="L3">L3</option>
-            </select>
             <select value={filterType} onChange={e => setFilterType(e.target.value)} className="h-8 px-3 rounded-lg border border-input bg-background font-bold text-xs">
               <option value="all">Tous types</option>
               <option value="cours">Cours</option><option value="td">TD</option><option value="tp">TP</option>
             </select>
-            <Button className="gradient-primary font-black rounded-xl text-xs h-8"><Upload size={14} className="mr-1" /> Ajouter</Button>
+            <Button className="gradient-primary font-black rounded-xl text-xs h-8" onClick={() => { setUploadData({ title: '', type: 'cours', subject: '', targetClasses: [] }); setUploadDialogOpen(true); }}>
+              <Upload size={14} className="mr-1" /> Publier un support
+            </Button>
           </div>
         </div>
 
@@ -324,6 +361,9 @@ export function ProfessorDashboard({ activeSection = 'overview' }: ProfessorDash
                 <BookOpen size={14} className="text-primary" /> {course.subject}
                 <span className="text-muted-foreground font-normal text-xs">({course.code} · {course.level})</span>
               </h4>
+              <Button size="sm" variant="outline" className="text-[10px] font-black rounded-lg h-7" onClick={() => { setUploadData({ title: '', type: 'cours', subject: course.subject, targetClasses: [] }); setUploadDialogOpen(true); }}>
+                <Plus size={10} className="mr-1" /> Ajouter
+              </Button>
             </div>
             <div className="space-y-1.5">
               {course.chapters.filter(ch => filterType === 'all' || ch.type === filterType).map(ch => (
@@ -341,6 +381,81 @@ export function ProfessorDashboard({ activeSection = 'overview' }: ProfessorDash
             </div>
           </div>
         ))}
+
+        {/* Upload Dialog */}
+        <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="font-black text-lg">Publier un support</DialogTitle>
+              <DialogDescription className="text-sm text-muted-foreground">Ajoutez un cours, TD ou TP pour vos étudiants</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 pt-2">
+              {/* Title */}
+              <div>
+                <label className="text-xs font-black text-muted-foreground uppercase tracking-wider mb-1.5 block">Titre du document</label>
+                <Input placeholder="Ex: Chapitre 3 - Graphes" className="rounded-lg text-sm h-9" value={uploadData.title} onChange={e => setUploadData(prev => ({ ...prev, title: e.target.value }))} />
+              </div>
+
+              {/* Subject */}
+              <div>
+                <label className="text-xs font-black text-muted-foreground uppercase tracking-wider mb-1.5 block">Matière</label>
+                <select className="w-full h-9 px-3 rounded-lg border border-input bg-background font-bold text-sm" value={uploadData.subject} onChange={e => setUploadData(prev => ({ ...prev, subject: e.target.value }))}>
+                  <option value="">Sélectionner une matière</option>
+                  {uniqueSubjects.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+
+              {/* Type */}
+              <div>
+                <label className="text-xs font-black text-muted-foreground uppercase tracking-wider mb-1.5 block">Type de support</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { value: 'cours', label: 'Cours', color: 'primary' },
+                    { value: 'td', label: 'TD', color: 'warning' },
+                    { value: 'tp', label: 'TP', color: 'success' },
+                  ].map(t => (
+                    <button key={t.value} onClick={() => setUploadData(prev => ({ ...prev, type: t.value }))}
+                      className={`py-2 rounded-lg text-xs font-black transition-all ${
+                        uploadData.type === t.value 
+                          ? `bg-${t.color}/20 text-${t.color} border-2 border-${t.color}/50` 
+                          : 'glass-card text-muted-foreground hover:text-foreground'
+                      }`}>
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Target classes */}
+              <div>
+                <label className="text-xs font-black text-muted-foreground uppercase tracking-wider mb-1.5 block">Classes ciblées</label>
+                <div className="grid grid-cols-4 gap-2">
+                  {UPLOAD_TARGET_CLASSES.map(c => (
+                    <button key={c.id} onClick={() => toggleTargetClass(c.id)}
+                      className={`py-2 rounded-lg text-[11px] font-black transition-all ${
+                        uploadData.targetClasses.includes(c.id) 
+                          ? 'bg-primary/20 text-primary border-2 border-primary/50' 
+                          : 'glass-card text-muted-foreground hover:text-foreground'
+                      }`}>
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* File upload area */}
+              <div className="border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-primary/40 transition-colors cursor-pointer">
+                <Upload size={24} className="mx-auto text-muted-foreground mb-2" />
+                <p className="font-bold text-xs text-muted-foreground">Glissez votre fichier ici ou cliquez pour parcourir</p>
+                <p className="text-[10px] text-muted-foreground mt-1">PDF, PPTX, DOCX — Max 50MB</p>
+              </div>
+
+              <Button className="w-full gradient-primary font-black rounded-xl text-sm" onClick={() => setUploadDialogOpen(false)}>
+                <Upload size={14} className="mr-2" /> Publier le support
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
@@ -354,7 +469,6 @@ export function ProfessorDashboard({ activeSection = 'overview' }: ProfessorDash
           <p className="text-muted-foreground text-sm mt-1">Planning des examens et réunions</p>
         </div>
 
-        {/* Exams */}
         <div className="glass-card p-4 rounded-2xl space-y-3">
           <h4 className="font-black text-sm uppercase tracking-wider flex items-center gap-2"><GraduationCap size={14} className="text-primary" /> Examens</h4>
           <div className="space-y-2">
@@ -377,7 +491,6 @@ export function ProfessorDashboard({ activeSection = 'overview' }: ProfessorDash
           </div>
         </div>
 
-        {/* Meetings */}
         <div className="glass-card p-4 rounded-2xl space-y-3">
           <h4 className="font-black text-sm uppercase tracking-wider flex items-center gap-2"><Briefcase size={14} className="text-primary" /> Réunions</h4>
           <div className="space-y-2">
@@ -405,7 +518,7 @@ export function ProfessorDashboard({ activeSection = 'overview' }: ProfessorDash
       <div className="space-y-5 animate-fade-in">
         <div>
           <h2 className="text-2xl font-black tracking-tight">Salaire & Paiements</h2>
-          <p className="text-muted-foreground text-sm mt-1">Historique de rémunération</p>
+          <p className="text-muted-foreground text-sm mt-1">Historique de rémunération en TND</p>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -454,21 +567,23 @@ export function ProfessorDashboard({ activeSection = 'overview' }: ProfessorDash
     );
   }
 
-  // ═══════════ MESSAGES ═══════════
+  // ═══════════ MESSAGES & ADMIN CONTACT ═══════════
   if (activeSection === 'prof_messages') {
     return (
       <div className="space-y-5 animate-fade-in">
         <div>
           <h2 className="text-2xl font-black tracking-tight">Messages</h2>
-          <p className="text-muted-foreground text-sm mt-1">Messages des étudiants</p>
+          <p className="text-muted-foreground text-sm mt-1">Messages des étudiants & contact administration</p>
         </div>
 
+        {/* Student messages */}
         <div className="space-y-2">
+          <h3 className="font-black text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2"><MessageSquare size={12} /> Messages étudiants</h3>
           {STUDENT_MESSAGES.map(msg => (
             <div key={msg.id} className={`glass-card p-4 rounded-xl space-y-2 ${!msg.read ? 'border-l-4 border-l-primary' : ''}`}>
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 gradient-primary rounded-lg flex items-center justify-center text-primary-foreground font-black text-xs">
+                  <div className="w-9 h-9 gradient-primary rounded-full flex items-center justify-center text-primary-foreground font-black text-xs">
                     {msg.student.split(' ').map(n => n[0]).join('')}
                   </div>
                   <div>
@@ -495,15 +610,15 @@ export function ProfessorDashboard({ activeSection = 'overview' }: ProfessorDash
           ))}
         </div>
 
-        {/* Admin contact section */}
+        {/* Admin contact */}
         <div className="glass-card p-4 rounded-2xl space-y-3 border-2 border-dashed border-primary/20">
-          <h3 className="font-black text-sm uppercase tracking-wider flex items-center gap-2">
-            <Mail size={14} className="text-primary" /> Contacter l'administration
+          <h3 className="font-black text-xs uppercase tracking-wider flex items-center gap-2">
+            <Mail size={12} className="text-primary" /> Contacter l'administration
           </h3>
-          <p className="text-muted-foreground text-xs">Reporter une séance, demander une salle, signaler un problème...</p>
+          <p className="text-muted-foreground text-[11px]">Reporter une séance, demander une salle, signaler un problème...</p>
           <Input placeholder="Objet du message..." className="text-xs h-8 rounded-lg" />
           <textarea placeholder="Décrivez votre demande..." className="w-full p-3 rounded-lg border border-input bg-background text-xs min-h-[60px] resize-none" />
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <select className="h-8 px-3 rounded-lg border border-input bg-background font-bold text-xs">
               <option>Report de séance</option>
               <option>Demande de salle</option>
@@ -513,7 +628,6 @@ export function ProfessorDashboard({ activeSection = 'overview' }: ProfessorDash
             <Button className="gradient-primary font-black rounded-lg text-xs h-8"><Send size={12} className="mr-1" /> Envoyer</Button>
           </div>
 
-          {/* Previous admin messages */}
           <div className="space-y-2 pt-2 border-t border-border">
             <p className="text-[10px] font-black text-muted-foreground uppercase">Historique</p>
             {ADMIN_CONTACT_MESSAGES.map(m => (

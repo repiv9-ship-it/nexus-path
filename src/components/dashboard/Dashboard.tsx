@@ -121,12 +121,15 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
       // University admin views
       case 'university':
       case 'uni_classes':
+      case 'uni_finance':
+      case 'uni_announcements':
+      case 'uni_exams':
+      case 'uni_stages':
+      case 'uni_documents':
+      case 'uni_reports':
       case 'uni_students':
       case 'uni_professors':
       case 'uni_salaries':
-      case 'uni_announcements':
-      case 'uni_documents':
-      case 'uni_reports':
         return <UniversityDashboard activeSection={view} />;
 
       // Legacy
