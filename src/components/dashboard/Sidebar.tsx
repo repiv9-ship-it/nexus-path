@@ -1,4 +1,4 @@
-import { Home, BookOpen, Compass, Trophy, Crown, LogOut, BarChart3, Users, Building2, ClipboardList, Calendar, GraduationCap, Zap, Settings, DollarSign, MessageSquare, Clock, Bell, FileText, TrendingUp } from 'lucide-react';
+import { Home, BookOpen, Compass, Trophy, Crown, LogOut, BarChart3, Users, Building2, ClipboardList, Calendar, GraduationCap, Zap, Settings, DollarSign, MessageSquare, Clock, Bell, FileText, TrendingUp, Briefcase } from 'lucide-react';
 import { ROLES } from '@/lib/constants';
 import type { User } from '@/lib/constants';
 
@@ -8,11 +8,13 @@ export type ViewType =
   // University student exclusive
   | 'uni_home' | 'uni_courses' | 'uni_marks' | 'schedule' | 'academic_center'
   // Professor views
-  | 'professor' | 'prof_sessions' | 'prof_attendance' | 'prof_courses' | 'prof_schedule' | 'prof_payments' | 'prof_messages'
+  | 'professor' | 'prof_sessions' | 'prof_courses' | 'prof_schedule' | 'prof_payments' | 'prof_messages'
   // University admin views
-  | 'university' | 'uni_classes' | 'uni_students' | 'uni_professors' | 'uni_salaries' | 'uni_announcements' | 'uni_documents' | 'uni_reports'
+  | 'university' | 'uni_classes' | 'uni_finance' | 'uni_announcements' | 'uni_exams' | 'uni_stages' | 'uni_documents' | 'uni_reports'
   // Legacy
-  | 'nexus' | 'marks' | 'dashboard' | 'courses' | 'achievements';
+  | 'nexus' | 'marks' | 'dashboard' | 'courses' | 'achievements'
+  // Keep old ones for backward compat
+  | 'prof_attendance' | 'uni_students' | 'uni_professors' | 'uni_salaries';
 
 interface SidebarProps {
   user: User;
@@ -48,20 +50,22 @@ const uniStudentUniNavItems: { id: ViewType; label: string; icon: typeof Home }[
 const professorNavItems: { id: ViewType; label: string; icon: typeof Home }[] = [
   { id: 'professor', label: 'Overview', icon: BarChart3 },
   { id: 'prof_sessions', label: 'Sessions', icon: Calendar },
-  { id: 'prof_attendance', label: 'Attendance', icon: ClipboardList },
   { id: 'prof_courses', label: 'My Courses', icon: BookOpen },
   { id: 'prof_schedule', label: 'Schedule', icon: Clock },
   { id: 'prof_payments', label: 'Payments', icon: DollarSign },
   { id: 'prof_messages', label: 'Messages', icon: MessageSquare },
 ];
 
-const universityNavItems: { id: ViewType; label: string; icon: typeof Home }[] = [
+const universityClassesNav: { id: ViewType; label: string; icon: typeof Home }[] = [
   { id: 'university', label: 'Overview', icon: Building2 },
-  { id: 'uni_classes', label: 'Classes', icon: Calendar },
-  { id: 'uni_students', label: 'Students', icon: Users },
-  { id: 'uni_professors', label: 'Professors', icon: GraduationCap },
-  { id: 'uni_salaries', label: 'Salaries', icon: DollarSign },
+  { id: 'uni_classes', label: 'Classes', icon: Users },
+];
+
+const universityManagementNav: { id: ViewType; label: string; icon: typeof Home }[] = [
+  { id: 'uni_finance', label: 'Finance', icon: DollarSign },
   { id: 'uni_announcements', label: 'Announcements', icon: Bell },
+  { id: 'uni_exams', label: 'Exams', icon: ClipboardList },
+  { id: 'uni_stages', label: 'Stages', icon: Briefcase },
   { id: 'uni_documents', label: 'Requests', icon: FileText },
   { id: 'uni_reports', label: 'Reports', icon: TrendingUp },
 ];
@@ -87,15 +91,6 @@ export function Sidebar({ user, currentView, onViewChange, onLogout }: SidebarPr
   const isProfessor = user?.role === ROLES.PROFESSOR;
   const isUniAdmin = user?.role === ROLES.UNIVERSITY_ADMIN;
 
-  const getNavItems = () => {
-    if (isProfessor) return { main: professorNavItems, uni: [] };
-    if (isUniAdmin) return { main: universityNavItems, uni: [] };
-    if (isUniStudent) return { main: uniStudentMainNavItems, uni: uniStudentUniNavItems };
-    return { main: studentNavItems, uni: [] };
-  };
-
-  const { main: mainNavItems, uni: uniNavItems } = getNavItems();
-
   return (
     <aside className="w-64 lg:w-72 bg-sidebar h-screen fixed left-0 top-0 z-50 text-sidebar-foreground p-4 lg:p-6 flex flex-col shadow-2xl transform transition-transform lg:translate-x-0 -translate-x-full lg:block hidden overflow-y-auto">
       {/* Logo */}
@@ -114,19 +109,15 @@ export function Sidebar({ user, currentView, onViewChange, onLogout }: SidebarPr
         </div>
       )}
 
-      {/* Main Navigation */}
+      {/* Navigation */}
       <nav className="flex-1 space-y-1">
-        {mainNavItems.map((item) => (
-          <NavButton
-            key={item.id}
-            item={item}
-            isActive={currentView === item.id}
-            onClick={() => onViewChange(item.id)}
-          />
+        {/* Student / Professor nav */}
+        {!isUniAdmin && (isProfessor ? professorNavItems : isUniStudent ? uniStudentMainNavItems : studentNavItems).map((item) => (
+          <NavButton key={item.id} item={item} isActive={currentView === item.id} onClick={() => onViewChange(item.id)} />
         ))}
 
-        {/* University Section Separator */}
-        {uniNavItems.length > 0 && (
+        {/* University student uni section */}
+        {isUniStudent && (
           <>
             <div className="pt-4 pb-2">
               <div className="flex items-center gap-2 px-2">
@@ -137,13 +128,30 @@ export function Sidebar({ user, currentView, onViewChange, onLogout }: SidebarPr
                 <div className="flex-1 h-px bg-sidebar-border" />
               </div>
             </div>
-            {uniNavItems.map((item) => (
-              <NavButton
-                key={item.id}
-                item={item}
-                isActive={currentView === item.id}
-                onClick={() => onViewChange(item.id)}
-              />
+            {uniStudentUniNavItems.map((item) => (
+              <NavButton key={item.id} item={item} isActive={currentView === item.id} onClick={() => onViewChange(item.id)} />
+            ))}
+          </>
+        )}
+
+        {/* University Admin — Classes section */}
+        {isUniAdmin && (
+          <>
+            {universityClassesNav.map((item) => (
+              <NavButton key={item.id} item={item} isActive={currentView === item.id} onClick={() => onViewChange(item.id)} />
+            ))}
+
+            <div className="pt-4 pb-2">
+              <div className="flex items-center gap-2 px-2">
+                <div className="flex-1 h-px bg-sidebar-border" />
+                <span className="text-[10px] font-black text-sidebar-muted uppercase tracking-widest flex items-center gap-1">
+                  <Settings size={10} /> Management
+                </span>
+                <div className="flex-1 h-px bg-sidebar-border" />
+              </div>
+            </div>
+            {universityManagementNav.map((item) => (
+              <NavButton key={item.id} item={item} isActive={currentView === item.id} onClick={() => onViewChange(item.id)} />
             ))}
           </>
         )}

@@ -1,4 +1,4 @@
-import { Home, BookOpen, Compass, Trophy, Crown, LogOut, BarChart3, Users, Building2, ClipboardList, Calendar, GraduationCap, Zap, X, DollarSign, MessageSquare, Clock, Bell, FileText, TrendingUp } from 'lucide-react';
+import { Home, BookOpen, Compass, Trophy, Crown, LogOut, BarChart3, Users, Building2, ClipboardList, Calendar, GraduationCap, Zap, X, DollarSign, MessageSquare, Clock, Bell, FileText, TrendingUp, Settings, Briefcase } from 'lucide-react';
 import { ROLES } from '@/lib/constants';
 import type { User } from '@/lib/constants';
 import type { ViewType } from './Sidebar';
@@ -39,20 +39,22 @@ const uniStudentUniNavItems: { id: ViewType; label: string; icon: typeof Home }[
 const professorNavItems: { id: ViewType; label: string; icon: typeof Home }[] = [
   { id: 'professor', label: 'Overview', icon: BarChart3 },
   { id: 'prof_sessions', label: 'Sessions', icon: Calendar },
-  { id: 'prof_attendance', label: 'Attendance', icon: ClipboardList },
   { id: 'prof_courses', label: 'My Courses', icon: BookOpen },
   { id: 'prof_schedule', label: 'Schedule', icon: Clock },
   { id: 'prof_payments', label: 'Payments', icon: DollarSign },
   { id: 'prof_messages', label: 'Messages', icon: MessageSquare },
 ];
 
-const universityNavItems: { id: ViewType; label: string; icon: typeof Home }[] = [
+const universityClassesNav: { id: ViewType; label: string; icon: typeof Home }[] = [
   { id: 'university', label: 'Overview', icon: Building2 },
-  { id: 'uni_classes', label: 'Classes', icon: Calendar },
-  { id: 'uni_students', label: 'Students', icon: Users },
-  { id: 'uni_professors', label: 'Professors', icon: GraduationCap },
-  { id: 'uni_salaries', label: 'Salaries', icon: DollarSign },
+  { id: 'uni_classes', label: 'Classes', icon: Users },
+];
+
+const universityManagementNav: { id: ViewType; label: string; icon: typeof Home }[] = [
+  { id: 'uni_finance', label: 'Finance', icon: DollarSign },
   { id: 'uni_announcements', label: 'Announcements', icon: Bell },
+  { id: 'uni_exams', label: 'Exams', icon: ClipboardList },
+  { id: 'uni_stages', label: 'Stages', icon: Briefcase },
   { id: 'uni_documents', label: 'Requests', icon: FileText },
   { id: 'uni_reports', label: 'Reports', icon: TrendingUp },
 ];
@@ -62,19 +64,25 @@ export function MobileSidebar({ user, currentView, onViewChange, onLogout, isOpe
   const isProfessor = user?.role === ROLES.PROFESSOR;
   const isUniAdmin = user?.role === ROLES.UNIVERSITY_ADMIN;
 
-  const getNavData = () => {
-    if (isProfessor) return { main: professorNavItems, uni: [] };
-    if (isUniAdmin) return { main: universityNavItems, uni: [] };
-    if (isUniStudent) return { main: uniStudentMainNavItems, uni: uniStudentUniNavItems };
-    return { main: studentNavItems, uni: [] };
-  };
-
-  const { main: mainNavItems, uni: uniNavItems } = getNavData();
-
   const handleNavClick = (view: ViewType) => {
     onViewChange(view);
     onClose();
   };
+
+  const renderNavButton = (item: { id: ViewType; label: string; icon: typeof Home }) => (
+    <button
+      key={item.id}
+      onClick={() => handleNavClick(item.id)}
+      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all group ${
+        currentView === item.id
+          ? 'gradient-primary text-primary-foreground shadow-xl'
+          : 'text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent'
+      }`}
+    >
+      <item.icon size={18} className={currentView === item.id ? 'text-primary-foreground' : 'group-hover:text-primary'} />
+      <span className="font-black text-sm tracking-tight">{item.label}</span>
+    </button>
+  );
 
   return (
     <>
@@ -98,10 +106,7 @@ export function MobileSidebar({ user, currentView, onViewChange, onLogout, isOpe
             </div>
             <h1 className="font-black text-xl tracking-tighter italic">UNILINGO</h1>
           </div>
-          <button
-            onClick={onClose}
-            className="w-10 h-10 rounded-xl bg-sidebar-accent flex items-center justify-center text-sidebar-muted hover:text-sidebar-foreground transition-colors"
-          >
+          <button onClick={onClose} className="w-10 h-10 rounded-xl bg-sidebar-accent flex items-center justify-center text-sidebar-muted hover:text-sidebar-foreground transition-colors">
             <X size={20} />
           </button>
         </div>
@@ -116,22 +121,9 @@ export function MobileSidebar({ user, currentView, onViewChange, onLogout, isOpe
 
         {/* Navigation */}
         <nav className="flex-1 space-y-1">
-          {mainNavItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => handleNavClick(item.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all group ${
-                currentView === item.id
-                  ? 'gradient-primary text-primary-foreground shadow-xl'
-                  : 'text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent'
-              }`}
-            >
-              <item.icon size={18} className={currentView === item.id ? 'text-primary-foreground' : 'group-hover:text-primary'} />
-              <span className="font-black text-sm tracking-tight">{item.label}</span>
-            </button>
-          ))}
+          {!isUniAdmin && (isProfessor ? professorNavItems : isUniStudent ? uniStudentMainNavItems : studentNavItems).map(renderNavButton)}
 
-          {uniNavItems.length > 0 && (
+          {isUniStudent && (
             <>
               <div className="pt-4 pb-2">
                 <div className="flex items-center gap-2 px-2">
@@ -142,20 +134,23 @@ export function MobileSidebar({ user, currentView, onViewChange, onLogout, isOpe
                   <div className="flex-1 h-px bg-sidebar-border" />
                 </div>
               </div>
-              {uniNavItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => handleNavClick(item.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all group ${
-                    currentView === item.id
-                      ? 'gradient-primary text-primary-foreground shadow-xl'
-                      : 'text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent'
-                  }`}
-                >
-                  <item.icon size={18} className={currentView === item.id ? 'text-primary-foreground' : 'group-hover:text-primary'} />
-                  <span className="font-black text-sm tracking-tight">{item.label}</span>
-                </button>
-              ))}
+              {uniStudentUniNavItems.map(renderNavButton)}
+            </>
+          )}
+
+          {isUniAdmin && (
+            <>
+              {universityClassesNav.map(renderNavButton)}
+              <div className="pt-4 pb-2">
+                <div className="flex items-center gap-2 px-2">
+                  <div className="flex-1 h-px bg-sidebar-border" />
+                  <span className="text-[10px] font-black text-sidebar-muted uppercase tracking-widest flex items-center gap-1">
+                    <Settings size={10} /> Management
+                  </span>
+                  <div className="flex-1 h-px bg-sidebar-border" />
+                </div>
+              </div>
+              {universityManagementNav.map(renderNavButton)}
             </>
           )}
         </nav>
@@ -176,10 +171,7 @@ export function MobileSidebar({ user, currentView, onViewChange, onLogout, isOpe
         )}
 
         {/* Logout */}
-        <button
-          onClick={onLogout}
-          className="flex items-center gap-3 text-sidebar-muted hover:text-destructive font-bold p-3 transition-colors text-sm"
-        >
+        <button onClick={onLogout} className="flex items-center gap-3 text-sidebar-muted hover:text-destructive font-bold p-3 transition-colors text-sm">
           <LogOut size={18} /> Sign Out
         </button>
       </aside>
