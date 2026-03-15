@@ -10,7 +10,7 @@ export type ViewType =
   // Professor views
   | 'professor' | 'prof_sessions' | 'prof_courses' | 'prof_schedule' | 'prof_payments' | 'prof_messages'
   // University admin views
-  | 'university' | 'uni_classes' | 'uni_finance' | 'uni_announcements' | 'uni_exams' | 'uni_stages' | 'uni_documents' | 'uni_reports'
+  | 'university' | 'uni_classes' | 'uni_finance' | 'uni_announcements' | 'uni_exams' | 'uni_stages' | 'uni_documents' | 'uni_reports' | 'uni_certifications' | 'uni_salaries'
   // Legacy
   | 'nexus' | 'marks' | 'dashboard' | 'courses' | 'achievements'
   // Keep old ones for backward compat
