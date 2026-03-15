@@ -130,6 +130,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
       case 'uni_students':
       case 'uni_professors':
       case 'uni_salaries':
+      case 'uni_certifications':
         return <UniversityDashboard activeSection={view} />;
 
       // Legacy
