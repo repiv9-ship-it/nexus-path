@@ -57,7 +57,7 @@ const professorNavItems: { id: ViewType; label: string; icon: typeof Home }[] = 
 ];
 
 const universityClassesNav: { id: ViewType; label: string; icon: typeof Home }[] = [
-  { id: 'university', label: 'Overview', icon: Building2 },
+  { id: 'university', label: 'Vue d\'ensemble', icon: Building2 },
   { id: 'uni_classes', label: 'Classes', icon: Users },
 ];
 
