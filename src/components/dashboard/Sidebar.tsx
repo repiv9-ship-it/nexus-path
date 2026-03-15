@@ -62,12 +62,14 @@ const universityClassesNav: { id: ViewType; label: string; icon: typeof Home }[]
 ];
 
 const universityManagementNav: { id: ViewType; label: string; icon: typeof Home }[] = [
-  { id: 'uni_finance', label: 'Finance', icon: DollarSign },
-  { id: 'uni_announcements', label: 'Announcements', icon: Bell },
-  { id: 'uni_exams', label: 'Exams', icon: ClipboardList },
+  { id: 'uni_finance', label: 'Paiements étudiants', icon: CreditCard },
+  { id: 'uni_exams', label: 'Examens & QR', icon: QrCode },
+  { id: 'uni_salaries', label: 'Salaires profs', icon: DollarSign },
+  { id: 'uni_certifications', label: 'Certifications', icon: BadgeCheck },
+  { id: 'uni_announcements', label: 'Annonces', icon: Bell },
   { id: 'uni_stages', label: 'Stages', icon: Briefcase },
-  { id: 'uni_documents', label: 'Requests', icon: FileText },
-  { id: 'uni_reports', label: 'Reports', icon: TrendingUp },
+  { id: 'uni_documents', label: 'Demandes', icon: FileText },
+  { id: 'uni_reports', label: 'Rapports', icon: TrendingUp },
 ];
 
 function NavButton({ item, isActive, onClick }: { item: { id: ViewType; label: string; icon: typeof Home }; isActive: boolean; onClick: () => void }) {
