@@ -1,4 +1,4 @@
-import { Home, BookOpen, Compass, Trophy, Crown, LogOut, BarChart3, Users, Building2, ClipboardList, Calendar, GraduationCap, Zap, X, DollarSign, MessageSquare, Clock, Bell, FileText, TrendingUp, Settings, Briefcase } from 'lucide-react';
+import { Home, BookOpen, Compass, Trophy, Crown, LogOut, BarChart3, Users, Building2, ClipboardList, Calendar, GraduationCap, Zap, X, DollarSign, MessageSquare, Clock, Bell, FileText, TrendingUp, Settings, Briefcase, BadgeCheck, CreditCard, QrCode } from 'lucide-react';
 import { ROLES } from '@/lib/constants';
 import type { User } from '@/lib/constants';
 import type { ViewType } from './Sidebar';
@@ -46,17 +46,19 @@ const professorNavItems: { id: ViewType; label: string; icon: typeof Home }[] = 
 ];
 
 const universityClassesNav: { id: ViewType; label: string; icon: typeof Home }[] = [
-  { id: 'university', label: 'Overview', icon: Building2 },
+  { id: 'university', label: 'Vue d\'ensemble', icon: Building2 },
   { id: 'uni_classes', label: 'Classes', icon: Users },
 ];
 
 const universityManagementNav: { id: ViewType; label: string; icon: typeof Home }[] = [
-  { id: 'uni_finance', label: 'Finance', icon: DollarSign },
-  { id: 'uni_announcements', label: 'Announcements', icon: Bell },
-  { id: 'uni_exams', label: 'Exams', icon: ClipboardList },
+  { id: 'uni_finance', label: 'Paiements étudiants', icon: CreditCard },
+  { id: 'uni_exams', label: 'Examens & QR', icon: QrCode },
+  { id: 'uni_salaries', label: 'Salaires profs', icon: DollarSign },
+  { id: 'uni_certifications', label: 'Certifications', icon: BadgeCheck },
+  { id: 'uni_announcements', label: 'Annonces', icon: Bell },
   { id: 'uni_stages', label: 'Stages', icon: Briefcase },
-  { id: 'uni_documents', label: 'Requests', icon: FileText },
-  { id: 'uni_reports', label: 'Reports', icon: TrendingUp },
+  { id: 'uni_documents', label: 'Demandes', icon: FileText },
+  { id: 'uni_reports', label: 'Rapports', icon: TrendingUp },
 ];
 
 export function MobileSidebar({ user, currentView, onViewChange, onLogout, isOpen, onClose }: MobileSidebarProps) {

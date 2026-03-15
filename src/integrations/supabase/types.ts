@@ -82,6 +82,51 @@ export type Database = {
           },
         ]
       }
+      certification_requests: {
+        Row: {
+          admin_note: string | null
+          certification_name: string
+          created_at: string
+          id: string
+          passed: boolean | null
+          request_type: string
+          result: string | null
+          score: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          voucher_code: string | null
+        }
+        Insert: {
+          admin_note?: string | null
+          certification_name: string
+          created_at?: string
+          id?: string
+          passed?: boolean | null
+          request_type?: string
+          result?: string | null
+          score?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          voucher_code?: string | null
+        }
+        Update: {
+          admin_note?: string | null
+          certification_name?: string
+          created_at?: string
+          id?: string
+          passed?: boolean | null
+          request_type?: string
+          result?: string | null
+          score?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          voucher_code?: string | null
+        }
+        Relationships: []
+      }
       document_requests: {
         Row: {
           admin_note: string | null
@@ -125,6 +170,50 @@ export type Database = {
             columns: ["subject_id"]
             isOneToOne: false
             referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exam_results: {
+        Row: {
+          created_at: string
+          exam_id: string
+          graded_by: string | null
+          id: string
+          max_score: number
+          qr_code: string
+          scanned_at: string | null
+          score: number | null
+          student_id: string
+        }
+        Insert: {
+          created_at?: string
+          exam_id: string
+          graded_by?: string | null
+          id?: string
+          max_score?: number
+          qr_code?: string
+          scanned_at?: string | null
+          score?: number | null
+          student_id: string
+        }
+        Update: {
+          created_at?: string
+          exam_id?: string
+          graded_by?: string | null
+          id?: string
+          max_score?: number
+          qr_code?: string
+          scanned_at?: string | null
+          score?: number | null
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_results_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: false
+            referencedRelation: "exam_schedule"
             referencedColumns: ["id"]
           },
         ]
@@ -506,6 +595,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      student_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          note: string | null
+          payment_method: string
+          payment_period: string
+          receipt_number: string
+          recorded_by: string | null
+          student_id: string
+          total_due: number
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          note?: string | null
+          payment_method?: string
+          payment_period?: string
+          receipt_number?: string
+          recorded_by?: string | null
+          student_id: string
+          total_due?: number
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          note?: string | null
+          payment_method?: string
+          payment_period?: string
+          receipt_number?: string
+          recorded_by?: string | null
+          student_id?: string
+          total_due?: number
+        }
+        Relationships: []
       }
       subjects: {
         Row: {
