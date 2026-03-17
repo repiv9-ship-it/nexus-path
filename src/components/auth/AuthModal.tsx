@@ -13,7 +13,7 @@ interface AuthModalProps {
 }
 
 type Step = 'choice' | 'personal' | 'university' | 'welcome';
-type JoinType = 'free' | 'invited' | 'professor' | 'university_admin';
+type JoinType = 'free' | 'invited' | 'professor' | 'university_admin' | 'super_admin';
 
 interface FormErrors {
   name?: string;
