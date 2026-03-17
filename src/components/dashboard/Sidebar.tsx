@@ -1,4 +1,4 @@
-import { Home, BookOpen, Compass, Trophy, Crown, LogOut, BarChart3, Users, Building2, ClipboardList, Calendar, GraduationCap, Zap, Settings, DollarSign, MessageSquare, Clock, Bell, FileText, TrendingUp, Briefcase, BadgeCheck, CreditCard, QrCode } from 'lucide-react';
+import { Home, BookOpen, Compass, Trophy, Crown, LogOut, BarChart3, Users, Building2, ClipboardList, Calendar, GraduationCap, Zap, Settings, DollarSign, MessageSquare, Clock, Bell, FileText, TrendingUp, Briefcase, BadgeCheck, CreditCard, QrCode, Shield, Layout, Headphones, Tag, Globe } from 'lucide-react';
 import { ROLES } from '@/lib/constants';
 import type { User } from '@/lib/constants';
 
@@ -11,10 +11,12 @@ export type ViewType =
   | 'professor' | 'prof_sessions' | 'prof_courses' | 'prof_schedule' | 'prof_payments' | 'prof_messages'
   // University admin views
   | 'university' | 'uni_classes' | 'uni_finance' | 'uni_announcements' | 'uni_exams' | 'uni_stages' | 'uni_documents' | 'uni_reports' | 'uni_certifications' | 'uni_salaries'
+  // Super Admin views
+  | 'super_admin' | 'sa_universities' | 'sa_courses' | 'sa_analytics' | 'sa_support' | 'sa_cms'
   // Legacy
   | 'nexus' | 'marks' | 'dashboard' | 'courses' | 'achievements'
   // Keep old ones for backward compat
-  | 'prof_attendance' | 'uni_students' | 'uni_professors' | 'uni_salaries';
+  | 'prof_attendance' | 'uni_students' | 'uni_professors';
 
 interface SidebarProps {
   user: User;
@@ -72,6 +74,15 @@ const universityManagementNav: { id: ViewType; label: string; icon: typeof Home 
   { id: 'uni_reports', label: 'Rapports', icon: TrendingUp },
 ];
 
+const superAdminNavItems: { id: ViewType; label: string; icon: typeof Home }[] = [
+  { id: 'super_admin', label: 'Command Center', icon: Shield },
+  { id: 'sa_universities', label: 'Universities', icon: Building2 },
+  { id: 'sa_courses', label: 'Course Governance', icon: BookOpen },
+  { id: 'sa_analytics', label: 'Analytics & Revenue', icon: TrendingUp },
+  { id: 'sa_support', label: 'Support & Disputes', icon: Headphones },
+  { id: 'sa_cms', label: 'Platform CMS', icon: Layout },
+];
+
 function NavButton({ item, isActive, onClick }: { item: { id: ViewType; label: string; icon: typeof Home }; isActive: boolean; onClick: () => void }) {
   return (
     <button
@@ -92,6 +103,7 @@ export function Sidebar({ user, currentView, onViewChange, onLogout }: SidebarPr
   const isUniStudent = user?.role === ROLES.UNIVERSITY_STUDENT;
   const isProfessor = user?.role === ROLES.PROFESSOR;
   const isUniAdmin = user?.role === ROLES.UNIVERSITY_ADMIN;
+  const isSuperAdmin = user?.role === ROLES.SUPER_ADMIN;
 
   return (
     <aside className="w-64 lg:w-72 bg-sidebar h-screen fixed left-0 top-0 z-50 text-sidebar-foreground p-4 lg:p-6 flex flex-col shadow-2xl transform transition-transform lg:translate-x-0 -translate-x-full lg:block hidden overflow-y-auto">
@@ -113,8 +125,13 @@ export function Sidebar({ user, currentView, onViewChange, onLogout }: SidebarPr
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1">
+        {/* Super Admin nav */}
+        {isSuperAdmin && superAdminNavItems.map((item) => (
+          <NavButton key={item.id} item={item} isActive={currentView === item.id} onClick={() => onViewChange(item.id)} />
+        ))}
+
         {/* Student / Professor nav */}
-        {!isUniAdmin && (isProfessor ? professorNavItems : isUniStudent ? uniStudentMainNavItems : studentNavItems).map((item) => (
+        {!isUniAdmin && !isSuperAdmin && (isProfessor ? professorNavItems : isUniStudent ? uniStudentMainNavItems : studentNavItems).map((item) => (
           <NavButton key={item.id} item={item} isActive={currentView === item.id} onClick={() => onViewChange(item.id)} />
         ))}
 

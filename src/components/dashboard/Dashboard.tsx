@@ -12,6 +12,7 @@ import { Achievements } from './views/Achievements';
 import { MarksSection } from './views/MarksSection';
 import { ProfessorDashboard } from './views/professor/ProfessorDashboard';
 import { UniversityDashboard } from './views/university/UniversityDashboard';
+import { SuperAdminDashboard } from './views/superadmin/SuperAdminDashboard';
 import { UniHomeView } from './views/university/UniHomeView';
 import { UniCoursesView } from './views/university/UniCoursesView';
 import { UniMarksView } from './views/university/UniMarksView';
@@ -52,6 +53,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
       case ROLES.PROFESSOR: return 'professor';
       case ROLES.UNIVERSITY_ADMIN: return 'university';
       case ROLES.UNIVERSITY_STUDENT: return 'uni_home';
+      case ROLES.SUPER_ADMIN: return 'super_admin';
       default: return 'home';
     }
   };
@@ -132,6 +134,15 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
       case 'uni_salaries':
       case 'uni_certifications':
         return <UniversityDashboard activeSection={view} />;
+
+      // Super Admin views
+      case 'super_admin':
+      case 'sa_universities':
+      case 'sa_courses':
+      case 'sa_analytics':
+      case 'sa_support':
+      case 'sa_cms':
+        return <SuperAdminDashboard activeSection={view} />;
 
       // Legacy
       case 'marks':

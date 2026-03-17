@@ -1,4 +1,4 @@
-import { Home, BookOpen, Compass, Trophy, Crown, LogOut, BarChart3, Users, Building2, ClipboardList, Calendar, GraduationCap, Zap, X, DollarSign, MessageSquare, Clock, Bell, FileText, TrendingUp, Settings, Briefcase, BadgeCheck, CreditCard, QrCode } from 'lucide-react';
+import { Home, BookOpen, Compass, Trophy, Crown, LogOut, BarChart3, Users, Building2, ClipboardList, Calendar, GraduationCap, Zap, X, DollarSign, MessageSquare, Clock, Bell, FileText, TrendingUp, Settings, Briefcase, BadgeCheck, CreditCard, QrCode, Shield, Layout, Headphones, Tag } from 'lucide-react';
 import { ROLES } from '@/lib/constants';
 import type { User } from '@/lib/constants';
 import type { ViewType } from './Sidebar';
@@ -61,10 +61,20 @@ const universityManagementNav: { id: ViewType; label: string; icon: typeof Home 
   { id: 'uni_reports', label: 'Rapports', icon: TrendingUp },
 ];
 
+const superAdminNavItems: { id: ViewType; label: string; icon: typeof Home }[] = [
+  { id: 'super_admin', label: 'Command Center', icon: Shield },
+  { id: 'sa_universities', label: 'Universities', icon: Building2 },
+  { id: 'sa_courses', label: 'Course Governance', icon: BookOpen },
+  { id: 'sa_analytics', label: 'Analytics & Revenue', icon: TrendingUp },
+  { id: 'sa_support', label: 'Support & Disputes', icon: Headphones },
+  { id: 'sa_cms', label: 'Platform CMS', icon: Layout },
+];
+
 export function MobileSidebar({ user, currentView, onViewChange, onLogout, isOpen, onClose }: MobileSidebarProps) {
   const isUniStudent = user?.role === ROLES.UNIVERSITY_STUDENT;
   const isProfessor = user?.role === ROLES.PROFESSOR;
   const isUniAdmin = user?.role === ROLES.UNIVERSITY_ADMIN;
+  const isSuperAdmin = user?.role === ROLES.SUPER_ADMIN;
 
   const handleNavClick = (view: ViewType) => {
     onViewChange(view);
@@ -123,7 +133,9 @@ export function MobileSidebar({ user, currentView, onViewChange, onLogout, isOpe
 
         {/* Navigation */}
         <nav className="flex-1 space-y-1">
-          {!isUniAdmin && (isProfessor ? professorNavItems : isUniStudent ? uniStudentMainNavItems : studentNavItems).map(renderNavButton)}
+          {isSuperAdmin && superAdminNavItems.map(renderNavButton)}
+
+          {!isUniAdmin && !isSuperAdmin && (isProfessor ? professorNavItems : isUniStudent ? uniStudentMainNavItems : studentNavItems).map(renderNavButton)}
 
           {isUniStudent && (
             <>

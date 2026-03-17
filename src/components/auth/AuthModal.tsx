@@ -13,7 +13,7 @@ interface AuthModalProps {
 }
 
 type Step = 'choice' | 'personal' | 'university' | 'welcome';
-type JoinType = 'free' | 'invited' | 'professor' | 'university_admin';
+type JoinType = 'free' | 'invited' | 'professor' | 'university_admin' | 'super_admin';
 
 interface FormErrors {
   name?: string;
@@ -92,7 +92,8 @@ export function AuthModal({ isOpen, onClose, onAuth, initialMode = 'signup' }: A
     await new Promise(resolve => setTimeout(resolve, 1000));
     let role: string = ROLES.STUDENT;
     let university: string | undefined;
-    if (formData.email.includes('prof')) role = ROLES.PROFESSOR;
+    if (formData.email.includes('super')) role = ROLES.SUPER_ADMIN;
+    else if (formData.email.includes('prof')) role = ROLES.PROFESSOR;
     else if (formData.email.includes('admin')) role = ROLES.UNIVERSITY_ADMIN;
     else if (formData.email.includes('uni')) {
       role = ROLES.UNIVERSITY_STUDENT;
@@ -136,6 +137,7 @@ export function AuthModal({ isOpen, onClose, onAuth, initialMode = 'signup' }: A
       case 'professor': role = ROLES.PROFESSOR; break;
       case 'university_admin': role = ROLES.UNIVERSITY_ADMIN; break;
       case 'invited': role = ROLES.UNIVERSITY_STUDENT; break;
+      case 'super_admin': role = ROLES.SUPER_ADMIN; break;
       default: role = ROLES.STUDENT;
     }
     onAuth({
@@ -256,6 +258,7 @@ export function AuthModal({ isOpen, onClose, onAuth, initialMode = 'signup' }: A
                   { type: 'invited' as JoinType, icon: Building2, title: 'University Student', desc: 'Enrolled at a university', borderHover: 'hover:border-primary' },
                   { type: 'professor' as JoinType, icon: GraduationCap, title: 'Professor', desc: 'Create and manage courses', borderHover: 'hover:border-secondary' },
                   { type: 'university_admin' as JoinType, icon: Building2, title: 'University Admin', desc: 'Manage your institution', borderHover: 'hover:border-warning' },
+                  { type: 'super_admin' as JoinType, icon: Zap, title: 'Super Admin', desc: 'Platform command center', borderHover: 'hover:border-destructive' },
                 ].map((option) => (
                   <button
                     key={option.type}
