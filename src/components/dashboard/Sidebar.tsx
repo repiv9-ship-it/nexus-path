@@ -103,6 +103,7 @@ export function Sidebar({ user, currentView, onViewChange, onLogout }: SidebarPr
   const isUniStudent = user?.role === ROLES.UNIVERSITY_STUDENT;
   const isProfessor = user?.role === ROLES.PROFESSOR;
   const isUniAdmin = user?.role === ROLES.UNIVERSITY_ADMIN;
+  const isSuperAdmin = user?.role === ROLES.SUPER_ADMIN;
 
   return (
     <aside className="w-64 lg:w-72 bg-sidebar h-screen fixed left-0 top-0 z-50 text-sidebar-foreground p-4 lg:p-6 flex flex-col shadow-2xl transform transition-transform lg:translate-x-0 -translate-x-full lg:block hidden overflow-y-auto">
