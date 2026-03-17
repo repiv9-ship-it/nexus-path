@@ -127,6 +127,65 @@ export type Database = {
         }
         Relationships: []
       }
+      course_submissions: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          instructor_name: string | null
+          price: number
+          rejection_reason: string | null
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submitted_by: string
+          title: string
+          university_id: string | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          instructor_name?: string | null
+          price?: number
+          rejection_reason?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_by: string
+          title: string
+          university_id?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          instructor_name?: string | null
+          price?: number
+          rejection_reason?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_by?: string
+          title?: string
+          university_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_submissions_university_id_fkey"
+            columns: ["university_id"]
+            isOneToOne: false
+            referencedRelation: "universities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_requests: {
         Row: {
           admin_note: string | null
@@ -420,6 +479,125 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_banners: {
+        Row: {
+          created_at: string
+          ends_at: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          link: string | null
+          position: number
+          starts_at: string | null
+          subtitle: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          link?: string | null
+          position?: number
+          starts_at?: string | null
+          subtitle?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          link?: string | null
+          position?: number
+          starts_at?: string | null
+          subtitle?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      platform_discounts: {
+        Row: {
+          code: string
+          created_at: string
+          current_uses: number
+          discount_percent: number
+          ends_at: string | null
+          id: string
+          is_active: boolean
+          max_uses: number | null
+          name: string
+          starts_at: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          current_uses?: number
+          discount_percent?: number
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          name: string
+          starts_at?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          current_uses?: number
+          discount_percent?: number
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          name?: string
+          starts_at?: string | null
+        }
+        Relationships: []
+      }
+      platform_payouts: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          paid_at: string | null
+          period: string
+          status: string
+          university_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          paid_at?: string | null
+          period: string
+          status?: string
+          university_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          paid_at?: string | null
+          period?: string
+          status?: string
+          university_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_payouts_university_id_fkey"
+            columns: ["university_id"]
+            isOneToOne: false
+            referencedRelation: "universities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       professors: {
         Row: {
           avatar_url: string | null
@@ -675,6 +853,154 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      support_tickets: {
+        Row: {
+          assigned_to: string | null
+          category: string
+          created_at: string
+          created_by: string
+          id: string
+          message: string
+          priority: string
+          status: string
+          subject: string
+          university_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          category?: string
+          created_at?: string
+          created_by: string
+          id?: string
+          message: string
+          priority?: string
+          status?: string
+          subject: string
+          university_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          category?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          message?: string
+          priority?: string
+          status?: string
+          subject?: string
+          university_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_tickets_university_id_fkey"
+            columns: ["university_id"]
+            isOneToOne: false
+            referencedRelation: "universities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ticket_replies: {
+        Row: {
+          author_id: string
+          author_role: string
+          created_at: string
+          id: string
+          message: string
+          ticket_id: string
+        }
+        Insert: {
+          author_id: string
+          author_role?: string
+          created_at?: string
+          id?: string
+          message: string
+          ticket_id: string
+        }
+        Update: {
+          author_id?: string
+          author_role?: string
+          created_at?: string
+          id?: string
+          message?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_replies_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      universities: {
+        Row: {
+          activated_at: string | null
+          active_seats: number
+          city: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          country: string | null
+          created_at: string
+          id: string
+          logo_url: string | null
+          max_seats: number
+          name: string
+          slug: string
+          status: string
+          storage_limit_gb: number
+          storage_used_gb: number
+          subscription_plan: string
+          subscription_price: number
+          suspended_at: string | null
+        }
+        Insert: {
+          activated_at?: string | null
+          active_seats?: number
+          city?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          max_seats?: number
+          name: string
+          slug: string
+          status?: string
+          storage_limit_gb?: number
+          storage_used_gb?: number
+          subscription_plan?: string
+          subscription_price?: number
+          suspended_at?: string | null
+        }
+        Update: {
+          activated_at?: string | null
+          active_seats?: number
+          city?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          max_seats?: number
+          name?: string
+          slug?: string
+          status?: string
+          storage_limit_gb?: number
+          storage_used_gb?: number
+          subscription_plan?: string
+          subscription_price?: number
+          suspended_at?: string | null
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
