@@ -135,6 +135,15 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
       case 'uni_certifications':
         return <UniversityDashboard activeSection={view} />;
 
+      // Super Admin views
+      case 'super_admin':
+      case 'sa_universities':
+      case 'sa_courses':
+      case 'sa_analytics':
+      case 'sa_support':
+      case 'sa_cms':
+        return <SuperAdminDashboard activeSection={view} />;
+
       // Legacy
       case 'marks':
         return <MarksSection />;

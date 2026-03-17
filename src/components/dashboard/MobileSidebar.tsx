@@ -133,7 +133,9 @@ export function MobileSidebar({ user, currentView, onViewChange, onLogout, isOpe
 
         {/* Navigation */}
         <nav className="flex-1 space-y-1">
-          {!isUniAdmin && (isProfessor ? professorNavItems : isUniStudent ? uniStudentMainNavItems : studentNavItems).map(renderNavButton)}
+          {isSuperAdmin && superAdminNavItems.map(renderNavButton)}
+
+          {!isUniAdmin && !isSuperAdmin && (isProfessor ? professorNavItems : isUniStudent ? uniStudentMainNavItems : studentNavItems).map(renderNavButton)}
 
           {isUniStudent && (
             <>
