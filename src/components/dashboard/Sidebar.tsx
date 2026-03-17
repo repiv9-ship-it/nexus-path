@@ -74,6 +74,15 @@ const universityManagementNav: { id: ViewType; label: string; icon: typeof Home 
   { id: 'uni_reports', label: 'Rapports', icon: TrendingUp },
 ];
 
+const superAdminNavItems: { id: ViewType; label: string; icon: typeof Home }[] = [
+  { id: 'super_admin', label: 'Command Center', icon: Shield },
+  { id: 'sa_universities', label: 'Universities', icon: Building2 },
+  { id: 'sa_courses', label: 'Course Governance', icon: BookOpen },
+  { id: 'sa_analytics', label: 'Analytics & Revenue', icon: TrendingUp },
+  { id: 'sa_support', label: 'Support & Disputes', icon: Headphones },
+  { id: 'sa_cms', label: 'Platform CMS', icon: Layout },
+];
+
 function NavButton({ item, isActive, onClick }: { item: { id: ViewType; label: string; icon: typeof Home }; isActive: boolean; onClick: () => void }) {
   return (
     <button
