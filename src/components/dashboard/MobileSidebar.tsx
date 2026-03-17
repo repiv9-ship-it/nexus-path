@@ -61,6 +61,15 @@ const universityManagementNav: { id: ViewType; label: string; icon: typeof Home 
   { id: 'uni_reports', label: 'Rapports', icon: TrendingUp },
 ];
 
+const superAdminNavItems: { id: ViewType; label: string; icon: typeof Home }[] = [
+  { id: 'super_admin', label: 'Command Center', icon: Shield },
+  { id: 'sa_universities', label: 'Universities', icon: Building2 },
+  { id: 'sa_courses', label: 'Course Governance', icon: BookOpen },
+  { id: 'sa_analytics', label: 'Analytics & Revenue', icon: TrendingUp },
+  { id: 'sa_support', label: 'Support & Disputes', icon: Headphones },
+  { id: 'sa_cms', label: 'Platform CMS', icon: Layout },
+];
+
 export function MobileSidebar({ user, currentView, onViewChange, onLogout, isOpen, onClose }: MobileSidebarProps) {
   const isUniStudent = user?.role === ROLES.UNIVERSITY_STUDENT;
   const isProfessor = user?.role === ROLES.PROFESSOR;
