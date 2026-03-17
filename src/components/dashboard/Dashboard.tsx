@@ -12,6 +12,7 @@ import { Achievements } from './views/Achievements';
 import { MarksSection } from './views/MarksSection';
 import { ProfessorDashboard } from './views/professor/ProfessorDashboard';
 import { UniversityDashboard } from './views/university/UniversityDashboard';
+import { SuperAdminDashboard } from './views/superadmin/SuperAdminDashboard';
 import { UniHomeView } from './views/university/UniHomeView';
 import { UniCoursesView } from './views/university/UniCoursesView';
 import { UniMarksView } from './views/university/UniMarksView';
