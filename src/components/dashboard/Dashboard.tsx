@@ -53,6 +53,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
       case ROLES.PROFESSOR: return 'professor';
       case ROLES.UNIVERSITY_ADMIN: return 'university';
       case ROLES.UNIVERSITY_STUDENT: return 'uni_home';
+      case ROLES.SUPER_ADMIN: return 'super_admin';
       default: return 'home';
     }
   };
