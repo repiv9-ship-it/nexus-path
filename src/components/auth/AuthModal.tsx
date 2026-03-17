@@ -92,7 +92,8 @@ export function AuthModal({ isOpen, onClose, onAuth, initialMode = 'signup' }: A
     await new Promise(resolve => setTimeout(resolve, 1000));
     let role: string = ROLES.STUDENT;
     let university: string | undefined;
-    if (formData.email.includes('prof')) role = ROLES.PROFESSOR;
+    if (formData.email.includes('super')) role = ROLES.SUPER_ADMIN;
+    else if (formData.email.includes('prof')) role = ROLES.PROFESSOR;
     else if (formData.email.includes('admin')) role = ROLES.UNIVERSITY_ADMIN;
     else if (formData.email.includes('uni')) {
       role = ROLES.UNIVERSITY_STUDENT;
