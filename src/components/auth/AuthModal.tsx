@@ -258,6 +258,7 @@ export function AuthModal({ isOpen, onClose, onAuth, initialMode = 'signup' }: A
                   { type: 'invited' as JoinType, icon: Building2, title: 'University Student', desc: 'Enrolled at a university', borderHover: 'hover:border-primary' },
                   { type: 'professor' as JoinType, icon: GraduationCap, title: 'Professor', desc: 'Create and manage courses', borderHover: 'hover:border-secondary' },
                   { type: 'university_admin' as JoinType, icon: Building2, title: 'University Admin', desc: 'Manage your institution', borderHover: 'hover:border-warning' },
+                  { type: 'super_admin' as JoinType, icon: Zap, title: 'Super Admin', desc: 'Platform command center', borderHover: 'hover:border-destructive' },
                 ].map((option) => (
                   <button
                     key={option.type}
