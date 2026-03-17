@@ -1,4 +1,4 @@
-import { Home, BookOpen, Compass, Trophy, Crown, LogOut, BarChart3, Users, Building2, ClipboardList, Calendar, GraduationCap, Zap, X, DollarSign, MessageSquare, Clock, Bell, FileText, TrendingUp, Settings, Briefcase, BadgeCheck, CreditCard, QrCode } from 'lucide-react';
+import { Home, BookOpen, Compass, Trophy, Crown, LogOut, BarChart3, Users, Building2, ClipboardList, Calendar, GraduationCap, Zap, X, DollarSign, MessageSquare, Clock, Bell, FileText, TrendingUp, Settings, Briefcase, BadgeCheck, CreditCard, QrCode, Shield, Layout, Headphones, Tag } from 'lucide-react';
 import { ROLES } from '@/lib/constants';
 import type { User } from '@/lib/constants';
 import type { ViewType } from './Sidebar';
