@@ -11,10 +11,12 @@ export type ViewType =
   | 'professor' | 'prof_sessions' | 'prof_courses' | 'prof_schedule' | 'prof_payments' | 'prof_messages'
   // University admin views
   | 'university' | 'uni_classes' | 'uni_finance' | 'uni_announcements' | 'uni_exams' | 'uni_stages' | 'uni_documents' | 'uni_reports' | 'uni_certifications' | 'uni_salaries'
+  // Super Admin views
+  | 'super_admin' | 'sa_universities' | 'sa_courses' | 'sa_analytics' | 'sa_support' | 'sa_cms'
   // Legacy
   | 'nexus' | 'marks' | 'dashboard' | 'courses' | 'achievements'
   // Keep old ones for backward compat
-  | 'prof_attendance' | 'uni_students' | 'uni_professors' | 'uni_salaries';
+  | 'prof_attendance' | 'uni_students' | 'uni_professors';
 
 interface SidebarProps {
   user: User;
