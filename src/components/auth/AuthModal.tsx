@@ -137,6 +137,7 @@ export function AuthModal({ isOpen, onClose, onAuth, initialMode = 'signup' }: A
       case 'professor': role = ROLES.PROFESSOR; break;
       case 'university_admin': role = ROLES.UNIVERSITY_ADMIN; break;
       case 'invited': role = ROLES.UNIVERSITY_STUDENT; break;
+      case 'super_admin': role = ROLES.SUPER_ADMIN; break;
       default: role = ROLES.STUDENT;
     }
     onAuth({
