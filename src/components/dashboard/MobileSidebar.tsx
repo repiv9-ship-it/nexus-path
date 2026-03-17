@@ -74,6 +74,7 @@ export function MobileSidebar({ user, currentView, onViewChange, onLogout, isOpe
   const isUniStudent = user?.role === ROLES.UNIVERSITY_STUDENT;
   const isProfessor = user?.role === ROLES.PROFESSOR;
   const isUniAdmin = user?.role === ROLES.UNIVERSITY_ADMIN;
+  const isSuperAdmin = user?.role === ROLES.SUPER_ADMIN;
 
   const handleNavClick = (view: ViewType) => {
     onViewChange(view);
