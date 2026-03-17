@@ -125,8 +125,13 @@ export function Sidebar({ user, currentView, onViewChange, onLogout }: SidebarPr
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1">
+        {/* Super Admin nav */}
+        {isSuperAdmin && superAdminNavItems.map((item) => (
+          <NavButton key={item.id} item={item} isActive={currentView === item.id} onClick={() => onViewChange(item.id)} />
+        ))}
+
         {/* Student / Professor nav */}
-        {!isUniAdmin && (isProfessor ? professorNavItems : isUniStudent ? uniStudentMainNavItems : studentNavItems).map((item) => (
+        {!isUniAdmin && !isSuperAdmin && (isProfessor ? professorNavItems : isUniStudent ? uniStudentMainNavItems : studentNavItems).map((item) => (
           <NavButton key={item.id} item={item} isActive={currentView === item.id} onClick={() => onViewChange(item.id)} />
         ))}
 
