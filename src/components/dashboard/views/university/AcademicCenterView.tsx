@@ -417,19 +417,21 @@ function CertificationsTab() {
   ]);
   const [showCertForm, setShowCertForm] = useState(false);
   const [certName, setCertName] = useState('');
+  const [customCertName, setCustomCertName] = useState('');
+  const [isCustomCert, setIsCustomCert] = useState(false);
   const [certType, setCertType] = useState<'white_test' | 'voucher'>('white_test');
   const [showResultForm, setShowResultForm] = useState<string | null>(null);
   const [resultPassed, setResultPassed] = useState(true);
   const [resultScore, setResultScore] = useState('');
 
   const handleCertSubmit = () => {
-    if (!certName) return;
-    const cert = AVAILABLE_CERTS.find(c => c.id === certName);
+    const finalName = isCustomCert ? customCertName : AVAILABLE_CERTS.find(c => c.id === certName)?.name;
+    if (!finalName) return;
     setCertRequests(prev => [{
-      id: `cr${Date.now()}`, certName: cert?.name || certName, type: certType,
+      id: `cr${Date.now()}`, certName: finalName, type: certType,
       status: 'en_attente', createdAt: new Date().toISOString().split('T')[0],
     }, ...prev]);
-    setShowCertForm(false); setCertName(''); setCertType('white_test');
+    setShowCertForm(false); setCertName(''); setCustomCertName(''); setCertType('white_test'); setIsCustomCert(false);
   };
 
   const handleLogResult = (reqId: string) => {
