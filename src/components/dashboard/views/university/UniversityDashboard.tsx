@@ -1204,5 +1204,133 @@ export function UniversityDashboard({ activeSection = 'overview' }: UniversityDa
     );
   }
 
+  // ═══════════ MODULE VISIBILITY ═══════════
+  if (activeSection === 'uni_modules') {
+    return <ModuleVisibilitySection />;
+  }
+
+  // ═══════════ EMPLOYEES & ROLES ═══════════
+  if (activeSection === 'uni_employees') {
+    return <EmployeesSection />;
+  }
+
   return null;
+}
+
+// ─── Module Visibility Manager ───
+function ModuleVisibilitySection() {
+  const [modules, setModules] = useState([
+    { id: 'finance', label: 'Student Payments', description: 'Track student fees and payment history', enabled: true },
+    { id: 'exams', label: 'Exams & QR Codes', description: 'Schedule exams and generate QR attendance', enabled: true },
+    { id: 'salaries', label: 'Professor Salaries', description: 'Manage professor payroll', enabled: true },
+    { id: 'certifications', label: 'Certifications', description: 'Student certification requests and vouchers', enabled: true },
+    { id: 'announcements', label: 'Announcements', description: 'University-wide announcements', enabled: true },
+    { id: 'stages', label: 'Internships (Stages)', description: 'Internship listings and applications', enabled: true },
+    { id: 'documents', label: 'Document Requests', description: 'Student document and re-correction requests', enabled: true },
+    { id: 'reports', label: 'Reports & Analytics', description: 'Performance and statistical reports', enabled: true },
+  ]);
+
+  const toggleModule = (id: string) => {
+    setModules(prev => prev.map(m => m.id === id ? { ...m, enabled: !m.enabled } : m));
+  };
+
+  return (
+    <div className="space-y-6 animate-fade-in">
+      <div>
+        <h2 className="text-2xl font-black tracking-tight">Module Visibility</h2>
+        <p className="text-muted-foreground text-sm mt-1">Control which features are visible to your university. Hidden modules won't appear in sidebars or dashboards.</p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {modules.map(mod => (
+          <div key={mod.id} className={`glass-card p-4 rounded-2xl flex items-center gap-4 transition-all ${mod.enabled ? 'border-primary/20' : 'opacity-50'}`}>
+            <div className="flex-1 min-w-0">
+              <p className="font-black text-sm">{mod.label}</p>
+              <p className="text-muted-foreground text-xs mt-0.5">{mod.description}</p>
+            </div>
+            <button
+              onClick={() => toggleModule(mod.id)}
+              className={`w-12 h-7 rounded-full transition-all flex items-center px-1 ${mod.enabled ? 'bg-primary' : 'bg-muted'}`}
+            >
+              <div className={`w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${mod.enabled ? 'translate-x-5' : 'translate-x-0'}`} />
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <div className="glass-card p-4 rounded-2xl bg-warning/5 border-warning/20">
+        <p className="text-xs font-bold text-warning">Changes take effect immediately. Hidden modules will not be accessible by students or staff.</p>
+      </div>
+    </div>
+  );
+}
+
+// ─── Employees & Role Management ───
+function EmployeesSection() {
+  const DEPARTMENTS = ['Administration', 'Finance', 'Academic Affairs', 'IT', 'Student Affairs', 'HR'];
+  
+  const [employees] = useState([
+    { id: '1', name: 'Fatima Ben Salah', email: 'fatima@uni.tn', department: 'Administration', role: 'Admin', permissions: ['all'], status: 'active' as const },
+    { id: '2', name: 'Mohamed Khelifi', email: 'mohamed@uni.tn', department: 'Finance', role: 'Finance Manager', permissions: ['uni_finance', 'uni_salaries', 'uni_reports'], status: 'active' as const },
+    { id: '3', name: 'Amira Bouazizi', email: 'amira@uni.tn', department: 'Academic Affairs', role: 'Academic Coordinator', permissions: ['uni_classes', 'uni_exams', 'uni_documents'], status: 'active' as const },
+    { id: '4', name: 'Khalil Trabelsi', email: 'khalil@uni.tn', department: 'Student Affairs', role: 'Student Manager', permissions: ['uni_stages', 'uni_certifications', 'uni_announcements'], status: 'active' as const },
+    { id: '5', name: 'Nour El Houda', email: 'nour@uni.tn', department: 'IT', role: 'IT Support', permissions: ['uni_reports'], status: 'inactive' as const },
+  ]);
+
+  return (
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 className="text-2xl font-black tracking-tight">Employees & Roles</h2>
+          <p className="text-muted-foreground text-sm mt-1">Manage staff access by department. Each employee sees only their assigned modules.</p>
+        </div>
+        <Button className="gradient-primary font-black text-sm h-9">
+          <Plus size={14} className="mr-1.5" /> Add Employee
+        </Button>
+      </div>
+
+      {/* Department summary */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+        {DEPARTMENTS.map(dept => {
+          const count = employees.filter(e => e.department === dept).length;
+          return (
+            <div key={dept} className="glass-card p-3 rounded-xl text-center">
+              <p className="font-black text-lg text-primary">{count}</p>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase truncate">{dept}</p>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Employee list */}
+      <div className="space-y-3">
+        {employees.map(emp => (
+          <div key={emp.id} className="glass-card p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="w-10 h-10 gradient-primary rounded-lg flex items-center justify-center text-primary-foreground font-black text-xs shrink-0">
+              {emp.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="font-black text-sm">{emp.name}</p>
+                <span className={`px-2 py-0.5 rounded text-[10px] font-black border ${emp.status === 'active' ? 'bg-success/10 text-success border-success/20' : 'bg-muted text-muted-foreground border-border'}`}>
+                  {emp.status}
+                </span>
+              </div>
+              <p className="text-muted-foreground text-xs">{emp.email}</p>
+              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                <span className="px-2 py-0.5 bg-primary/10 text-primary border border-primary/20 rounded text-[10px] font-black">{emp.department}</span>
+                <span className="text-muted-foreground text-[10px] font-bold">·</span>
+                <span className="text-muted-foreground text-[10px] font-bold">{emp.role}</span>
+              </div>
+            </div>
+            <div className="flex gap-2 shrink-0">
+              <Button variant="outline" size="sm" className="h-8 text-xs font-bold">
+                <Settings size={12} className="mr-1" /> Permissions
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
