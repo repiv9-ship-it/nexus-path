@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Sidebar, ViewType } from './Sidebar';
+import { Sidebar } from './Sidebar';
 import { MobileSidebar } from './MobileSidebar';
 import { Header } from './Header';
+import { RoleSwitcher } from './RoleSwitcher';
 import { HomeView } from './views/HomeView';
 import { NexusHub } from './views/NexusHub';
 import { SpellbookLibrary } from './views/SpellbookLibrary';
@@ -20,10 +21,12 @@ import { ScheduleView } from './views/university/ScheduleView';
 import { AcademicCenterView } from './views/university/AcademicCenterView';
 import { ROLES } from '@/lib/constants';
 import type { User } from '@/lib/constants';
+import type { ViewType } from '@/lib/navigation';
 
 interface DashboardProps {
   user: User;
   onLogout: () => void;
+  onSwitchUser?: (user: User) => void;
 }
 
 interface Course {
@@ -44,13 +47,14 @@ interface Level {
   status: string;
 }
 
-export function Dashboard({ user, onLogout }: DashboardProps) {
+export function Dashboard({ user, onLogout, onSwitchUser }: DashboardProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [roleSwitcherOpen, setRoleSwitcherOpen] = useState(false);
 
   const getDefaultView = (): ViewType => {
     if (!user) return 'home';
     switch (user.role) {
-      case ROLES.PROFESSOR: return 'professor';
+      case ROLES.PROFESSOR: return user.university ? 'professor' : 'home';
       case ROLES.UNIVERSITY_ADMIN: return 'university';
       case ROLES.UNIVERSITY_STUDENT: return 'uni_home';
       case ROLES.SUPER_ADMIN: return 'super_admin';
@@ -67,6 +71,13 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
     setSelectedCourse(null);
     setActiveLevel(null);
     setMobileMenuOpen(false);
+  };
+
+  const handleSwitchRole = (newUser: User) => {
+    if (onSwitchUser) {
+      onSwitchUser(newUser);
+    }
+    setRoleSwitcherOpen(false);
   };
 
   const renderContent = () => {
@@ -110,7 +121,15 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
       case 'academic_center':
         return <AcademicCenterView />;
 
-      // Professor views
+      // Professor views (independent)
+      case 'prof_my_courses':
+        return <ProfessorDashboard activeSection="prof_courses" />;
+      case 'prof_public_profile':
+        return <ProfessorDashboard activeSection="prof_public_profile" />;
+      case 'prof_earnings':
+        return <ProfessorDashboard activeSection="prof_payments" />;
+
+      // Professor views (university)
       case 'professor':
       case 'prof_sessions':
       case 'prof_attendance':
@@ -118,6 +137,8 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
       case 'prof_schedule':
       case 'prof_payments':
       case 'prof_messages':
+      case 'prof_salary':
+      case 'prof_meetings':
         return <ProfessorDashboard activeSection={view} />;
 
       // University admin views
@@ -133,6 +154,8 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
       case 'uni_professors':
       case 'uni_salaries':
       case 'uni_certifications':
+      case 'uni_modules':
+      case 'uni_employees':
         return <UniversityDashboard activeSection={view} />;
 
       // Super Admin views
@@ -142,6 +165,8 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
       case 'sa_analytics':
       case 'sa_support':
       case 'sa_cms':
+      case 'sa_requests':
+      case 'sa_users':
         return <SuperAdminDashboard activeSection={view} />;
 
       // Legacy
@@ -166,6 +191,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
         currentView={view}
         onViewChange={handleViewChange}
         onLogout={onLogout}
+        onSwitchRole={() => setRoleSwitcherOpen(true)}
       />
 
       <MobileSidebar
@@ -175,6 +201,7 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
         onLogout={onLogout}
         isOpen={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
+        onSwitchRole={() => setRoleSwitcherOpen(true)}
       />
 
       <main className="lg:ml-72 min-h-screen relative pb-12 sm:pb-20">
@@ -187,6 +214,15 @@ export function Dashboard({ user, onLogout }: DashboardProps) {
           {renderContent()}
         </div>
       </main>
+
+      {user && (
+        <RoleSwitcher
+          isOpen={roleSwitcherOpen}
+          onClose={() => setRoleSwitcherOpen(false)}
+          currentUser={user}
+          onSwitchRole={handleSwitchRole}
+        />
+      )}
     </div>
   );
 }

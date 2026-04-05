@@ -849,6 +849,192 @@ export function SuperAdminDashboard({ activeSection }: SuperAdminDashboardProps)
     </div>
   );
 
+  // ──── REQUESTS HUB ────
+  const renderRequestsHub = () => {
+    const MOCK_PROFESSOR_REQUESTS = [
+      { id: 'pr1', name: 'John Doe', email: 'john@gmail.com', requestedAt: '2026-03-14', status: 'pending', bio: 'CS instructor with 5 years experience' },
+      { id: 'pr2', name: 'Sarah Miller', email: 'sarah@mail.com', requestedAt: '2026-03-12', status: 'pending', bio: 'PhD in Machine Learning from MIT' },
+      { id: 'pr3', name: 'Omar Fathi', email: 'omar@edu.tn', requestedAt: '2026-03-08', status: 'approved', bio: 'Mathematics professor at ENIT' },
+    ];
+
+    const MOCK_UNI_REQUESTS = [
+      { id: 'ur1', name: 'Institut Supérieur de Gestion', city: 'Tunis', email: 'contact@isg.tn', requestedAt: '2026-03-15', status: 'pending', plan: 'Premium' },
+      { id: 'ur2', name: 'ISET Nabeul', city: 'Nabeul', email: 'admin@iset-nabeul.tn', requestedAt: '2026-03-10', status: 'pending', plan: 'Basic' },
+    ];
+
+    return (
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-black tracking-tight">Requests & Tickets</h1>
+          <p className="text-muted-foreground mt-1">Professor promotions, university workspace requests, and support tickets</p>
+        </div>
+
+        <Tabs defaultValue="professors">
+          <TabsList>
+            <TabsTrigger value="professors" className="font-bold">
+              Professor Requests
+              <Badge variant="secondary" className="ml-2 text-[10px]">{MOCK_PROFESSOR_REQUESTS.filter(r => r.status === 'pending').length}</Badge>
+            </TabsTrigger>
+            <TabsTrigger value="universities" className="font-bold">
+              University Requests
+              <Badge variant="secondary" className="ml-2 text-[10px]">{MOCK_UNI_REQUESTS.filter(r => r.status === 'pending').length}</Badge>
+            </TabsTrigger>
+            <TabsTrigger value="support" className="font-bold">
+              Support Tickets
+              <Badge variant="secondary" className="ml-2 text-[10px]">{openTickets}</Badge>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="professors" className="mt-4 space-y-3">
+            {MOCK_PROFESSOR_REQUESTS.map(req => (
+              <Card key={req.id} className="border-border/50">
+                <CardContent className="p-4 flex items-center gap-4">
+                  <div className="w-10 h-10 bg-warning/10 rounded-lg flex items-center justify-center">
+                    <Users size={18} className="text-warning" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm">{req.name}</p>
+                    <p className="text-xs text-muted-foreground">{req.email} · {req.bio}</p>
+                    <p className="text-[10px] text-muted-foreground mt-1">Requested {req.requestedAt}</p>
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    {req.status === 'pending' ? (
+                      <>
+                        <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 font-bold text-xs h-8" onClick={() => toast.success(`${req.name} promoted to instructor`)}>
+                          <CheckCircle2 size={12} className="mr-1" /> Approve
+                        </Button>
+                        <Button size="sm" variant="destructive" className="font-bold text-xs h-8" onClick={() => toast.error('Request rejected')}>
+                          <XCircle size={12} className="mr-1" /> Reject
+                        </Button>
+                      </>
+                    ) : (
+                      <Badge variant="outline" className={statusColors[req.status]}>{req.status}</Badge>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </TabsContent>
+
+          <TabsContent value="universities" className="mt-4 space-y-3">
+            {MOCK_UNI_REQUESTS.map(req => (
+              <Card key={req.id} className="border-border/50">
+                <CardContent className="p-4 flex items-center gap-4">
+                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <Building2 size={18} className="text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm">{req.name}</p>
+                    <p className="text-xs text-muted-foreground">{req.city} · {req.email} · Plan: {req.plan}</p>
+                    <p className="text-[10px] text-muted-foreground mt-1">Requested {req.requestedAt}</p>
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    {req.status === 'pending' ? (
+                      <>
+                        <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 font-bold text-xs h-8" onClick={() => toast.success(`${req.name} workspace created`)}>
+                          <CheckCircle2 size={12} className="mr-1" /> Create Workspace
+                        </Button>
+                        <Button size="sm" variant="destructive" className="font-bold text-xs h-8">
+                          <XCircle size={12} className="mr-1" /> Decline
+                        </Button>
+                      </>
+                    ) : (
+                      <Badge variant="outline" className={statusColors[req.status]}>{req.status}</Badge>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </TabsContent>
+
+          <TabsContent value="support" className="mt-4 space-y-3">
+            {MOCK_TICKETS.map(t => (
+              <Card key={t.id} className="border-border/50">
+                <CardContent className="p-4 flex items-center gap-4">
+                  <div className="w-10 h-10 bg-destructive/10 rounded-lg flex items-center justify-center">
+                    <Headphones size={18} className="text-destructive" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm">{t.subject}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs text-muted-foreground">{t.university}</span>
+                      <Badge variant="outline" className={`text-[10px] ${priorityColors[t.priority]}`}>{t.priority}</Badge>
+                      <Badge variant="outline" className={`text-[10px] ${statusColors[t.status]}`}>{t.status}</Badge>
+                    </div>
+                  </div>
+                  <Button size="sm" variant="outline" className="font-bold text-xs h-8" onClick={() => setSelectedTicket(t)}>
+                    <MessageSquare size={12} className="mr-1" /> View
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </TabsContent>
+        </Tabs>
+      </div>
+    );
+  };
+
+  // ──── USER MANAGEMENT ────
+  const renderUserManagement = () => {
+    const MOCK_USERS = [
+      { id: '1', name: 'Alice Chen', email: 'alice@gmail.com', role: 'Student', joinedAt: '2025-09-15', status: 'active' },
+      { id: '2', name: 'Prof. Ahmed', email: 'ahmed@uni.tn', role: 'Professor', joinedAt: '2024-06-01', status: 'active' },
+      { id: '3', name: 'Admin ESPRIT', email: 'admin@esprit.tn', role: 'University Admin', joinedAt: '2024-06-01', status: 'active' },
+      { id: '4', name: 'Bob Smith', email: 'bob@mail.com', role: 'Student', joinedAt: '2025-11-20', status: 'suspended' },
+    ];
+
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-black tracking-tight">User Management</h1>
+            <p className="text-muted-foreground mt-1">View and manage all platform users</p>
+          </div>
+          <div className="relative w-64">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Input placeholder="Search users..." className="pl-9 h-9 rounded-xl text-sm" />
+          </div>
+        </div>
+
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>User</TableHead>
+              <TableHead>Role</TableHead>
+              <TableHead>Joined</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {MOCK_USERS.map(u => (
+              <TableRow key={u.id}>
+                <TableCell>
+                  <div>
+                    <p className="font-bold text-sm">{u.name}</p>
+                    <p className="text-xs text-muted-foreground">{u.email}</p>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Badge variant="outline" className="text-xs">{u.role}</Badge>
+                </TableCell>
+                <TableCell className="text-sm text-muted-foreground">{u.joinedAt}</TableCell>
+                <TableCell>
+                  <Badge variant="outline" className={`text-[10px] ${statusColors[u.status]}`}>{u.status}</Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                  <Button variant="ghost" size="sm" className="h-7 text-xs">
+                    <Eye size={12} className="mr-1" /> View
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    );
+  };
+
   // ──── RENDER ────
   switch (activeSection) {
     case 'sa_universities': return renderUniversities();
@@ -856,6 +1042,8 @@ export function SuperAdminDashboard({ activeSection }: SuperAdminDashboardProps)
     case 'sa_analytics': return renderAnalytics();
     case 'sa_support': return renderSupport();
     case 'sa_cms': return renderCMS();
+    case 'sa_requests': return renderRequestsHub();
+    case 'sa_users': return renderUserManagement();
     default: return renderOverview();
   }
 }
