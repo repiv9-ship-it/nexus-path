@@ -53,7 +53,7 @@ const Index = () => {
   const isFiltering = selectedCategory !== 'All' || searchQuery.length > 0;
 
   if (user) {
-    return <Dashboard user={user} onLogout={handleLogout} />;
+    return <Dashboard user={user} onLogout={handleLogout} onSwitchUser={handleSwitchUser} />;
   }
 
   return (
