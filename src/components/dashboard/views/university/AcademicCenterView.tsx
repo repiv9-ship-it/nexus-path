@@ -471,21 +471,46 @@ function CertificationsTab() {
           {/* Certification selector */}
           <div>
             <label className="text-xs font-black uppercase tracking-wider text-muted-foreground mb-1.5 block">Certification *</label>
-            <Select value={certName} onValueChange={setCertName}>
-              <SelectTrigger className="h-10 rounded-xl font-bold text-sm"><SelectValue placeholder="Sélectionner une certification" /></SelectTrigger>
-              <SelectContent>
-                {AVAILABLE_CERTS.map(c => (
-                  <SelectItem key={c.id} value={c.id} className="font-bold">
-                    {c.name} — {c.provider} ({c.level})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {!isCustomCert ? (
+              <>
+                <Select value={certName} onValueChange={setCertName}>
+                  <SelectTrigger className="h-10 rounded-xl font-bold text-sm"><SelectValue placeholder="Sélectionner une certification" /></SelectTrigger>
+                  <SelectContent>
+                    {AVAILABLE_CERTS.map(c => (
+                      <SelectItem key={c.id} value={c.id} className="font-bold">
+                        {c.name} — {c.provider} ({c.level})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <button
+                  onClick={() => { setIsCustomCert(true); setCertName(''); }}
+                  className="mt-2 text-xs font-bold text-primary hover:underline flex items-center gap-1"
+                >
+                  <Plus size={12} /> Certification not in the list? Request a custom one
+                </button>
+              </>
+            ) : (
+              <>
+                <Input
+                  placeholder="Enter certification name (e.g. CompTIA Network+)"
+                  value={customCertName}
+                  onChange={e => setCustomCertName(e.target.value)}
+                  className="h-10 rounded-xl font-bold text-sm"
+                />
+                <button
+                  onClick={() => { setIsCustomCert(false); setCustomCertName(''); }}
+                  className="mt-2 text-xs font-bold text-primary hover:underline flex items-center gap-1"
+                >
+                  <ChevronRight size={12} /> Choose from existing list
+                </button>
+              </>
+            )}
           </div>
 
           <div className="flex justify-end gap-2">
-            <Button variant="ghost" size="sm" className="font-black" onClick={() => setShowCertForm(false)}>Annuler</Button>
-            <Button className="gradient-primary font-black text-sm" size="sm" disabled={!certName} onClick={handleCertSubmit}>
+            <Button variant="ghost" size="sm" className="font-black" onClick={() => { setShowCertForm(false); setIsCustomCert(false); }}>Annuler</Button>
+            <Button className="gradient-primary font-black text-sm" size="sm" disabled={isCustomCert ? !customCertName.trim() : !certName} onClick={handleCertSubmit}>
               Soumettre la demande
             </Button>
           </div>
