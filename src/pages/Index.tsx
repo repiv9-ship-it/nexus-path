@@ -30,6 +30,10 @@ const Index = () => {
     setUser(null);
   };
 
+  const handleSwitchUser = (newUser: User) => {
+    setUser(newUser);
+  };
+
   const filteredCourses = useMemo(() => {
     let courses = ALL_COURSES;
     if (selectedCategory !== 'All') {
