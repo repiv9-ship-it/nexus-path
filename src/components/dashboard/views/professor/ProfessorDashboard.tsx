@@ -4,7 +4,8 @@ import {
   Calendar, Clock, CheckSquare, DollarSign, MessageSquare, Upload, 
   FileText, Bell, MapPin, User, Eye, Send, Briefcase,
   ClipboardList, GraduationCap, Filter, Phone, Mail, AlertCircle,
-  CheckCircle, XCircle, ChevronDown, ArrowLeft, X, ChevronLeft
+  CheckCircle, XCircle, ChevronDown, ArrowLeft, X, ChevronLeft,
+  Globe, Star, ShoppingCart, CreditCard, Award, Edit, Link, ExternalLink
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
