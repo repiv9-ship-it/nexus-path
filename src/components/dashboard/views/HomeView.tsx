@@ -3,7 +3,7 @@ import { Search, Filter, Star, Clock, BookOpen, Award, Zap, X, TrendingUp, Gift 
 import { Input } from '@/components/ui/input';
 import { ALL_COURSES, POPULAR_COURSES, NEWEST_COURSES, FREE_COURSES, CATEGORIES } from '@/lib/constants';
 import type { Course, User } from '@/lib/constants';
-import type { ViewType } from '../Sidebar';
+import type { ViewType } from '@/lib/navigation';
 
 interface HomeViewProps {
   user: User;

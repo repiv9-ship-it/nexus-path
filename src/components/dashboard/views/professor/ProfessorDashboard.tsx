@@ -4,7 +4,8 @@ import {
   Calendar, Clock, CheckSquare, DollarSign, MessageSquare, Upload, 
   FileText, Bell, MapPin, User, Eye, Send, Briefcase,
   ClipboardList, GraduationCap, Filter, Phone, Mail, AlertCircle,
-  CheckCircle, XCircle, ChevronDown, ArrowLeft, X, ChevronLeft
+  CheckCircle, XCircle, ChevronDown, ArrowLeft, X, ChevronLeft,
+  Globe, Star, ShoppingCart, CreditCard, Award, Edit, Link, ExternalLink
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -641,6 +642,317 @@ export function ProfessorDashboard({ activeSection = 'overview' }: ProfessorDash
                 }`}>{m.status === 'approved' ? 'Approuvé' : 'En attente'}</span>
               </div>
             ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ═══════════ PUBLIC PROFILE (Independent Professor) ═══════════
+  if (activeSection === 'prof_public_profile') {
+    const PROFILE_DATA = {
+      name: 'Dr. Ahmed Benali',
+      title: 'Machine Learning & AI Instructor',
+      bio: 'PhD in Computer Science from INRIA. 10+ years of experience in AI research and teaching. Passionate about making complex concepts accessible to everyone.',
+      avatar: null,
+      rating: 4.8,
+      totalStudents: 12450,
+      totalCourses: 8,
+      totalReviews: 1892,
+      joinedDate: '2024-06-15',
+      website: 'ahmedbenali.dev',
+      linkedin: 'linkedin.com/in/ahmedbenali',
+      specialties: ['Machine Learning', 'Deep Learning', 'NLP', 'Computer Vision', 'Python'],
+    };
+
+    const PUBLIC_COURSES = [
+      { id: 'pc1', title: 'Machine Learning A-Z', students: 4250, rating: 4.9, reviews: 689, price: 24.99, revenue: 8120, status: 'published' as const, thumbnail: null },
+      { id: 'pc2', title: 'Deep Learning with PyTorch', students: 3100, rating: 4.8, reviews: 512, price: 34.99, revenue: 12650, status: 'published' as const, thumbnail: null },
+      { id: 'pc3', title: 'NLP Masterclass', students: 2800, rating: 4.7, reviews: 401, price: 29.99, revenue: 9800, status: 'published' as const, thumbnail: null },
+      { id: 'pc4', title: 'Python for Data Science', students: 2300, rating: 4.6, reviews: 290, price: 0, revenue: 0, status: 'published' as const, thumbnail: null },
+      { id: 'pc5', title: 'AI Ethics & Society', students: 0, rating: 0, reviews: 0, price: 19.99, revenue: 0, status: 'draft' as const, thumbnail: null },
+    ];
+
+    const RECENT_REVIEWS = [
+      { id: 'r1', student: 'Sarah M.', course: 'Machine Learning A-Z', rating: 5, comment: 'Excellent course! Very clear explanations and great practical examples.', date: '2026-03-14' },
+      { id: 'r2', student: 'Omar K.', course: 'Deep Learning with PyTorch', rating: 5, comment: 'The best DL course I\'ve taken. Dr. Benali makes complex topics easy to understand.', date: '2026-03-12' },
+      { id: 'r3', student: 'Lina T.', course: 'NLP Masterclass', rating: 4, comment: 'Great content but some sections need updates for the latest transformer architectures.', date: '2026-03-08' },
+      { id: 'r4', student: 'Karim F.', course: 'Machine Learning A-Z', rating: 5, comment: 'Changed my career path. Highly recommended for beginners!', date: '2026-03-05' },
+    ];
+
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight">Public Profile</h2>
+            <p className="text-muted-foreground text-sm mt-1">How students see you on the platform</p>
+          </div>
+          <Button variant="outline" className="font-black text-xs rounded-xl h-9">
+            <ExternalLink size={14} className="mr-1" /> Preview Page
+          </Button>
+        </div>
+
+        {/* Profile Card */}
+        <div className="glass-card p-6 rounded-2xl">
+          <div className="flex flex-col sm:flex-row items-start gap-5">
+            <div className="w-24 h-24 gradient-primary rounded-2xl flex items-center justify-center text-primary-foreground font-black text-2xl shrink-0">
+              AB
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="font-black text-xl">{PROFILE_DATA.name}</h3>
+                <Button variant="ghost" size="sm" className="h-7 text-xs font-bold"><Edit size={12} className="mr-1" /> Edit</Button>
+              </div>
+              <p className="text-primary font-bold text-sm mt-0.5">{PROFILE_DATA.title}</p>
+              <p className="text-muted-foreground text-sm mt-2 leading-relaxed">{PROFILE_DATA.bio}</p>
+              <div className="flex items-center gap-4 mt-3 flex-wrap">
+                <div className="flex items-center gap-1 text-warning">
+                  <Star size={14} className="fill-warning" />
+                  <span className="font-black text-sm">{PROFILE_DATA.rating}</span>
+                  <span className="text-muted-foreground text-xs">({PROFILE_DATA.totalReviews} reviews)</span>
+                </div>
+                <span className="text-muted-foreground text-xs flex items-center gap-1"><Users size={12} /> {PROFILE_DATA.totalStudents.toLocaleString()} students</span>
+                <span className="text-muted-foreground text-xs flex items-center gap-1"><BookOpen size={12} /> {PROFILE_DATA.totalCourses} courses</span>
+              </div>
+              <div className="flex gap-2 mt-3 flex-wrap">
+                {PROFILE_DATA.specialties.map(s => (
+                  <span key={s} className="px-2 py-1 bg-primary/10 text-primary border border-primary/20 rounded-lg text-[10px] font-black">{s}</span>
+                ))}
+              </div>
+              <div className="flex gap-3 mt-3">
+                {PROFILE_DATA.website && (
+                  <span className="text-xs text-muted-foreground flex items-center gap-1"><Globe size={11} /> {PROFILE_DATA.website}</span>
+                )}
+                {PROFILE_DATA.linkedin && (
+                  <span className="text-xs text-muted-foreground flex items-center gap-1"><Link size={11} /> {PROFILE_DATA.linkedin}</span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Published Courses */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="font-black text-base uppercase tracking-wider flex items-center gap-2">
+              <BookOpen size={15} className="text-primary" /> My Published Courses
+            </h3>
+            <Button className="gradient-primary font-black rounded-xl text-xs h-8">
+              <Plus size={13} className="mr-1" /> Submit New Course
+            </Button>
+          </div>
+          {PUBLIC_COURSES.map(course => (
+            <div key={course.id} className="glass-card p-4 rounded-xl flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="w-16 h-12 bg-gradient-to-br from-primary/15 to-secondary/15 rounded-lg flex items-center justify-center shrink-0">
+                <BookOpen size={18} className="text-primary/40" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="font-black text-sm truncate">{course.title}</p>
+                  <span className={`text-[10px] font-black px-2 py-0.5 rounded border ${
+                    course.status === 'published' ? 'bg-success/10 text-success border-success/30' : 'bg-warning/10 text-warning border-warning/30'
+                  }`}>{course.status}</span>
+                </div>
+                <div className="flex items-center gap-3 mt-1 flex-wrap">
+                  <span className="text-xs text-muted-foreground flex items-center gap-1"><Users size={10} /> {course.students.toLocaleString()}</span>
+                  {course.rating > 0 && (
+                    <span className="text-xs text-warning flex items-center gap-1"><Star size={10} className="fill-warning" /> {course.rating}</span>
+                  )}
+                  <span className="text-xs text-muted-foreground">{course.reviews} reviews</span>
+                  <span className={`text-xs font-bold ${course.price > 0 ? 'text-primary' : 'text-success'}`}>
+                    {course.price > 0 ? `$${course.price}` : 'Free'}
+                  </span>
+                </div>
+              </div>
+              <div className="flex gap-2 shrink-0">
+                <Button variant="outline" size="sm" className="h-7 text-[10px] font-black rounded-lg">
+                  <Edit size={10} className="mr-1" /> Edit
+                </Button>
+                <Button variant="outline" size="sm" className="h-7 text-[10px] font-black rounded-lg">
+                  <Eye size={10} className="mr-1" /> Preview
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Recent Reviews */}
+        <div className="space-y-3">
+          <h3 className="font-black text-base uppercase tracking-wider flex items-center gap-2">
+            <Star size={15} className="text-warning" /> Recent Reviews
+          </h3>
+          {RECENT_REVIEWS.map(review => (
+            <div key={review.id} className="glass-card p-4 rounded-xl">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 gradient-primary rounded-full flex items-center justify-center text-primary-foreground font-black text-xs">
+                    {review.student.split(' ').map(n => n[0]).join('')}
+                  </div>
+                  <div>
+                    <p className="font-black text-xs">{review.student}</p>
+                    <p className="text-muted-foreground text-[10px]">{review.course} · {new Date(review.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-0.5">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} size={11} className={i < review.rating ? 'text-warning fill-warning' : 'text-muted-foreground'} />
+                  ))}
+                </div>
+              </div>
+              <p className="text-muted-foreground text-xs mt-2 leading-relaxed">{review.comment}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // ═══════════ EARNINGS (Independent Professor) ═══════════
+  if (activeSection === 'prof_earnings') {
+    const EARNINGS_DATA = {
+      totalRevenue: 30570,
+      thisMonth: 4250,
+      lastMonth: 3890,
+      pendingPayout: 2100,
+      totalSales: 1245,
+      refunds: 12,
+      conversionRate: 3.8,
+    };
+
+    const MONTHLY_REVENUE = [
+      { month: 'Oct', revenue: 2100, sales: 85 },
+      { month: 'Nov', revenue: 2800, sales: 112 },
+      { month: 'Dec', revenue: 3500, sales: 140 },
+      { month: 'Jan', revenue: 3200, sales: 128 },
+      { month: 'Feb', revenue: 3890, sales: 155 },
+      { month: 'Mar', revenue: 4250, sales: 170 },
+    ];
+
+    const COURSE_REVENUE = [
+      { title: 'Deep Learning with PyTorch', revenue: 12650, sales: 362, price: 34.99 },
+      { title: 'NLP Masterclass', revenue: 9800, sales: 327, price: 29.99 },
+      { title: 'Machine Learning A-Z', revenue: 8120, sales: 325, price: 24.99 },
+      { title: 'Python for Data Science', revenue: 0, sales: 2300, price: 0 },
+    ];
+
+    const RECENT_SALES = [
+      { id: 't1', student: 'John D.', course: 'Machine Learning A-Z', amount: 24.99, date: '2026-03-15' },
+      { id: 't2', student: 'Maria S.', course: 'Deep Learning with PyTorch', amount: 34.99, date: '2026-03-15' },
+      { id: 't3', student: 'Ahmed K.', course: 'NLP Masterclass', amount: 29.99, date: '2026-03-14' },
+      { id: 't4', student: 'Lisa W.', course: 'Machine Learning A-Z', amount: 24.99, date: '2026-03-14' },
+      { id: 't5', student: 'Omar B.', course: 'Deep Learning with PyTorch', amount: 34.99, date: '2026-03-13' },
+    ];
+
+    const maxRevenue = Math.max(...MONTHLY_REVENUE.map(m => m.revenue));
+
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-black tracking-tight">Earnings & Analytics</h2>
+          <p className="text-muted-foreground text-sm mt-1">Track your course revenue and sales performance</p>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {[
+            { label: 'Total Revenue', value: `$${(EARNINGS_DATA.totalRevenue / 1000).toFixed(1)}K`, icon: DollarSign, color: 'text-success', bg: 'bg-success/10' },
+            { label: 'This Month', value: `$${EARNINGS_DATA.thisMonth.toLocaleString()}`, icon: TrendingUp, color: 'text-primary', bg: 'bg-primary/10' },
+            { label: 'Total Sales', value: EARNINGS_DATA.totalSales, icon: ShoppingCart, color: 'text-warning', bg: 'bg-warning/10' },
+            { label: 'Pending Payout', value: `$${EARNINGS_DATA.pendingPayout.toLocaleString()}`, icon: CreditCard, color: 'text-secondary', bg: 'bg-secondary/10' },
+          ].map((stat, i) => (
+            <div key={i} className="glass-card p-4 rounded-2xl">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 ${stat.bg} rounded-xl flex items-center justify-center`}>
+                  <stat.icon size={18} className={stat.color} />
+                </div>
+                <div>
+                  <p className={`text-xl font-black ${stat.color}`}>{stat.value}</p>
+                  <p className="text-muted-foreground font-bold text-[10px] uppercase">{stat.label}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Revenue Chart */}
+        <div className="glass-card p-5 rounded-2xl">
+          <h3 className="font-black text-sm uppercase tracking-wider flex items-center gap-2 mb-4">
+            <BarChart3 size={14} className="text-primary" /> Monthly Revenue
+          </h3>
+          <div className="grid grid-cols-6 gap-3 h-40 items-end">
+            {MONTHLY_REVENUE.map(m => (
+              <div key={m.month} className="flex flex-col items-center gap-1">
+                <span className="text-[10px] font-black text-success">${(m.revenue / 1000).toFixed(1)}K</span>
+                <div className="w-full bg-primary/10 rounded-t-lg relative overflow-hidden" style={{ height: `${(m.revenue / maxRevenue) * 100}%` }}>
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary to-primary/60 rounded-t-lg" />
+                </div>
+                <span className="text-[10px] text-muted-foreground font-bold">{m.month}</span>
+                <span className="text-[10px] text-muted-foreground">{m.sales} sales</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Revenue by Course + Recent Sales */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="glass-card p-4 rounded-2xl space-y-3">
+            <h3 className="font-black text-sm uppercase tracking-wider flex items-center gap-2">
+              <BookOpen size={14} className="text-primary" /> Revenue by Course
+            </h3>
+            {COURSE_REVENUE.map((course, i) => (
+              <div key={i} className="glass-card p-3 rounded-xl">
+                <div className="flex items-center justify-between mb-1.5">
+                  <p className="font-black text-xs truncate flex-1">{course.title}</p>
+                  <span className="font-black text-sm text-success ml-2">${course.revenue.toLocaleString()}</span>
+                </div>
+                <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+                  <span>{course.sales} sales · {course.price > 0 ? `$${course.price}` : 'Free'}</span>
+                  <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden">
+                    <div className="h-full bg-primary rounded-full" style={{ width: `${maxRevenue > 0 ? (course.revenue / COURSE_REVENUE[0].revenue) * 100 : 0}%` }} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="glass-card p-4 rounded-2xl space-y-3">
+            <h3 className="font-black text-sm uppercase tracking-wider flex items-center gap-2">
+              <ShoppingCart size={14} className="text-warning" /> Recent Sales
+            </h3>
+            {RECENT_SALES.map(sale => (
+              <div key={sale.id} className="glass-card p-3 rounded-xl flex items-center gap-3">
+                <div className="w-8 h-8 bg-success/10 rounded-lg flex items-center justify-center shrink-0">
+                  <DollarSign size={14} className="text-success" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-xs truncate">{sale.course}</p>
+                  <p className="text-muted-foreground text-[10px]">{sale.student} · {new Date(sale.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
+                </div>
+                <span className="font-black text-sm text-success shrink-0">+${sale.amount}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Payout section */}
+        <div className="glass-card p-5 rounded-2xl border-primary/20">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-black text-sm">Payout Information</h3>
+              <p className="text-muted-foreground text-xs mt-0.5">Payouts are processed monthly. Next payout: April 1, 2026</p>
+            </div>
+            <div className="text-right">
+              <p className="text-2xl font-black text-primary">${EARNINGS_DATA.pendingPayout.toLocaleString()}</p>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase">Pending</p>
+            </div>
+          </div>
+          <div className="flex gap-2 mt-3">
+            <Button variant="outline" size="sm" className="text-xs font-black rounded-lg">
+              <CreditCard size={12} className="mr-1" /> Payment Settings
+            </Button>
+            <Button variant="outline" size="sm" className="text-xs font-black rounded-lg">
+              <FileText size={12} className="mr-1" /> View Invoices
+            </Button>
           </div>
         </div>
       </div>
