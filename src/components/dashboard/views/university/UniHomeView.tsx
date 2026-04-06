@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Bell, BarChart3, Calendar, BookOpen, UserX, ChevronRight, AlertTriangle, CheckCircle, Clock, TrendingUp, Megaphone, Zap, MapPin, User } from 'lucide-react';
-import type { ViewType } from '../../Sidebar';
+import type { ViewType } from '@/lib/navigation';
 
 interface UniHomeViewProps {
   onNavigate: (view: ViewType) => void;
