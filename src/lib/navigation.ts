@@ -8,7 +8,7 @@ import type { LucideIcon } from 'lucide-react';
 
 export type ViewType =
   // Student views
-  | 'home' | 'my-courses' | 'explore' | 'badges' | 'subscription'
+  | 'home' | 'my-courses' | 'explore' | 'badges' | 'subscription' | 'invitations'
   // University student exclusive
   | 'uni_home' | 'uni_courses' | 'uni_marks' | 'schedule' | 'academic_center'
   // Professor views (independent)
