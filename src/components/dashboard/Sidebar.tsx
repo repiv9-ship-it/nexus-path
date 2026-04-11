@@ -1,4 +1,4 @@
-import { LogOut, Zap, GraduationCap, ChevronDown, Building2, ArrowLeftRight } from 'lucide-react';
+import { LogOut, Zap, GraduationCap, ChevronDown, Building2, ArrowLeftRight, Mail } from 'lucide-react';
 import { ROLES } from '@/lib/constants';
 import type { User } from '@/lib/constants';
 import {
@@ -7,7 +7,6 @@ import {
   type ViewType, type NavSection,
 } from '@/lib/navigation';
 
-// Re-export ViewType so existing imports keep working
 export type { ViewType } from '@/lib/navigation';
 
 interface SidebarProps {
@@ -40,8 +39,8 @@ function NavButton({ item, isActive, onClick }: { item: { id: ViewType; label: s
           : 'text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent'
       }`}
     >
-      <item.icon size={17} className={isActive ? 'text-primary-foreground' : 'group-hover:text-primary'} />
-      <span className="font-bold text-[13px] tracking-tight">{item.label}</span>
+      <item.icon size={18} className={isActive ? 'text-primary-foreground' : 'group-hover:text-primary'} />
+      <span className="font-semibold text-sm tracking-tight">{item.label}</span>
     </button>
   );
 }
@@ -51,8 +50,8 @@ function SectionDivider({ title, icon: Icon }: { title: string; icon?: any }) {
     <div className="pt-4 pb-1.5">
       <div className="flex items-center gap-2 px-2">
         <div className="flex-1 h-px bg-sidebar-border" />
-        <span className="text-[10px] font-black text-sidebar-muted uppercase tracking-widest flex items-center gap-1">
-          {Icon && <Icon size={10} />} {title}
+        <span className="text-[11px] font-bold text-sidebar-muted uppercase tracking-widest flex items-center gap-1">
+          {Icon && <Icon size={11} />} {title}
         </span>
         <div className="flex-1 h-px bg-sidebar-border" />
       </div>
@@ -62,6 +61,9 @@ function SectionDivider({ title, icon: Icon }: { title: string; icon?: any }) {
 
 export function Sidebar({ user, currentView, onViewChange, onLogout, onSwitchRole, selectedUniversity }: SidebarProps) {
   const sections = getNavSections(user);
+
+  // Show invitations link for normal students
+  const showInvitations = user?.role === ROLES.STUDENT;
 
   return (
     <aside className="w-64 lg:w-72 bg-sidebar h-screen fixed left-0 top-0 z-50 text-sidebar-foreground p-4 lg:p-5 flex flex-col shadow-2xl transform transition-transform lg:translate-x-0 -translate-x-full lg:block hidden overflow-y-auto">
@@ -75,19 +77,19 @@ export function Sidebar({ user, currentView, onViewChange, onLogout, onSwitchRol
 
       {/* Role Badge */}
       {user && (
-        <div className="mb-3 px-3 py-2 bg-sidebar-accent rounded-xl">
-          <p className="text-[10px] font-bold text-sidebar-muted uppercase tracking-widest">Logged in as</p>
-          <p className="font-black text-sm text-primary">{user.role}</p>
+        <div className="mb-3 px-3 py-2.5 bg-sidebar-accent rounded-xl">
+          <p className="text-[11px] font-semibold text-sidebar-muted uppercase tracking-widest">Logged in as</p>
+          <p className="font-bold text-sm text-primary mt-0.5">{user.role}</p>
         </div>
       )}
 
       {/* University selector for multi-uni users */}
       {(user?.role === ROLES.UNIVERSITY_STUDENT || user?.role === ROLES.PROFESSOR) && user?.university && (
-        <button className="mb-3 w-full px-3 py-2 bg-sidebar-accent rounded-xl flex items-center gap-2 hover:bg-sidebar-accent/80 transition-colors text-left">
-          <Building2 size={14} className="text-primary shrink-0" />
+        <button className="mb-3 w-full px-3 py-2.5 bg-sidebar-accent rounded-xl flex items-center gap-2 hover:bg-sidebar-accent/80 transition-colors text-left">
+          <Building2 size={15} className="text-primary shrink-0" />
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] font-bold text-sidebar-muted uppercase tracking-widest">University</p>
-            <p className="font-bold text-xs truncate">{selectedUniversity || user.university}</p>
+            <p className="text-[11px] font-semibold text-sidebar-muted uppercase tracking-widest">University</p>
+            <p className="font-semibold text-sm truncate mt-0.5">{selectedUniversity || user.university}</p>
           </div>
           <ChevronDown size={14} className="text-sidebar-muted shrink-0" />
         </button>
@@ -103,25 +105,37 @@ export function Sidebar({ user, currentView, onViewChange, onLogout, onSwitchRol
             ))}
           </div>
         ))}
+
+        {/* Invitations for normal students */}
+        {showInvitations && (
+          <>
+            <SectionDivider title="University" icon={Building2} />
+            <NavButton
+              item={{ id: 'invitations' as ViewType, label: 'Invitations', icon: Mail }}
+              isActive={currentView === ('invitations' as ViewType)}
+              onClick={() => onViewChange('invitations' as ViewType)}
+            />
+          </>
+        )}
       </nav>
 
       {/* User Info + Role Switch */}
       {user && (
         <div className="pt-3 border-t border-sidebar-border space-y-2">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 gradient-primary rounded-lg flex items-center justify-center text-primary-foreground font-black text-xs">
+            <div className="w-9 h-9 gradient-primary rounded-lg flex items-center justify-center text-primary-foreground font-bold text-sm">
               {user.name.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-black text-sm truncate">{user.name}</p>
-              <p className="text-[10px] text-sidebar-muted">{user.university || 'Free Learner'}</p>
+              <p className="font-bold text-sm truncate">{user.name}</p>
+              <p className="text-xs text-sidebar-muted">{user.university || 'Free Learner'}</p>
             </div>
           </div>
 
           {onSwitchRole && (
             <button
               onClick={onSwitchRole}
-              className="w-full flex items-center gap-2 text-sidebar-muted hover:text-primary font-bold px-3 py-2 transition-colors text-xs bg-sidebar-accent rounded-lg"
+              className="w-full flex items-center gap-2 text-sidebar-muted hover:text-primary font-semibold px-3 py-2 transition-colors text-sm bg-sidebar-accent rounded-lg"
             >
               <ArrowLeftRight size={14} /> Switch Account
             </button>
@@ -132,7 +146,7 @@ export function Sidebar({ user, currentView, onViewChange, onLogout, onSwitchRol
       {/* Logout */}
       <button
         onClick={onLogout}
-        className="flex items-center gap-3 text-sidebar-muted hover:text-destructive font-bold p-3 transition-colors text-sm mt-2"
+        className="flex items-center gap-3 text-sidebar-muted hover:text-destructive font-semibold p-3 transition-colors text-sm mt-2"
       >
         <LogOut size={18} /> Sign Out
       </button>
