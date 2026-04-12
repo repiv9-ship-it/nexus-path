@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { LandingNavbar } from '@/components/landing/LandingNavbar';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { CategoryBar } from '@/components/landing/CategoryBar';
@@ -9,51 +9,31 @@ import { CTASection } from '@/components/landing/CTASection';
 import { Footer } from '@/components/landing/Footer';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { Dashboard } from '@/components/dashboard/Dashboard';
-import { ALL_COURSES, POPULAR_COURSES, NEWEST_COURSES, RECOMMENDED_COURSES, FREE_COURSES } from '@/lib/constants';
-import type { User } from '@/lib/constants';
+import { useAuth } from '@/hooks/useAuth';
+import { Zap } from 'lucide-react';
 
 const Index = () => {
-  const [user, setUser] = useState<User>(null);
+  const { user, loading } = useAuth();
   const [authModal, setAuthModal] = useState<{ open: boolean; mode: 'login' | 'signup' }>({
     open: false,
     mode: 'signup',
   });
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [searchQuery, setSearchQuery] = useState('');
 
-  const handleAuth = (newUser: User) => {
-    setUser(newUser);
-    setAuthModal({ open: false, mode: 'signup' });
-  };
-
-  const handleLogout = () => {
-    setUser(null);
-  };
-
-  const handleSwitchUser = (newUser: User) => {
-    setUser(newUser);
-  };
-
-  const filteredCourses = useMemo(() => {
-    let courses = ALL_COURSES;
-    if (selectedCategory !== 'All') {
-      courses = courses.filter(c => c.category === selectedCategory);
-    }
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      courses = courses.filter(c =>
-        c.title.toLowerCase().includes(q) ||
-        c.instructor.toLowerCase().includes(q) ||
-        c.category.toLowerCase().includes(q)
-      );
-    }
-    return courses;
-  }, [selectedCategory, searchQuery]);
-
-  const isFiltering = selectedCategory !== 'All' || searchQuery.length > 0;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-14 h-14 gradient-primary rounded-xl flex items-center justify-center glow-primary animate-pulse">
+            <Zap className="text-primary-foreground fill-primary-foreground" size={28} />
+          </div>
+          <p className="text-muted-foreground font-semibold">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (user) {
-    return <Dashboard user={user} onLogout={handleLogout} onSwitchUser={handleSwitchUser} />;
+    return <Dashboard />;
   }
 
   return (
@@ -69,57 +49,13 @@ const Index = () => {
           document.getElementById('courses')?.scrollIntoView({ behavior: 'smooth' });
         }}
         onSearch={(q) => {
-          setSearchQuery(q);
           document.getElementById('courses')?.scrollIntoView({ behavior: 'smooth' });
         }}
       />
 
       <div id="courses">
-        <CategoryBar selected={selectedCategory} onSelect={setSelectedCategory} />
+        <CategoryBar selected="All" onSelect={() => {}} />
       </div>
-
-      {isFiltering ? (
-        <CourseSection
-          title={searchQuery ? `Results for "${searchQuery}"` : selectedCategory}
-          subtitle={`${filteredCourses.length} course${filteredCourses.length !== 1 ? 's' : ''} found`}
-          courses={filteredCourses}
-          onPreviewCourse={(id) => console.log('Preview:', id)}
-        />
-      ) : (
-        <>
-          <CourseSection
-            title="Most Popular"
-            subtitle="Top-rated courses loved by thousands of students"
-            courses={POPULAR_COURSES}
-            onPreviewCourse={(id) => console.log('Preview:', id)}
-            onViewAll={() => {}}
-          />
-          <div className="border-t border-border/50" />
-          <CourseSection
-            title="Newest Courses"
-            subtitle="Just launched — be among the first to enroll"
-            courses={NEWEST_COURSES}
-            onPreviewCourse={(id) => console.log('Preview:', id)}
-            onViewAll={() => {}}
-          />
-          <div className="border-t border-border/50" />
-          <CourseSection
-            title="Recommended for You"
-            subtitle="Curated picks based on trending topics"
-            courses={RECOMMENDED_COURSES}
-            onPreviewCourse={(id) => console.log('Preview:', id)}
-            onViewAll={() => {}}
-          />
-          <div className="border-t border-border/50" />
-          <CourseSection
-            title="Free Courses"
-            subtitle="Start learning today — completely free"
-            courses={FREE_COURSES}
-            onPreviewCourse={(id) => console.log('Preview:', id)}
-            onViewAll={() => {}}
-          />
-        </>
-      )}
 
       <div id="how-it-works">
         <HowItWorksSection />
@@ -136,7 +72,6 @@ const Index = () => {
       <AuthModal
         isOpen={authModal.open}
         onClose={() => setAuthModal({ ...authModal, open: false })}
-        onAuth={handleAuth}
         initialMode={authModal.mode}
       />
     </div>
