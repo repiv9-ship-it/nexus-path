@@ -281,7 +281,7 @@ export function HomeView({ onNavigate, onApplyProfessor, onApplyUniversity }: Ho
             </button>
             <div className="glass-card px-4 py-2.5 rounded-xl flex items-center gap-2">
               <Zap size={15} className="text-primary" />
-              <span className="font-bold text-sm">{user?.streak}d streak</span>
+              <span className="font-bold text-sm">0d streak</span>
             </div>
           </div>
         </div>
