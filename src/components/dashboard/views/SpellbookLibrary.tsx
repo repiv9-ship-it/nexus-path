@@ -24,9 +24,9 @@ const UNI_COURSES = COURSES;
 // Public courses from the landing page catalog
 const PUBLIC_COURSES_SAMPLE = ALL_COURSES.slice(0, 6);
 
-export function SpellbookLibrary({ onSelectCourse, user }: SpellbookLibraryProps) {
+export function SpellbookLibrary({ onSelectCourse }: SpellbookLibraryProps) {
+  const { user } = useAuth();
   const isUniUser = user?.university;
-
   return (
     <div className="space-y-8 sm:space-y-10 animate-fade-in">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
