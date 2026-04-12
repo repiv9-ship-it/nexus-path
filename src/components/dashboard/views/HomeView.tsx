@@ -2,12 +2,10 @@ import { useState, useMemo } from 'react';
 import { Search, Filter, Star, Clock, BookOpen, Award, Zap, X, TrendingUp, Gift, GraduationCap, Building2, Users, ChevronRight, Globe, MapPin } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { ALL_COURSES, POPULAR_COURSES, NEWEST_COURSES, FREE_COURSES, CATEGORIES } from '@/lib/constants';
-import type { Course, User } from '@/lib/constants';
+import { useAuth } from '@/hooks/useAuth';
 import type { ViewType } from '@/lib/navigation';
 
 interface HomeViewProps {
-  user: User;
   onNavigate: (view: ViewType) => void;
   onApplyProfessor?: () => void;
   onApplyUniversity?: () => void;

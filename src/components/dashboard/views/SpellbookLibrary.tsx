@@ -1,6 +1,6 @@
 import { ChevronRight, Zap, Lock, Building2, Globe } from 'lucide-react';
 import { COURSES, ALL_COURSES } from '@/lib/constants';
-import type { User } from '@/lib/constants';
+import { useAuth } from '@/hooks/useAuth';
 import { XPBar } from '@/components/ui/xp-bar';
 import { Button } from '@/components/ui/button';
 
