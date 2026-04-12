@@ -51,7 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Determine active role (prefer stored or first available)
       const storedRole = localStorage.getItem(`active_role_${supabaseUser.id}`);
-      const activeRole = storedRole && roles.includes(storedRole) ? storedRole : roles[0] || 'student';
+      const activeRole = storedRole && roles.includes(storedRole as any) ? storedRole : roles[0] || 'student';
 
       let universityName: string | undefined;
       let universityId: string | undefined;
