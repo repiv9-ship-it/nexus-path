@@ -16,7 +16,6 @@ interface Course {
 
 interface SpellbookLibraryProps {
   onSelectCourse: (course: Course) => void;
-  user?: User;
 }
 
 // Mock university-specific courses

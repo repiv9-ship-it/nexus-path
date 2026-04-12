@@ -2,6 +2,8 @@ import { useState, useMemo } from 'react';
 import { Search, Filter, Star, Clock, BookOpen, Award, Zap, X, TrendingUp, Gift, GraduationCap, Building2, Users, ChevronRight, Globe, MapPin } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { ALL_COURSES, POPULAR_COURSES, NEWEST_COURSES, FREE_COURSES, CATEGORIES } from '@/lib/constants';
+import type { Course } from '@/lib/constants';
 import { useAuth } from '@/hooks/useAuth';
 import type { ViewType } from '@/lib/navigation';
 
@@ -211,7 +213,8 @@ function ProfessorProfile({ professor, onBack }: { professor: typeof MOCK_PROFES
   );
 }
 
-export function HomeView({ user, onNavigate, onApplyProfessor, onApplyUniversity }: HomeViewProps) {
+export function HomeView({ onNavigate, onApplyProfessor, onApplyUniversity }: HomeViewProps) {
+  const { user } = useAuth();
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [priceFilter, setPriceFilter] = useState<typeof PRICE_FILTERS[number]>('All');
