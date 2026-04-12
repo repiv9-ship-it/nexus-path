@@ -22,14 +22,18 @@ import { UniCoursesView } from './views/university/UniCoursesView';
 import { UniMarksView } from './views/university/UniMarksView';
 import { ScheduleView } from './views/university/ScheduleView';
 import { AcademicCenterView } from './views/university/AcademicCenterView';
-import { ROLES } from '@/lib/constants';
-import type { User } from '@/lib/constants';
+import { useAuth } from '@/hooks/useAuth';
 import type { ViewType } from '@/lib/navigation';
 
-interface DashboardProps {
-  user: User;
-  onLogout: () => void;
-  onSwitchUser?: (user: User) => void;
+// Map DB role names to view defaults
+function getDefaultView(activeRole: string, hasUniversity: boolean): ViewType {
+  switch (activeRole) {
+    case 'professor': return hasUniversity ? 'professor' : 'home';
+    case 'admin': return 'university';
+    case 'university_student': return 'uni_home';
+    case 'super_admin': return 'super_admin';
+    default: return 'home';
+  }
 }
 
 interface Course {
@@ -50,23 +54,15 @@ interface Level {
   status: string;
 }
 
-export function Dashboard({ user, onLogout, onSwitchUser }: DashboardProps) {
+export function Dashboard() {
+  const { user, signOut, switchRole } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [roleSwitcherOpen, setRoleSwitcherOpen] = useState(false);
   const [applicationWizard, setApplicationWizard] = useState<'professor' | 'university' | null>(null);
 
-  const getDefaultView = (): ViewType => {
-    if (!user) return 'home';
-    switch (user.role) {
-      case ROLES.PROFESSOR: return user.university ? 'professor' : 'home';
-      case ROLES.UNIVERSITY_ADMIN: return 'university';
-      case ROLES.UNIVERSITY_STUDENT: return 'uni_home';
-      case ROLES.SUPER_ADMIN: return 'super_admin';
-      default: return 'home';
-    }
-  };
-
-  const [view, setView] = useState<ViewType>(getDefaultView());
+  const [view, setView] = useState<ViewType>(
+    getDefaultView(user?.activeRole || 'student', !!user?.university)
+  );
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [activeLevel, setActiveLevel] = useState<Level | null>(null);
 
@@ -77,14 +73,17 @@ export function Dashboard({ user, onLogout, onSwitchUser }: DashboardProps) {
     setMobileMenuOpen(false);
   };
 
-  const handleSwitchRole = (newUser: User) => {
-    if (onSwitchUser) onSwitchUser(newUser);
+  const handleSwitchRole = (role: string) => {
+    switchRole(role);
     setRoleSwitcherOpen(false);
+    // Reset view to default for the new role
+    setView(getDefaultView(role, !!user?.university));
   };
 
-  // Show support chat for student, independent professor, and home
-  const showSupportChat = user?.role === ROLES.STUDENT || 
-    (user?.role === ROLES.PROFESSOR && !user?.university) ||
+  const activeRole = user?.activeRole || 'student';
+
+  const showSupportChat = activeRole === 'student' || 
+    (activeRole === 'professor' && !user?.university) ||
     view === 'home';
 
   const renderContent = () => {
@@ -95,14 +94,13 @@ export function Dashboard({ user, onLogout, onSwitchUser }: DashboardProps) {
       case 'home':
         return (
           <HomeView
-            user={user}
             onNavigate={handleViewChange}
             onApplyProfessor={() => setApplicationWizard('professor')}
             onApplyUniversity={() => setApplicationWizard('university')}
           />
         );
       case 'my-courses':
-        return <SpellbookLibrary onSelectCourse={setSelectedCourse} user={user} />;
+        return <SpellbookLibrary onSelectCourse={setSelectedCourse} />;
       case 'explore':
         return <NexusHub />;
       case 'badges':
@@ -165,31 +163,28 @@ export function Dashboard({ user, onLogout, onSwitchUser }: DashboardProps) {
       case 'sa_users':
         return <SuperAdminDashboard activeSection={view} />;
 
-      // Legacy
       case 'marks': return <MarksSection />;
-      case 'courses': return <SpellbookLibrary onSelectCourse={setSelectedCourse} user={user} />;
+      case 'courses': return <SpellbookLibrary onSelectCourse={setSelectedCourse} />;
       case 'nexus': return <NexusHub />;
-      case 'dashboard': return <HomeView user={user} onNavigate={handleViewChange} />;
+      case 'dashboard': return <HomeView onNavigate={handleViewChange} />;
 
-      default: return <HomeView user={user} onNavigate={handleViewChange} />;
+      default: return <HomeView onNavigate={handleViewChange} />;
     }
   };
+
+  if (!user) return null;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Sidebar
-        user={user}
         currentView={view}
         onViewChange={handleViewChange}
-        onLogout={onLogout}
         onSwitchRole={() => setRoleSwitcherOpen(true)}
       />
 
       <MobileSidebar
-        user={user}
         currentView={view}
         onViewChange={handleViewChange}
-        onLogout={onLogout}
         isOpen={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
         onSwitchRole={() => setRoleSwitcherOpen(true)}
@@ -197,26 +192,20 @@ export function Dashboard({ user, onLogout, onSwitchUser }: DashboardProps) {
 
       <main className="lg:ml-72 min-h-screen relative pb-12 sm:pb-20">
         <Header
-          user={user}
           onMenuClick={() => setMobileMenuOpen(true)}
           onNavigate={handleViewChange}
-          onLogout={onLogout}
         />
         <div className="p-4 sm:p-8 lg:p-12 max-w-7xl mx-auto">
           {renderContent()}
         </div>
       </main>
 
-      {user && (
-        <RoleSwitcher
-          isOpen={roleSwitcherOpen}
-          onClose={() => setRoleSwitcherOpen(false)}
-          currentUser={user}
-          onSwitchRole={handleSwitchRole}
-        />
-      )}
+      <RoleSwitcher
+        isOpen={roleSwitcherOpen}
+        onClose={() => setRoleSwitcherOpen(false)}
+        onSwitchRole={handleSwitchRole}
+      />
 
-      {/* Application Wizard */}
       {applicationWizard && (
         <ApplicationWizard
           type={applicationWizard}
@@ -224,7 +213,6 @@ export function Dashboard({ user, onLogout, onSwitchUser }: DashboardProps) {
         />
       )}
 
-      {/* Support Chat (only for student / independent prof / home) */}
       {showSupportChat && <SupportChatBubble />}
     </div>
   );

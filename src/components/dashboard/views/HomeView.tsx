@@ -3,11 +3,11 @@ import { Search, Filter, Star, Clock, BookOpen, Award, Zap, X, TrendingUp, Gift,
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ALL_COURSES, POPULAR_COURSES, NEWEST_COURSES, FREE_COURSES, CATEGORIES } from '@/lib/constants';
-import type { Course, User } from '@/lib/constants';
+import type { Course } from '@/lib/constants';
+import { useAuth } from '@/hooks/useAuth';
 import type { ViewType } from '@/lib/navigation';
 
 interface HomeViewProps {
-  user: User;
   onNavigate: (view: ViewType) => void;
   onApplyProfessor?: () => void;
   onApplyUniversity?: () => void;
@@ -213,7 +213,8 @@ function ProfessorProfile({ professor, onBack }: { professor: typeof MOCK_PROFES
   );
 }
 
-export function HomeView({ user, onNavigate, onApplyProfessor, onApplyUniversity }: HomeViewProps) {
+export function HomeView({ onNavigate, onApplyProfessor, onApplyUniversity }: HomeViewProps) {
+  const { user } = useAuth();
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [priceFilter, setPriceFilter] = useState<typeof PRICE_FILTERS[number]>('All');
@@ -280,7 +281,7 @@ export function HomeView({ user, onNavigate, onApplyProfessor, onApplyUniversity
             </button>
             <div className="glass-card px-4 py-2.5 rounded-xl flex items-center gap-2">
               <Zap size={15} className="text-primary" />
-              <span className="font-bold text-sm">{user?.streak}d streak</span>
+              <span className="font-bold text-sm">0d streak</span>
             </div>
           </div>
         </div>

@@ -1,6 +1,5 @@
 import { LogOut, Zap, X, Building2, ChevronDown, ArrowLeftRight } from 'lucide-react';
-import { ROLES } from '@/lib/constants';
-import type { User } from '@/lib/constants';
+import { useAuth } from '@/hooks/useAuth';
 import {
   studentNav, uniStudentNav, independentProfessorNav, uniProfessorNav,
   uniAdminNav, superAdminNav,
@@ -8,29 +7,28 @@ import {
 } from '@/lib/navigation';
 
 interface MobileSidebarProps {
-  user: User;
   currentView: ViewType;
   onViewChange: (view: ViewType) => void;
-  onLogout: () => void;
   isOpen: boolean;
   onClose: () => void;
   onSwitchRole?: () => void;
-  selectedUniversity?: string;
 }
 
-function getNavSections(user: User): NavSection[] {
-  if (!user) return studentNav;
-  switch (user.role) {
-    case ROLES.SUPER_ADMIN: return superAdminNav;
-    case ROLES.UNIVERSITY_ADMIN: return uniAdminNav;
-    case ROLES.PROFESSOR: return user.university ? uniProfessorNav : independentProfessorNav;
-    case ROLES.UNIVERSITY_STUDENT: return uniStudentNav;
+function getNavSections(activeRole: string, hasUniversity: boolean): NavSection[] {
+  switch (activeRole) {
+    case 'super_admin': return superAdminNav;
+    case 'admin': return uniAdminNav;
+    case 'professor': return hasUniversity ? uniProfessorNav : independentProfessorNav;
+    case 'university_student': return uniStudentNav;
     default: return studentNav;
   }
 }
 
-export function MobileSidebar({ user, currentView, onViewChange, onLogout, isOpen, onClose, onSwitchRole, selectedUniversity }: MobileSidebarProps) {
-  const sections = getNavSections(user);
+export function MobileSidebar({ currentView, onViewChange, isOpen, onClose, onSwitchRole }: MobileSidebarProps) {
+  const { user, signOut } = useAuth();
+  if (!user) return null;
+
+  const sections = getNavSections(user.activeRole, !!user.university);
 
   const handleNavClick = (view: ViewType) => {
     onViewChange(view);
@@ -51,7 +49,6 @@ export function MobileSidebar({ user, currentView, onViewChange, onLogout, isOpe
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center shadow-xl glow-primary">
@@ -64,27 +61,22 @@ export function MobileSidebar({ user, currentView, onViewChange, onLogout, isOpe
           </button>
         </div>
 
-        {/* Role Badge */}
-        {user && (
-          <div className="mb-3 px-3 py-2 bg-sidebar-accent rounded-xl">
-            <p className="text-[10px] font-bold text-sidebar-muted uppercase tracking-widest">Logged in as</p>
-            <p className="font-black text-sm text-primary">{user.role}</p>
-          </div>
-        )}
+        <div className="mb-3 px-3 py-2 bg-sidebar-accent rounded-xl">
+          <p className="text-[10px] font-bold text-sidebar-muted uppercase tracking-widest">Logged in as</p>
+          <p className="font-black text-sm text-primary capitalize">{user.activeRole.replace('_', ' ')}</p>
+        </div>
 
-        {/* University selector */}
-        {(user?.role === ROLES.UNIVERSITY_STUDENT || user?.role === ROLES.PROFESSOR) && user?.university && (
+        {(user.activeRole === 'university_student' || user.activeRole === 'professor') && user.university && (
           <button className="mb-3 w-full px-3 py-2 bg-sidebar-accent rounded-xl flex items-center gap-2 hover:bg-sidebar-accent/80 transition-colors text-left">
             <Building2 size={14} className="text-primary shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="text-[10px] font-bold text-sidebar-muted uppercase tracking-widest">University</p>
-              <p className="font-bold text-xs truncate">{selectedUniversity || user.university}</p>
+              <p className="font-bold text-xs truncate">{user.university}</p>
             </div>
             <ChevronDown size={14} className="text-sidebar-muted shrink-0" />
           </button>
         )}
 
-        {/* Navigation */}
         <nav className="flex-1 space-y-0.5">
           {sections.map((section, i) => (
             <div key={i}>
@@ -117,31 +109,27 @@ export function MobileSidebar({ user, currentView, onViewChange, onLogout, isOpe
           ))}
         </nav>
 
-        {/* User Info */}
-        {user && (
-          <div className="pt-3 border-t border-sidebar-border space-y-2">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 gradient-primary rounded-lg flex items-center justify-center text-primary-foreground font-black text-xs">
-                {user.name.charAt(0).toUpperCase()}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-black text-xs truncate">{user.name}</p>
-                <p className="text-[10px] text-sidebar-muted">{user.university || 'Free Learner'}</p>
-              </div>
+        <div className="pt-3 border-t border-sidebar-border space-y-2">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 gradient-primary rounded-lg flex items-center justify-center text-primary-foreground font-black text-xs">
+              {user.name.charAt(0).toUpperCase()}
             </div>
-            {onSwitchRole && (
-              <button
-                onClick={() => { onSwitchRole(); onClose(); }}
-                className="w-full flex items-center gap-2 text-sidebar-muted hover:text-primary font-bold px-3 py-2 transition-colors text-xs bg-sidebar-accent rounded-lg"
-              >
-                <ArrowLeftRight size={14} /> Switch Account
-              </button>
-            )}
+            <div className="flex-1 min-w-0">
+              <p className="font-black text-xs truncate">{user.name}</p>
+              <p className="text-[10px] text-sidebar-muted">{user.university || 'Free Learner'}</p>
+            </div>
           </div>
-        )}
+          {onSwitchRole && user.roles.length > 1 && (
+            <button
+              onClick={() => { onSwitchRole(); onClose(); }}
+              className="w-full flex items-center gap-2 text-sidebar-muted hover:text-primary font-bold px-3 py-2 transition-colors text-xs bg-sidebar-accent rounded-lg"
+            >
+              <ArrowLeftRight size={14} /> Switch Account
+            </button>
+          )}
+        </div>
 
-        {/* Logout */}
-        <button onClick={onLogout} className="flex items-center gap-3 text-sidebar-muted hover:text-destructive font-bold p-3 transition-colors text-sm mt-2">
+        <button onClick={signOut} className="flex items-center gap-3 text-sidebar-muted hover:text-destructive font-bold p-3 transition-colors text-sm mt-2">
           <LogOut size={18} /> Sign Out
         </button>
       </aside>

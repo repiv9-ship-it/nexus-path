@@ -2,16 +2,13 @@ import { useState, useRef, useEffect } from 'react';
 import { Gem, Flame, Bell, Menu, BookOpen, BarChart3, Calendar, Briefcase, AlertTriangle, Megaphone, X, CheckCheck, Users, CreditCard, Building2, UserPlus, TrendingUp, Headphones } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { ProfileDropdown } from './ProfileDropdown';
-import { ROLES } from '@/lib/constants';
-import type { User } from '@/lib/constants';
+import { useAuth } from '@/hooks/useAuth';
 import type { ViewType } from '@/lib/navigation';
 import { NOTIFICATION_CATEGORIES_BY_ROLE } from '@/lib/navigation';
 
 interface HeaderProps {
-  user: User;
   onMenuClick?: () => void;
   onNavigate?: (view: ViewType) => void;
-  onLogout?: () => void;
 }
 
 interface Notification {
@@ -42,65 +39,18 @@ const CATEGORY_ICON_MAP: Record<string, any> = {
   Exams: BarChart3,
 };
 
-function getNotificationsForRole(role: string): Notification[] {
-  switch (role) {
-    case ROLES.STUDENT:
-      return [
-        { id: '1', title: 'New Course Available', message: 'Machine Learning A-Z just launched with a 50% discount!', category: 'Courses', isRead: false, link: 'explore', time: '2h ago' },
-        { id: '2', title: 'Achievement Unlocked', message: 'You earned the "Quick Learner" badge!', category: 'Promotions', isRead: false, link: 'badges', time: '1d ago' },
-        { id: '3', title: 'Course Update', message: 'Your enrolled course "Python for AI" has new lessons', category: 'Courses', isRead: true, link: 'my-courses', time: '2d ago' },
-      ];
-    case ROLES.UNIVERSITY_STUDENT:
-      return [
-        { id: '1', title: 'Marks Published', message: 'Your Digital Ethics final exam marks are now available', category: 'Marks', isRead: false, link: 'uni_marks', time: '2h ago' },
-        { id: '2', title: 'Schedule Updated', message: "Thursday's Algorithms class moved to Room 204", category: 'Schedule', isRead: false, link: 'schedule', time: '5h ago' },
-        { id: '3', title: 'New Course Material', message: 'Prof. Lovelace uploaded Neural Networks Ch.8 slides', category: 'Courses', isRead: false, link: 'uni_courses', time: '1d ago' },
-        { id: '4', title: 'Internship Opportunity', message: 'TechCorp is hiring interns — apply by Feb 28', category: 'Internships', isRead: true, link: 'academic_center', time: '2d ago' },
-      ];
-    case ROLES.PROFESSOR:
-      return [
-        { id: '1', title: 'New Student Message', message: 'Alice Chen asked about TP 3 exercise', category: 'Students', isRead: false, link: 'prof_messages', time: '1h ago' },
-        { id: '2', title: 'Schedule Change', message: 'Your Monday lecture moved to Amphi B', category: 'Schedule', isRead: false, link: 'prof_schedule', time: '3h ago' },
-      ];
-    case ROLES.UNIVERSITY_ADMIN:
-      return [
-        { id: '1', title: 'Payment Received', message: 'Ines Bouaziz paid 2000 DT (Tranche 2)', category: 'Payments', isRead: false, link: 'uni_finance', time: '1h ago' },
-        { id: '2', title: 'Document Request', message: 'Bob Smith requested an attendance certificate', category: 'Requests', isRead: false, link: 'uni_documents', time: '4h ago' },
-      ];
-    case ROLES.SUPER_ADMIN:
-      return [
-        { id: '1', title: 'New University Request', message: 'ISG Tunis wants to join the platform', category: 'Universities', isRead: false, link: 'sa_requests', time: '30m ago' },
-        { id: '2', title: 'Professor Promotion', message: 'John Doe requested instructor privileges', category: 'Requests', isRead: false, link: 'sa_requests', time: '2h ago' },
-      ];
-    default:
-      return [];
-  }
-}
-
-function getRoleKey(role: string): string {
-  switch (role) {
-    case ROLES.STUDENT: return 'student';
-    case ROLES.UNIVERSITY_STUDENT: return 'university_student';
-    case ROLES.PROFESSOR: return 'professor';
-    case ROLES.UNIVERSITY_ADMIN: return 'university_admin';
-    case ROLES.SUPER_ADMIN: return 'super_admin';
-    default: return 'student';
-  }
-}
-
-export function Header({ user, onMenuClick, onNavigate, onLogout }: HeaderProps) {
+export function Header({ onMenuClick, onNavigate }: HeaderProps) {
+  const { user } = useAuth();
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [filter, setFilter] = useState<string>('All');
   const panelRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (user) setNotifications(getNotificationsForRole(user.role));
-  }, [user?.role]);
+  const activeRole = user?.activeRole || 'student';
+  const categories = NOTIFICATION_CATEGORIES_BY_ROLE[activeRole] || ['All'];
 
+  // TODO: Fetch real notifications from DB
   const unreadCount = notifications.filter(n => !n.isRead).length;
-  const roleKey = user ? getRoleKey(user.role) : 'student';
-  const categories = NOTIFICATION_CATEGORIES_BY_ROLE[roleKey] || ['All'];
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -131,36 +81,32 @@ export function Header({ user, onMenuClick, onNavigate, onLogout }: HeaderProps)
 
   if (!user) return null;
 
-  const showGamification = user.role === ROLES.STUDENT || user.role === ROLES.UNIVERSITY_STUDENT;
+  const showGamification = activeRole === 'student' || activeRole === 'university_student';
 
   return (
     <header className="h-16 sm:h-18 md:h-20 px-4 md:px-8 lg:px-12 flex items-center justify-between sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border">
-      {/* Mobile Menu */}
       <button onClick={onMenuClick} className="lg:hidden w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
         <Menu size={20} />
       </button>
 
-      {/* Stats — only for student roles */}
       <div className="flex items-center gap-3 sm:gap-4">
         {showGamification && (
           <>
             <div className="glass-card px-3 sm:px-4 py-2 rounded-xl flex items-center gap-2">
               <Gem size={16} className="text-primary" fill="currentColor" />
-              <span className="font-bold text-sm">{user.gems.toLocaleString()}</span>
+              <span className="font-bold text-sm">0</span>
             </div>
             <div className="glass-card px-3 sm:px-4 py-2 rounded-xl flex items-center gap-2">
               <Flame size={16} className="text-warning" fill="currentColor" />
-              <span className="font-bold text-sm">{user.streak}</span>
+              <span className="font-bold text-sm">0</span>
             </div>
           </>
         )}
       </div>
 
-      {/* Right Side */}
       <div className="flex items-center gap-3 sm:gap-4">
         <ThemeToggle />
 
-        {/* Notification Bell */}
         <div className="relative" ref={panelRef}>
           <button
             onClick={() => setNotifOpen(!notifOpen)}
@@ -174,30 +120,18 @@ export function Header({ user, onMenuClick, onNavigate, onLogout }: HeaderProps)
             )}
           </button>
 
-          {/* Notification Panel */}
           {notifOpen && (
             <div className="absolute right-0 top-12 w-80 sm:w-96 bg-card border border-border rounded-2xl shadow-2xl z-50 overflow-hidden animate-fade-in">
               <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                 <div className="flex items-center gap-2">
                   <Bell size={16} className="text-primary" />
                   <span className="font-bold text-sm">Notifications</span>
-                  {unreadCount > 0 && (
-                    <span className="px-2 py-0.5 bg-primary text-primary-foreground text-xs font-bold rounded-full">{unreadCount}</span>
-                  )}
                 </div>
-                <div className="flex items-center gap-2">
-                  {unreadCount > 0 && (
-                    <button onClick={markAllRead} className="text-xs font-semibold text-primary hover:underline flex items-center gap-1">
-                      <CheckCheck size={13} /> Mark all read
-                    </button>
-                  )}
-                  <button onClick={() => setNotifOpen(false)} className="text-muted-foreground hover:text-foreground">
-                    <X size={16} />
-                  </button>
-                </div>
+                <button onClick={() => setNotifOpen(false)} className="text-muted-foreground hover:text-foreground">
+                  <X size={16} />
+                </button>
               </div>
 
-              {/* Category filters */}
               <div className="flex gap-1.5 px-4 py-2.5 border-b border-border overflow-x-auto scrollbar-hide">
                 {categories.map(f => (
                   <button
@@ -212,12 +146,11 @@ export function Header({ user, onMenuClick, onNavigate, onLogout }: HeaderProps)
                 ))}
               </div>
 
-              {/* Notification list */}
               <div className="max-h-80 overflow-y-auto">
                 {filteredNotifs.length === 0 ? (
                   <div className="text-center py-8">
                     <Bell size={28} className="mx-auto text-muted-foreground/30 mb-2" />
-                    <p className="text-sm font-semibold text-muted-foreground">No notifications</p>
+                    <p className="text-sm font-semibold text-muted-foreground">No notifications yet</p>
                   </div>
                 ) : (
                   filteredNotifs.map((notif) => {
@@ -250,8 +183,7 @@ export function Header({ user, onMenuClick, onNavigate, onLogout }: HeaderProps)
           )}
         </div>
 
-        {/* Profile Avatar with dropdown */}
-        <ProfileDropdown user={user} onLogout={onLogout || (() => {})} />
+        <ProfileDropdown />
       </div>
     </header>
   );
