@@ -1,121 +1,56 @@
 import { useState } from 'react';
-import { Users, Briefcase, BookOpen, Mail, Clock, MapPin, MessageSquare, Upload, CheckCircle, AlertTriangle, ExternalLink, ChevronDown, ChevronUp, FileText, Plus, X, ChevronRight, RefreshCw, BadgeCheck, Award, ShieldCheck, Send } from 'lucide-react';
+import { Users, Briefcase, BookOpen, Mail, Clock, MapPin, MessageSquare, CheckCircle, AlertTriangle, ChevronDown, ChevronUp, FileText, Plus, X, ChevronRight, RefreshCw, BadgeCheck, Award, ShieldCheck, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useProfessors, useInternships, useInternshipApplications, useAttendance, useDocumentRequests, useCertificationRequests, useSubjects } from '@/hooks/useSupabaseData';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
-// ===================== DATA =====================
-interface Professor {
-  id: string;
-  name: string;
-  title: string;
-  department: string;
-  email: string;
-  subjects: string[];
-  officeHours: string;
-  officeLocation: string;
-  avatar: string;
-}
+type AcademicTab = 'professors' | 'internships' | 'attendance' | 'documents' | 'certifications';
 
-interface Internship {
-  id: string;
-  title: string;
-  company: string;
-  location: string;
-  duration: string;
-  deadline: string;
-  description: string;
-  tags: string[];
-  applied?: boolean;
-  applicationStatus?: 'pending' | 'reviewed' | 'accepted' | 'rejected';
-}
-
-interface AttendanceRecord {
-  subject: string;
-  total: number;
-  present: number;
-  justified: number;
-  unjustified: number;
-  threshold: number;
-}
-
-const PROFESSORS: Professor[] = [
-  { id: 'p1', name: 'Dr. Alan Turing', title: 'Associate Professor', department: 'Computer Science', email: 'turing@university.edu', subjects: ['Advanced Algorithms', 'Computational Theory'], officeHours: 'Mon & Wed 14:00–16:00', officeLocation: 'Building B, Room 201', avatar: 'AT' },
-  { id: 'p2', name: 'Prof. Ada Lovelace', title: 'Professor', department: 'AI & Machine Learning', email: 'lovelace@university.edu', subjects: ['Neural Networks', 'Deep Learning'], officeHours: 'Tue & Thu 10:00–12:00', officeLocation: 'Building A, Room 305', avatar: 'AL' },
-  { id: 'p3', name: 'Master Sokrates', title: 'Lecturer', department: 'Humanities', email: 'sokrates@university.edu', subjects: ['Digital Ethics', 'Philosophy of Technology'], officeHours: 'Fri 09:00–12:00', officeLocation: 'Building C, Room 102', avatar: 'SK' },
-  { id: 'p4', name: 'Prof. GNU Linux', title: 'Associate Professor', department: 'Systems Engineering', email: 'gnu@university.edu', subjects: ['Operating Systems', 'Systems Programming'], officeHours: 'Mon & Wed 16:00–18:00', officeLocation: 'Building B, Room 404', avatar: 'GL' },
-  { id: 'p5', name: 'Dr. Fred Brooks', title: 'Senior Lecturer', department: 'Software Engineering', email: 'brooks@university.edu', subjects: ['Software Engineering', 'Project Management'], officeHours: 'Thu 13:00–15:00', officeLocation: 'Building D, Room 201', avatar: 'FB' },
+const TABS: { id: AcademicTab; label: string; icon: typeof Users }[] = [
+  { id: 'professors', label: 'Faculty', icon: Users },
+  { id: 'internships', label: 'Internships', icon: Briefcase },
+  { id: 'attendance', label: 'Attendance', icon: CheckCircle },
+  { id: 'documents', label: 'Requests', icon: FileText },
+  { id: 'certifications', label: 'Certifications', icon: Award },
 ];
 
-const INTERNSHIPS: Internship[] = [
-  { id: 'i1', title: 'Software Engineering Intern', company: 'TechCorp', location: 'Paris, France', duration: '6 months', deadline: '2026-03-15', description: 'Join our engineering team to work on scalable backend systems.', tags: ['Backend', 'Go', 'Cloud'], applied: true, applicationStatus: 'pending' },
-  { id: 'i2', title: 'Data Science Intern', company: 'StartupXYZ', location: 'Remote', duration: '3 months', deadline: '2026-02-28', description: 'Work on real-world ML projects.', tags: ['Python', 'ML', 'Data'], applied: false },
-  { id: 'i3', title: 'Mobile Dev Intern', company: 'AppFactory', location: 'Lyon, France', duration: '4 months', deadline: '2026-03-01', description: 'Build cross-platform mobile apps.', tags: ['React Native', 'TypeScript', 'Mobile'], applied: false },
-  { id: 'i4', title: 'Research Intern', company: 'CNRS Institute', location: 'Bordeaux, France', duration: '6 months', deadline: '2026-04-01', description: 'Contribute to cutting-edge research in computer vision.', tags: ['Research', 'CV', 'NLP'], applied: false },
-];
-
-const ATTENDANCE: AttendanceRecord[] = [
-  { subject: 'Advanced Algorithms', total: 12, present: 11, justified: 0, unjustified: 1, threshold: 3 },
-  { subject: 'Neural Networks', total: 10, present: 9, justified: 1, unjustified: 0, threshold: 3 },
-  { subject: 'Digital Ethics', total: 8, present: 8, justified: 0, unjustified: 0, threshold: 2 },
-  { subject: 'Operating Systems', total: 12, present: 10, justified: 1, unjustified: 1, threshold: 3 },
-  { subject: 'Software Engineering', total: 6, present: 6, justified: 0, unjustified: 0, threshold: 2 },
-];
-
-// ── Certification data ──
-const AVAILABLE_CERTS = [
-  { id: 'aws-cp', name: 'AWS Cloud Practitioner', provider: 'Amazon', level: 'Foundation' },
-  { id: 'aws-sa', name: 'AWS Solutions Architect', provider: 'Amazon', level: 'Associate' },
-  { id: 'cisco-ccna', name: 'Cisco CCNA', provider: 'Cisco', level: 'Associate' },
-  { id: 'oracle-java', name: 'Oracle Java SE', provider: 'Oracle', level: 'Professional' },
-  { id: 'gcp-ace', name: 'Google Cloud Associate', provider: 'Google', level: 'Associate' },
-  { id: 'az-900', name: 'Azure Fundamentals AZ-900', provider: 'Microsoft', level: 'Foundation' },
-  { id: 'comptia-sec', name: 'CompTIA Security+', provider: 'CompTIA', level: 'Professional' },
-];
-
-type CertRequestStatus = 'en_attente' | 'approuve' | 'envoye' | 'rejete';
-
-interface CertRequest {
-  id: string;
-  certName: string;
-  type: 'white_test' | 'voucher';
-  status: CertRequestStatus;
-  createdAt: string;
-  voucherCode?: string;
-  passed?: boolean;
-  score?: string;
-  adminNote?: string;
-}
-
-// ===================== SUB-COMPONENTS =====================
+const DOC_STATUS_CONFIG: Record<string, { label: string; color: string }> = {
+  en_attente: { label: 'Pending', color: 'text-warning bg-warning/10 border-warning/30' },
+  en_cours: { label: 'Processing', color: 'text-primary bg-primary/10 border-primary/30' },
+  traite: { label: 'Completed', color: 'text-success bg-success/10 border-success/30' },
+  rejete: { label: 'Rejected', color: 'text-destructive bg-destructive/10 border-destructive/30' },
+  approuve: { label: 'Approved', color: 'text-success bg-success/10 border-success/30' },
+  envoye: { label: 'Sent', color: 'text-primary bg-primary/10 border-primary/30' },
+};
 
 function ProfessorsTab() {
+  const { data: professors, loading } = useProfessors();
+  if (loading) return <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>;
+  if (!professors?.length) return <div className="text-center py-12 text-muted-foreground"><Users size={40} className="mx-auto mb-3 opacity-20" /><p className="font-bold">No faculty members found</p></div>;
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {PROFESSORS.map(prof => (
+      {professors.map((prof: any) => (
         <div key={prof.id} className="glass-card p-5 rounded-2xl flex flex-col gap-4 hover:border-primary/30 transition-all">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center text-primary-foreground font-black shrink-0">{prof.avatar}</div>
+            <div className="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center text-primary-foreground font-black shrink-0">
+              {prof.name?.slice(0, 2).toUpperCase()}
+            </div>
             <div className="min-w-0">
               <p className="font-black text-sm leading-tight truncate">{prof.name}</p>
-              <p className="text-primary text-[11px] font-bold">{prof.title}</p>
-              <p className="text-muted-foreground text-[11px] font-bold">{prof.department}</p>
+              {prof.department && <p className="text-muted-foreground text-[11px] font-bold">{prof.department}</p>}
             </div>
           </div>
-          <div className="flex flex-wrap gap-1">
-            {prof.subjects.map(s => (
-              <span key={s} className="px-2 py-0.5 bg-primary/10 text-primary border border-primary/20 rounded text-[10px] font-black">{s}</span>
-            ))}
-          </div>
           <div className="space-y-1.5 text-xs text-muted-foreground font-bold">
-            <div className="flex items-start gap-2"><Mail size={12} className="shrink-0 mt-0.5 text-primary" /><span className="truncate">{prof.email}</span></div>
-            <div className="flex items-start gap-2"><Clock size={12} className="shrink-0 mt-0.5 text-primary" /><span>{prof.officeHours}</span></div>
-            <div className="flex items-start gap-2"><MapPin size={12} className="shrink-0 mt-0.5 text-primary" /><span>{prof.officeLocation}</span></div>
+            {prof.email && <div className="flex items-start gap-2"><Mail size={12} className="shrink-0 mt-0.5 text-primary" /><span className="truncate">{prof.email}</span></div>}
+            {prof.office_hours && <div className="flex items-start gap-2"><Clock size={12} className="shrink-0 mt-0.5 text-primary" /><span>{prof.office_hours}</span></div>}
+            {prof.office_location && <div className="flex items-start gap-2"><MapPin size={12} className="shrink-0 mt-0.5 text-primary" /><span>{prof.office_location}</span></div>}
           </div>
-          <Button variant="outline" size="sm" className="w-full font-black text-xs h-8 mt-auto">
-            <MessageSquare size={12} className="mr-1.5" /> Message
-          </Button>
         </div>
       ))}
     </div>
@@ -123,60 +58,47 @@ function ProfessorsTab() {
 }
 
 function InternshipsTab() {
-  const [applications, setApplications] = useState<Record<string, { applied: boolean; status: Internship['applicationStatus'] }>>(
-    Object.fromEntries(INTERNSHIPS.map(i => [i.id, { applied: i.applied || false, status: i.applicationStatus }]))
-  );
+  const { data: internships, loading } = useInternships();
+  const { data: applications } = useInternshipApplications();
+  const { user } = useAuth();
 
-  const handleApply = (id: string) => {
-    setApplications(prev => ({ ...prev, [id]: { applied: true, status: 'pending' } }));
+  const appliedIds = new Set((applications || []).map((a: any) => a.internship_id));
+
+  const handleApply = async (internshipId: string) => {
+    if (!user) return;
+    const { error } = await supabase.from('internship_applications').insert({ internship_id: internshipId, user_id: user.id });
+    if (error) toast.error(error.message);
+    else toast.success('Application submitted!');
   };
 
-  const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
-    pending: { label: 'Under Review', color: 'text-warning bg-warning/10 border-warning/20' },
-    reviewed: { label: 'Reviewed', color: 'text-primary bg-primary/10 border-primary/20' },
-    accepted: { label: 'Accepted', color: 'text-success bg-success/10 border-success/20' },
-    rejected: { label: 'Rejected', color: 'text-destructive bg-destructive/10 border-destructive/20' },
-  };
+  if (loading) return <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>;
+  if (!internships?.length) return <div className="text-center py-12 text-muted-foreground"><Briefcase size={40} className="mx-auto mb-3 opacity-20" /><p className="font-bold">No internships available</p></div>;
 
   return (
     <div className="space-y-4">
-      {INTERNSHIPS.map(offer => {
-        const appState = applications[offer.id];
-        const daysLeft = Math.floor((new Date(offer.deadline).getTime() - new Date('2026-02-17').getTime()) / (1000 * 60 * 60 * 24));
+      {internships.map((offer: any) => {
+        const hasApplied = appliedIds.has(offer.id);
+        const daysLeft = offer.deadline ? Math.floor((new Date(offer.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : null;
         return (
           <div key={offer.id} className="glass-card p-5 rounded-2xl">
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap mb-1">
-                  <h4 className="font-black text-base">{offer.title}</h4>
-                  {appState.applied && appState.status && (
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-black border ${STATUS_CONFIG[appState.status].color}`}>
-                      {STATUS_CONFIG[appState.status].label}
-                    </span>
-                  )}
-                </div>
+                <h4 className="font-black text-base">{offer.title}</h4>
                 <div className="flex items-center gap-3 flex-wrap text-xs font-bold text-muted-foreground mb-3">
                   <span className="font-black text-foreground">{offer.company}</span>
-                  <span className="flex items-center gap-1"><MapPin size={11} /> {offer.location}</span>
-                  <span className="flex items-center gap-1"><Clock size={11} /> {offer.duration}</span>
+                  {offer.location && <span className="flex items-center gap-1"><MapPin size={11} /> {offer.location}</span>}
+                  {offer.duration && <span className="flex items-center gap-1"><Clock size={11} /> {offer.duration}</span>}
                 </div>
-                <p className="text-muted-foreground text-sm">{offer.description}</p>
-                <div className="flex flex-wrap gap-1 mt-3">
-                  {offer.tags.map(tag => <span key={tag} className="px-2 py-0.5 bg-muted rounded text-[10px] font-black">{tag}</span>)}
-                </div>
+                {offer.description && <p className="text-muted-foreground text-sm">{offer.description}</p>}
               </div>
               <div className="flex flex-col items-end gap-2 shrink-0">
-                <p className={`text-xs font-bold ${daysLeft <= 3 ? 'text-destructive' : 'text-muted-foreground'}`}>
-                  {new Date(offer.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                </p>
-                {appState.applied ? (
+                {offer.deadline && <p className={`text-xs font-bold ${daysLeft !== null && daysLeft <= 3 ? 'text-destructive' : 'text-muted-foreground'}`}>{new Date(offer.deadline).toLocaleDateString()}</p>}
+                {hasApplied ? (
                   <div className="flex items-center gap-1.5 px-3 py-1.5 bg-success/10 border border-success/30 rounded-lg">
                     <CheckCircle size={12} className="text-success" /><span className="text-success text-xs font-black">Applied</span>
                   </div>
                 ) : (
-                  <Button size="sm" className="h-8 text-xs font-black gradient-primary" onClick={() => handleApply(offer.id)} disabled={daysLeft <= 0}>
-                    Apply <ExternalLink size={12} className="ml-1" />
-                  </Button>
+                  <Button size="sm" className="h-8 text-xs font-black gradient-primary" onClick={() => handleApply(offer.id)}>Apply</Button>
                 )}
               </div>
             </div>
@@ -188,45 +110,50 @@ function InternshipsTab() {
 }
 
 function AttendanceTab() {
+  const { data: attendance, loading } = useAttendance();
   const [expanded, setExpanded] = useState<string | null>(null);
+
+  if (loading) return <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>;
+
+  // Group by subject
+  const bySubject: Record<string, { name: string; records: any[] }> = {};
+  (attendance || []).forEach((a: any) => {
+    const subName = a.subjects?.name || 'Unknown';
+    if (!bySubject[subName]) bySubject[subName] = { name: subName, records: [] };
+    bySubject[subName].records.push(a);
+  });
+
+  if (Object.keys(bySubject).length === 0) return <div className="text-center py-12 text-muted-foreground"><CheckCircle size={40} className="mx-auto mb-3 opacity-20" /><p className="font-bold">No attendance records</p></div>;
 
   return (
     <div className="space-y-3">
-      {ATTENDANCE.map(record => {
-        const isWarning = record.unjustified >= record.threshold;
-        const isAlmostWarning = record.unjustified === record.threshold - 1;
-        const presentPct = (record.present / record.total) * 100;
+      {Object.entries(bySubject).map(([subName, data]) => {
+        const total = data.records.length;
+        const present = data.records.filter((r: any) => r.status === 'present').length;
+        const unjustified = data.records.filter((r: any) => r.status === 'absent' && !r.is_justified).length;
+        const isWarning = unjustified >= 3;
+        const presentPct = total > 0 ? (present / total) * 100 : 100;
 
         return (
-          <div key={record.subject} className={`glass-card rounded-xl overflow-hidden ${isWarning ? 'border-destructive/40' : ''}`}>
-            <button onClick={() => setExpanded(expanded === record.subject ? null : record.subject)}
-              className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-muted/30 transition-colors">
+          <div key={subName} className={`glass-card rounded-xl overflow-hidden ${isWarning ? 'border-destructive/40' : ''}`}>
+            <button onClick={() => setExpanded(expanded === subName ? null : subName)}
+              className="w-full flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isWarning ? 'bg-destructive/10' : 'bg-success/10'}`}>
                   {isWarning ? <AlertTriangle size={18} className="text-destructive" /> : <CheckCircle size={18} className="text-success" />}
                 </div>
                 <div className="text-left">
-                  <p className="font-black text-sm">{record.subject}</p>
-                  {isWarning && <span className="px-1.5 py-0.5 bg-destructive/10 text-destructive border border-destructive/20 text-[10px] font-black rounded">⚠️ Threshold reached</span>}
+                  <p className="font-black text-sm">{subName}</p>
+                  {isWarning && <span className="px-1.5 py-0.5 bg-destructive/10 text-destructive text-[10px] font-black rounded">⚠️ Warning</span>}
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <div className="text-right hidden sm:block">
-                  <p className="font-black text-sm">{record.present}/{record.total}</p>
-                  <p className="text-[10px] text-muted-foreground font-bold">Sessions</p>
-                </div>
-                {expanded === record.subject ? <ChevronUp size={16} className="text-muted-foreground" /> : <ChevronDown size={16} className="text-muted-foreground" />}
+                <div className="text-right"><p className="font-black text-sm">{present}/{total}</p><p className="text-[10px] text-muted-foreground font-bold">Sessions</p></div>
+                {expanded === subName ? <ChevronUp size={16} className="text-muted-foreground" /> : <ChevronDown size={16} className="text-muted-foreground" />}
               </div>
             </button>
-
-            {expanded === record.subject && (
-              <div className="border-t border-border px-4 sm:px-5 pb-4 sm:pb-5">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
-                  <div className="glass-card p-3 rounded-xl text-center"><p className="font-black text-lg">{record.total}</p><p className="text-[10px] font-bold text-muted-foreground uppercase">Total</p></div>
-                  <div className="glass-card p-3 rounded-xl text-center"><p className="font-black text-lg text-success">{record.present}</p><p className="text-[10px] font-bold text-muted-foreground uppercase">Present</p></div>
-                  <div className="glass-card p-3 rounded-xl text-center"><p className="font-black text-lg text-warning">{record.justified}</p><p className="text-[10px] font-bold text-muted-foreground uppercase">Justified</p></div>
-                  <div className={`glass-card p-3 rounded-xl text-center ${isWarning ? 'border-destructive/30' : ''}`}><p className={`font-black text-lg ${isWarning ? 'text-destructive' : 'text-muted-foreground'}`}>{record.unjustified}</p><p className="text-[10px] font-bold text-muted-foreground uppercase">Unjustified</p></div>
-                </div>
+            {expanded === subName && (
+              <div className="border-t border-border px-4 pb-4">
                 <div className="mt-4">
                   <div className="flex justify-between text-xs font-bold mb-1">
                     <span className="text-muted-foreground">Attendance Rate</span>
@@ -245,396 +172,170 @@ function AttendanceTab() {
   );
 }
 
-// ===================== DOCUMENT REQUESTS TAB =====================
-
-type RequestType = 'attestation_presence' | 'attestation_inscription' | 'recorrection_examen';
-type RequestStatus = 'en_attente' | 'en_cours' | 'traite' | 'rejete';
-
-interface DocumentRequest {
-  id: string;
-  type: RequestType;
-  status: RequestStatus;
-  createdAt: string;
-  comment?: string;
-  examSubject?: string;
-  examType?: string;
-  adminNote?: string;
-}
-
-const REQUEST_TYPE_CONFIG: Record<RequestType, { label: string; description: string; icon: typeof FileText }> = {
-  attestation_presence: { label: 'Attestation de Présence', description: 'Certifie votre présence régulière aux cours', icon: CheckCircle },
-  attestation_inscription: { label: "Attestation d'Inscription", description: "Confirme votre inscription à l'université", icon: FileText },
-  recorrection_examen: { label: 'Demande de Recorrection', description: "Demande une révision de la correction d'un examen", icon: RefreshCw },
-};
-
-const DOC_STATUS_CONFIG: Record<RequestStatus, { label: string; color: string; bg: string }> = {
-  en_attente: { label: 'En attente', color: 'text-warning', bg: 'bg-warning/10 border-warning/30' },
-  en_cours: { label: 'En cours de traitement', color: 'text-primary', bg: 'bg-primary/10 border-primary/30' },
-  traite: { label: 'Traité', color: 'text-success', bg: 'bg-success/10 border-success/30' },
-  rejete: { label: 'Rejeté', color: 'text-destructive', bg: 'bg-destructive/10 border-destructive/30' },
-};
-
-const MOCK_SUBJECTS = [
-  { id: 's1', name: 'Advanced Algorithms', exams: ['Midterm', 'Final'] },
-  { id: 's2', name: 'Neural Networks', exams: ['Midterm', 'Quiz 1'] },
-  { id: 's3', name: 'Digital Ethics', exams: ['Final'] },
-  { id: 's4', name: 'Operating Systems', exams: ['Midterm', 'Final'] },
-  { id: 's5', name: 'Software Engineering', exams: ['Assignment 1', 'Midterm'] },
-];
-
 function DocumentRequestsTab() {
-  const [requests, setRequests] = useState<DocumentRequest[]>([
-    { id: 'r1', type: 'attestation_inscription', status: 'traite', createdAt: '2026-01-10', adminNote: 'Document disponible au secrétariat.' },
-    { id: 'r2', type: 'recorrection_examen', status: 'en_cours', createdAt: '2026-02-12', examSubject: 'Neural Networks', examType: 'Midterm', comment: 'Je pense que la question 3 a été mal corrigée.' },
-  ]);
+  const { user } = useAuth();
+  const { data: requests, loading, refetch } = useDocumentRequests();
+  const { data: subjects } = useSubjects();
   const [showForm, setShowForm] = useState(false);
-  const [formType, setFormType] = useState<RequestType>('attestation_presence');
+  const [formType, setFormType] = useState('attestation_presence');
   const [formSubject, setFormSubject] = useState('');
-  const [formExam, setFormExam] = useState('');
   const [formComment, setFormComment] = useState('');
 
-  const selectedSubjectData = MOCK_SUBJECTS.find(s => s.id === formSubject);
-
-  const handleSubmit = () => {
-    const newReq: DocumentRequest = {
-      id: `r${Date.now()}`, type: formType, status: 'en_attente',
-      createdAt: new Date().toISOString().split('T')[0],
-      comment: formComment || undefined,
-      examSubject: formType === 'recorrection_examen' ? selectedSubjectData?.name : undefined,
-      examType: formType === 'recorrection_examen' ? formExam : undefined,
-    };
-    setRequests(prev => [newReq, ...prev]);
-    setShowForm(false); setFormType('attestation_presence'); setFormSubject(''); setFormExam(''); setFormComment('');
+  const handleSubmit = async () => {
+    if (!user) return;
+    const { error } = await supabase.from('document_requests').insert({
+      user_id: user.id,
+      request_type: formType,
+      subject_id: formType === 'recorrection_examen' ? formSubject || null : null,
+      comment: formComment || null,
+    });
+    if (error) toast.error(error.message);
+    else { toast.success('Request submitted'); setShowForm(false); setFormComment(''); refetch(); }
   };
+
+  if (loading) return <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>;
 
   return (
     <div className="space-y-5">
       <div className="flex justify-between items-center">
-        <p className="text-muted-foreground font-bold text-sm">{requests.length} demande{requests.length > 1 ? 's' : ''}</p>
-        <Button className="gradient-primary font-black text-sm h-9" onClick={() => setShowForm(v => !v)}>
-          {showForm ? <><X size={14} className="mr-1.5" /> Annuler</> : <><Plus size={14} className="mr-1.5" /> Nouvelle Demande</>}
-        </Button>
+        <p className="text-muted-foreground font-bold text-sm">{(requests || []).length} request(s)</p>
+        <Button size="sm" className="gradient-primary font-black text-xs" onClick={() => setShowForm(true)}><Plus size={14} className="mr-1" /> New Request</Button>
       </div>
 
       {showForm && (
         <div className="glass-card p-5 rounded-2xl space-y-4 border-primary/20">
-          <h4 className="font-black text-sm uppercase tracking-widest text-primary">Nouvelle Demande</h4>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {(Object.entries(REQUEST_TYPE_CONFIG) as [RequestType, typeof REQUEST_TYPE_CONFIG[RequestType]][]).map(([key, cfg]) => {
-              const Icon = cfg.icon;
-              return (
-                <button key={key} onClick={() => { setFormType(key); setFormSubject(''); setFormExam(''); }}
-                  className={`p-4 rounded-xl text-left transition-all border ${formType === key ? 'border-primary bg-primary/10' : 'glass-card hover:border-primary/30'}`}>
-                  <Icon size={18} className={`mb-2 ${formType === key ? 'text-primary' : 'text-muted-foreground'}`} />
-                  <p className={`font-black text-xs ${formType === key ? 'text-primary' : ''}`}>{cfg.label}</p>
-                  <p className="text-muted-foreground text-[10px] mt-1">{cfg.description}</p>
-                </button>
-              );
-            })}
+          <div className="flex justify-between items-center">
+            <p className="font-black text-sm">New Request</p>
+            <button onClick={() => setShowForm(false)}><X size={16} className="text-muted-foreground" /></button>
           </div>
-          {formType === 'recorrection_examen' && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs font-black uppercase tracking-wider text-muted-foreground mb-1.5 block">Matière *</label>
-                <Select value={formSubject} onValueChange={(v) => { setFormSubject(v); setFormExam(''); }}>
-                  <SelectTrigger className="h-10 rounded-xl font-bold text-sm"><SelectValue placeholder="Sélectionner une matière" /></SelectTrigger>
-                  <SelectContent>{MOCK_SUBJECTS.map(s => <SelectItem key={s.id} value={s.id} className="font-bold">{s.name}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-              {formSubject && (
-                <div>
-                  <label className="text-xs font-black uppercase tracking-wider text-muted-foreground mb-1.5 block">Examen *</label>
-                  <Select value={formExam} onValueChange={setFormExam}>
-                    <SelectTrigger className="h-10 rounded-xl font-bold text-sm"><SelectValue placeholder="Sélectionner un examen" /></SelectTrigger>
-                    <SelectContent>{selectedSubjectData?.exams.map(e => <SelectItem key={e} value={e} className="font-bold">{e}</SelectItem>)}</SelectContent>
-                  </Select>
-                </div>
-              )}
-            </div>
+          <Select value={formType} onValueChange={setFormType}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="attestation_presence">Attestation de Présence</SelectItem>
+              <SelectItem value="attestation_inscription">Attestation d'Inscription</SelectItem>
+              <SelectItem value="recorrection_examen">Recorrection d'Examen</SelectItem>
+            </SelectContent>
+          </Select>
+          {formType === 'recorrection_examen' && subjects && (
+            <Select value={formSubject} onValueChange={setFormSubject}>
+              <SelectTrigger><SelectValue placeholder="Select subject" /></SelectTrigger>
+              <SelectContent>
+                {subjects.map((s: any) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
           )}
-          <div>
-            <label className="text-xs font-black uppercase tracking-wider text-muted-foreground mb-1.5 block">
-              {formType === 'recorrection_examen' ? 'Motif de la demande' : 'Commentaire (optionnel)'}
-            </label>
-            <Textarea value={formComment} onChange={e => setFormComment(e.target.value)}
-              placeholder={formType === 'recorrection_examen' ? 'Expliquez pourquoi...' : 'Informations supplémentaires...'} className="rounded-xl text-sm min-h-[80px] resize-none" />
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button variant="ghost" size="sm" className="font-black" onClick={() => setShowForm(false)}>Annuler</Button>
-            <Button className="gradient-primary font-black text-sm" size="sm" disabled={formType === 'recorrection_examen' && (!formSubject || !formExam)} onClick={handleSubmit}>Soumettre</Button>
-          </div>
+          <Textarea value={formComment} onChange={e => setFormComment(e.target.value)} placeholder="Comment (optional)" />
+          <Button className="gradient-primary font-black text-xs w-full" onClick={handleSubmit}><Send size={14} className="mr-1" /> Submit</Button>
         </div>
       )}
 
-      {requests.map(req => {
-        const cfg = REQUEST_TYPE_CONFIG[req.type];
-        const statusCfg = DOC_STATUS_CONFIG[req.status];
-        const Icon = cfg.icon;
-        return (
-          <div key={req.id} className="glass-card p-4 sm:p-5 rounded-2xl">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0"><Icon size={18} className="text-primary" /></div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-3 flex-wrap">
-                  <div>
-                    <p className="font-black text-sm">{cfg.label}</p>
-                    {req.examSubject && <p className="text-muted-foreground text-xs font-bold mt-0.5">{req.examSubject} — {req.examType}</p>}
-                    {req.comment && <p className="text-muted-foreground text-xs mt-1 italic">"{req.comment}"</p>}
-                    {req.adminNote && (
-                      <div className="mt-2 px-3 py-2 bg-muted/50 rounded-lg">
-                        <p className="text-xs font-black text-muted-foreground uppercase tracking-wider mb-0.5">Note administrative</p>
-                        <p className="text-xs">{req.adminNote}</p>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex flex-col items-end gap-2 shrink-0">
-                    <span className={`px-3 py-1 rounded-full text-[11px] font-black border ${statusCfg.bg} ${statusCfg.color}`}>{statusCfg.label}</span>
-                    <p className="text-[10px] text-muted-foreground font-bold">{new Date(req.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
-                  </div>
-                </div>
+      <div className="space-y-3">
+        {(requests || []).map((req: any) => {
+          const cfg = DOC_STATUS_CONFIG[req.status] || DOC_STATUS_CONFIG.en_attente;
+          return (
+            <div key={req.id} className="glass-card p-4 rounded-xl flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="font-black text-sm">{req.request_type.replace(/_/g, ' ')}</p>
+                {req.subjects?.name && <p className="text-muted-foreground text-xs">{req.subjects.name}</p>}
+                <p className="text-muted-foreground text-[10px]">{new Date(req.created_at).toLocaleDateString()}</p>
               </div>
+              <span className={`text-[10px] font-black px-2 py-0.5 rounded border ${cfg.color}`}>{cfg.label}</span>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }
 
-// ===================== CERTIFICATIONS TAB =====================
-
-const CERT_STATUS_CONFIG: Record<CertRequestStatus, { label: string; color: string; bg: string }> = {
-  en_attente: { label: 'En attente', color: 'text-warning', bg: 'bg-warning/10 border-warning/30' },
-  approuve: { label: 'Approuvé', color: 'text-success', bg: 'bg-success/10 border-success/30' },
-  envoye: { label: 'Voucher reçu', color: 'text-primary', bg: 'bg-primary/10 border-primary/30' },
-  rejete: { label: 'Rejeté', color: 'text-destructive', bg: 'bg-destructive/10 border-destructive/30' },
-};
-
 function CertificationsTab() {
-  const [certRequests, setCertRequests] = useState<CertRequest[]>([
-    { id: 'cr1', certName: 'AWS Cloud Practitioner', type: 'voucher', status: 'envoye', createdAt: '2026-01-20', voucherCode: 'AWS-VCH-2026-IB', passed: true, score: '820/1000' },
-    { id: 'cr2', certName: 'Cisco CCNA', type: 'white_test', status: 'approuve', createdAt: '2026-02-15' },
-  ]);
-  const [showCertForm, setShowCertForm] = useState(false);
+  const { user } = useAuth();
+  const { data: certRequests, loading, refetch } = useCertificationRequests();
+  const [showForm, setShowForm] = useState(false);
   const [certName, setCertName] = useState('');
-  const [customCertName, setCustomCertName] = useState('');
-  const [isCustomCert, setIsCustomCert] = useState(false);
-  const [certType, setCertType] = useState<'white_test' | 'voucher'>('white_test');
-  const [showResultForm, setShowResultForm] = useState<string | null>(null);
-  const [resultPassed, setResultPassed] = useState(true);
-  const [resultScore, setResultScore] = useState('');
+  const [certType, setCertType] = useState('white_test');
 
-  const handleCertSubmit = () => {
-    const finalName = isCustomCert ? customCertName : AVAILABLE_CERTS.find(c => c.id === certName)?.name;
-    if (!finalName) return;
-    setCertRequests(prev => [{
-      id: `cr${Date.now()}`, certName: finalName, type: certType,
-      status: 'en_attente', createdAt: new Date().toISOString().split('T')[0],
-    }, ...prev]);
-    setShowCertForm(false); setCertName(''); setCustomCertName(''); setCertType('white_test'); setIsCustomCert(false);
+  const handleSubmit = async () => {
+    if (!user || !certName) return;
+    const { error } = await supabase.from('certification_requests').insert({
+      user_id: user.id,
+      certification_name: certName,
+      request_type: certType,
+    });
+    if (error) toast.error(error.message);
+    else { toast.success('Request submitted'); setShowForm(false); setCertName(''); refetch(); }
   };
 
-  const handleLogResult = (reqId: string) => {
-    setCertRequests(prev => prev.map(r => r.id === reqId ? { ...r, passed: resultPassed, score: resultScore || undefined } : r));
-    setShowResultForm(null); setResultPassed(true); setResultScore('');
-  };
+  if (loading) return <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>;
 
   return (
     <div className="space-y-5">
       <div className="flex justify-between items-center">
-        <p className="text-muted-foreground font-bold text-sm">{certRequests.length} certification{certRequests.length > 1 ? 's' : ''}</p>
-        <Button className="gradient-primary font-black text-sm h-9" onClick={() => setShowCertForm(v => !v)}>
-          {showCertForm ? <><X size={14} className="mr-1.5" /> Annuler</> : <><Plus size={14} className="mr-1.5" /> Demander une certification</>}
-        </Button>
+        <p className="text-muted-foreground font-bold text-sm">{(certRequests || []).length} request(s)</p>
+        <Button size="sm" className="gradient-primary font-black text-xs" onClick={() => setShowForm(true)}><Plus size={14} className="mr-1" /> New Request</Button>
       </div>
 
-      {showCertForm && (
+      {showForm && (
         <div className="glass-card p-5 rounded-2xl space-y-4 border-primary/20">
-          <h4 className="font-black text-sm uppercase tracking-widest text-primary flex items-center gap-2"><BadgeCheck size={14} /> Nouvelle demande</h4>
-
-          {/* Type selector */}
-          <div className="grid grid-cols-2 gap-3">
-            <button onClick={() => setCertType('white_test')}
-              className={`p-4 rounded-xl text-left transition-all border ${certType === 'white_test' ? 'border-primary bg-primary/10' : 'glass-card hover:border-primary/30'}`}>
-              <BookOpen size={18} className={`mb-2 ${certType === 'white_test' ? 'text-primary' : 'text-muted-foreground'}`} />
-              <p className={`font-black text-xs ${certType === 'white_test' ? 'text-primary' : ''}`}>White Test</p>
-              <p className="text-muted-foreground text-[10px] mt-1">Accès à un test blanc de préparation</p>
-            </button>
-            <button onClick={() => setCertType('voucher')}
-              className={`p-4 rounded-xl text-left transition-all border ${certType === 'voucher' ? 'border-primary bg-primary/10' : 'glass-card hover:border-primary/30'}`}>
-              <Award size={18} className={`mb-2 ${certType === 'voucher' ? 'text-primary' : 'text-muted-foreground'}`} />
-              <p className={`font-black text-xs ${certType === 'voucher' ? 'text-primary' : ''}`}>Voucher</p>
-              <p className="text-muted-foreground text-[10px] mt-1">Demander un voucher d'examen gratuit</p>
-            </button>
-          </div>
-
-          {/* Certification selector */}
-          <div>
-            <label className="text-xs font-black uppercase tracking-wider text-muted-foreground mb-1.5 block">Certification *</label>
-            {!isCustomCert ? (
-              <>
-                <Select value={certName} onValueChange={setCertName}>
-                  <SelectTrigger className="h-10 rounded-xl font-bold text-sm"><SelectValue placeholder="Sélectionner une certification" /></SelectTrigger>
-                  <SelectContent>
-                    {AVAILABLE_CERTS.map(c => (
-                      <SelectItem key={c.id} value={c.id} className="font-bold">
-                        {c.name} — {c.provider} ({c.level})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <button
-                  onClick={() => { setIsCustomCert(true); setCertName(''); }}
-                  className="mt-2 text-xs font-bold text-primary hover:underline flex items-center gap-1"
-                >
-                  <Plus size={12} /> Certification not in the list? Request a custom one
-                </button>
-              </>
-            ) : (
-              <>
-                <Input
-                  placeholder="Enter certification name (e.g. CompTIA Network+)"
-                  value={customCertName}
-                  onChange={e => setCustomCertName(e.target.value)}
-                  className="h-10 rounded-xl font-bold text-sm"
-                />
-                <button
-                  onClick={() => { setIsCustomCert(false); setCustomCertName(''); }}
-                  className="mt-2 text-xs font-bold text-primary hover:underline flex items-center gap-1"
-                >
-                  <ChevronRight size={12} /> Choose from existing list
-                </button>
-              </>
-            )}
-          </div>
-
-          <div className="flex justify-end gap-2">
-            <Button variant="ghost" size="sm" className="font-black" onClick={() => { setShowCertForm(false); setIsCustomCert(false); }}>Annuler</Button>
-            <Button className="gradient-primary font-black text-sm" size="sm" disabled={isCustomCert ? !customCertName.trim() : !certName} onClick={handleCertSubmit}>
-              Soumettre la demande
-            </Button>
-          </div>
+          <Input value={certName} onChange={e => setCertName(e.target.value)} placeholder="Certification name (e.g. AWS Cloud Practitioner)" />
+          <Select value={certType} onValueChange={setCertType}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="white_test">White Test</SelectItem>
+              <SelectItem value="voucher">Voucher Request</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button className="gradient-primary font-black text-xs w-full" onClick={handleSubmit}><Send size={14} className="mr-1" /> Submit</Button>
         </div>
       )}
 
-      {/* Requests list */}
-      {certRequests.map(req => (
-        <div key={req.id} className="glass-card p-4 sm:p-5 rounded-2xl">
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
-              <BadgeCheck size={18} className="text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-3 flex-wrap">
+      <div className="space-y-3">
+        {(certRequests || []).map((req: any) => {
+          const cfg = DOC_STATUS_CONFIG[req.status] || DOC_STATUS_CONFIG.en_attente;
+          return (
+            <div key={req.id} className="glass-card p-4 rounded-xl">
+              <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="font-black text-sm">{req.certName}</p>
-                  <div className="flex items-center gap-2 mt-1 flex-wrap">
-                    <span className={`text-[10px] font-black px-2 py-0.5 rounded border ${req.type === 'voucher' ? 'bg-primary/10 text-primary border-primary/30' : 'bg-secondary/10 text-secondary border-secondary/30'}`}>
-                      {req.type === 'voucher' ? 'Voucher' : 'White Test'}
-                    </span>
-                    {req.voucherCode && (
-                      <span className="text-[10px] font-mono font-black px-2 py-0.5 rounded bg-muted text-primary">{req.voucherCode}</span>
-                    )}
-                  </div>
-
-                  {/* Result section */}
-                  {req.passed !== undefined && req.passed !== null && (
-                    <div className={`mt-2 px-3 py-2 rounded-lg border ${req.passed ? 'bg-success/10 border-success/30' : 'bg-destructive/10 border-destructive/30'}`}>
-                      <div className="flex items-center gap-2">
-                        {req.passed ? <CheckCircle size={14} className="text-success" /> : <X size={14} className="text-destructive" />}
-                        <span className={`text-xs font-black ${req.passed ? 'text-success' : 'text-destructive'}`}>
-                          {req.passed ? 'Certification réussie' : 'Non réussi'}
-                        </span>
-                        {req.score && <span className="text-xs font-bold text-muted-foreground ml-2">Score: {req.score}</span>}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Log result form */}
-                  {showResultForm === req.id && (
-                    <div className="mt-3 glass-card p-3 rounded-xl space-y-2">
-                      <p className="text-xs font-black text-primary">Logger votre résultat</p>
-                      <div className="flex gap-2">
-                        <button onClick={() => setResultPassed(true)}
-                          className={`flex-1 p-2 rounded-lg text-xs font-black border transition-all ${resultPassed ? 'bg-success/10 border-success text-success' : 'glass-card text-muted-foreground'}`}>
-                          ✓ Réussi
-                        </button>
-                        <button onClick={() => setResultPassed(false)}
-                          className={`flex-1 p-2 rounded-lg text-xs font-black border transition-all ${!resultPassed ? 'bg-destructive/10 border-destructive text-destructive' : 'glass-card text-muted-foreground'}`}>
-                          ✗ Échoué
-                        </button>
-                      </div>
-                      <Input placeholder="Score (ex: 820/1000)" className="rounded-lg text-xs h-8" value={resultScore} onChange={e => setResultScore(e.target.value)} />
-                      <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="sm" className="h-7 text-xs font-black" onClick={() => setShowResultForm(null)}>Annuler</Button>
-                        <Button size="sm" className="h-7 text-xs font-black gradient-primary" onClick={() => handleLogResult(req.id)}>Enregistrer</Button>
-                      </div>
-                    </div>
-                  )}
+                  <p className="font-black text-sm">{req.certification_name}</p>
+                  <p className="text-muted-foreground text-xs">{req.request_type === 'white_test' ? 'White Test' : 'Voucher'} · {new Date(req.created_at).toLocaleDateString()}</p>
                 </div>
-
-                <div className="flex flex-col items-end gap-2 shrink-0">
-                  <span className={`px-3 py-1 rounded-full text-[11px] font-black border ${CERT_STATUS_CONFIG[req.status].bg} ${CERT_STATUS_CONFIG[req.status].color}`}>
-                    {CERT_STATUS_CONFIG[req.status].label}
-                  </span>
-                  <p className="text-[10px] text-muted-foreground font-bold">{new Date(req.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
-                  {(req.status === 'approuve' || req.status === 'envoye') && req.passed === undefined && showResultForm !== req.id && (
-                    <Button variant="outline" size="sm" className="h-7 text-[10px] font-black" onClick={() => setShowResultForm(req.id)}>
-                      Logger résultat
-                    </Button>
-                  )}
-                </div>
+                <span className={`text-[10px] font-black px-2 py-0.5 rounded border ${cfg.color}`}>{cfg.label}</span>
               </div>
+              {req.voucher_code && <p className="mt-2 text-xs font-mono bg-muted px-2 py-1 rounded">{req.voucher_code}</p>}
+              {req.admin_note && <p className="mt-2 text-xs text-muted-foreground italic">{req.admin_note}</p>}
             </div>
-          </div>
-        </div>
-      ))}
+          );
+        })}
+      </div>
     </div>
   );
 }
 
-// ===================== MAIN COMPONENT =====================
-
-const TABS = [
-  { id: 'professors', label: 'Professors Directory', icon: Users },
-  { id: 'internships', label: 'Internships', icon: Briefcase },
-  { id: 'attendance', label: 'Attendance', icon: BookOpen },
-  { id: 'requests', label: 'Mes Demandes', icon: FileText },
-  { id: 'certifications', label: 'Certifications', icon: BadgeCheck },
-] as const;
-
-type Tab = typeof TABS[number]['id'];
-
 export function AcademicCenterView() {
-  const [activeTab, setActiveTab] = useState<Tab>('professors');
+  const [activeTab, setActiveTab] = useState<AcademicTab>('professors');
 
   return (
-    <div className="space-y-6 sm:space-y-8 animate-fade-in">
+    <div className="space-y-6 animate-fade-in">
       <div>
         <h2 className="text-2xl sm:text-4xl font-black italic tracking-tighter leading-none">ACADEMIC CENTER</h2>
-        <p className="text-muted-foreground font-bold uppercase text-xs tracking-widest mt-1">
-          Faculty · Internships · Attendance · Demandes · Certifications
-        </p>
+        <p className="text-muted-foreground font-bold uppercase text-xs tracking-widest mt-1">Faculty, internships, attendance & requests</p>
       </div>
 
-      <div className="flex gap-2 flex-wrap">
-        {TABS.map(tab => {
-          const Icon = tab.icon;
-          return (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-5 py-3 rounded-xl font-black text-sm transition-all ${
-                activeTab === tab.id ? 'gradient-primary text-primary-foreground shadow-lg' : 'glass-card text-muted-foreground hover:text-foreground'
-              }`}>
-              <Icon size={16} /> {tab.label}
-            </button>
-          );
-        })}
+      <div className="flex gap-1 bg-muted/50 p-1 rounded-xl overflow-x-auto">
+        {TABS.map(tab => (
+          <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-black whitespace-nowrap transition-all ${
+              activeTab === tab.id ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+            }`}>
+            <tab.icon size={13} /> {tab.label}
+          </button>
+        ))}
       </div>
 
       {activeTab === 'professors' && <ProfessorsTab />}
       {activeTab === 'internships' && <InternshipsTab />}
       {activeTab === 'attendance' && <AttendanceTab />}
-      {activeTab === 'requests' && <DocumentRequestsTab />}
+      {activeTab === 'documents' && <DocumentRequestsTab />}
       {activeTab === 'certifications' && <CertificationsTab />}
     </div>
   );
