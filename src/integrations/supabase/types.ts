@@ -41,6 +41,42 @@ export type Database = {
         }
         Relationships: []
       }
+      announcements: {
+        Row: {
+          audience: string
+          author_id: string | null
+          class_id: string | null
+          content: string
+          created_at: string
+          id: string
+          priority: string
+          title: string
+          university_id: string | null
+        }
+        Insert: {
+          audience?: string
+          author_id?: string | null
+          class_id?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          priority?: string
+          title: string
+          university_id?: string | null
+        }
+        Update: {
+          audience?: string
+          author_id?: string | null
+          class_id?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          priority?: string
+          title?: string
+          university_id?: string | null
+        }
+        Relationships: []
+      }
       attendance: {
         Row: {
           created_at: string
@@ -124,6 +160,69 @@ export type Database = {
           updated_at?: string
           user_id?: string
           voucher_code?: string | null
+        }
+        Relationships: []
+      }
+      class_members: {
+        Row: {
+          class_id: string
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          id?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      classes: {
+        Row: {
+          academic_year_id: string | null
+          capacity: number | null
+          class_code: string | null
+          created_at: string
+          department: string | null
+          id: string
+          level: string
+          name: string
+          university_id: string
+          updated_at: string
+        }
+        Insert: {
+          academic_year_id?: string | null
+          capacity?: number | null
+          class_code?: string | null
+          created_at?: string
+          department?: string | null
+          id?: string
+          level?: string
+          name: string
+          university_id: string
+          updated_at?: string
+        }
+        Update: {
+          academic_year_id?: string | null
+          capacity?: number | null
+          class_code?: string | null
+          created_at?: string
+          department?: string | null
+          id?: string
+          level?: string
+          name?: string
+          university_id?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -598,6 +697,48 @@ export type Database = {
           },
         ]
       }
+      professor_salaries: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          note: string | null
+          paid_at: string | null
+          period: string
+          professor_id: string | null
+          status: string
+          university_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          note?: string | null
+          paid_at?: string | null
+          period: string
+          professor_id?: string | null
+          status?: string
+          university_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          note?: string | null
+          paid_at?: string | null
+          period?: string
+          professor_id?: string | null
+          status?: string
+          university_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       professors: {
         Row: {
           avatar_url: string | null
@@ -733,6 +874,36 @@ export type Database = {
           },
         ]
       }
+      search_events: {
+        Row: {
+          category: string | null
+          course_id: string | null
+          created_at: string
+          event_type: string
+          id: string
+          query: string | null
+          user_id: string | null
+        }
+        Insert: {
+          category?: string | null
+          course_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          query?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          category?: string | null
+          course_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          query?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       semesters: {
         Row: {
           academic_year_id: string
@@ -815,6 +986,7 @@ export type Database = {
       }
       subjects: {
         Row: {
+          class_id: string | null
           code: string | null
           created_at: string
           credits: number | null
@@ -825,6 +997,7 @@ export type Database = {
           semester_id: string
         }
         Insert: {
+          class_id?: string | null
           code?: string | null
           created_at?: string
           credits?: number | null
@@ -835,6 +1008,7 @@ export type Database = {
           semester_id: string
         }
         Update: {
+          class_id?: string | null
           code?: string | null
           created_at?: string
           credits?: number | null
@@ -1002,6 +1176,75 @@ export type Database = {
         }
         Relationships: []
       }
+      university_invitations: {
+        Row: {
+          class_id: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          invited_by: string | null
+          invited_email: string
+          invited_user_id: string | null
+          message: string | null
+          responded_at: string | null
+          role: string
+          status: string
+          university_id: string
+        }
+        Insert: {
+          class_id?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          invited_by?: string | null
+          invited_email: string
+          invited_user_id?: string | null
+          message?: string | null
+          responded_at?: string | null
+          role?: string
+          status?: string
+          university_id: string
+        }
+        Update: {
+          class_id?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          invited_by?: string | null
+          invited_email?: string
+          invited_user_id?: string | null
+          message?: string | null
+          responded_at?: string | null
+          role?: string
+          status?: string
+          university_id?: string
+        }
+        Relationships: []
+      }
+      university_modules: {
+        Row: {
+          id: string
+          is_enabled: boolean
+          module_key: string
+          university_id: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          is_enabled?: boolean
+          module_key: string
+          university_id: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          is_enabled?: boolean
+          module_key?: string
+          university_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -1025,6 +1268,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_university_invitation: {
+        Args: { _invitation_id: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
