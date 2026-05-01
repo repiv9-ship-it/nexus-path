@@ -30,7 +30,7 @@ export function ProfessorDashboard({ activeSection = 'overview' }: ProfessorDash
       <div className="space-y-6 animate-fade-in">
         <div>
           <h2 className="text-2xl sm:text-3xl font-black tracking-tight">Dashboard</h2>
-          <p className="text-muted-foreground text-sm mt-1">Welcome, Professor {user?.firstName}</p>
+          <p className="text-muted-foreground text-sm mt-1">Welcome, Professor {user?.name?.split(' ')[0] || ''}</p>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
