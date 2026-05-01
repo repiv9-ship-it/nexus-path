@@ -33,13 +33,77 @@ const priorityColors: Record<string, string> = {
 };
 
 export function SuperAdminDashboard({ activeSection }: SuperAdminDashboardProps) {
-  const { data: universities } = useUniversities();
-  const { data: submissions } = useCourseSubmissions();
-  const { data: tickets } = useAllSupportTickets();
-  const { data: banners } = usePlatformBanners();
-  const { data: discounts } = usePlatformDiscounts();
-  const { data: payouts } = usePlatformPayouts();
-  const { data: allProfiles } = useProfiles();
+  const { data: universities, refetch: refetchUnis } = useUniversities();
+  const { data: submissions, refetch: refetchSubs } = useCourseSubmissions();
+  const { data: tickets, refetch: refetchTickets } = useAllSupportTickets();
+  const { data: banners, refetch: refetchBanners } = usePlatformBanners();
+  const { data: discounts, refetch: refetchDisc } = usePlatformDiscounts();
+  const { data: payouts, refetch: refetchPayouts } = usePlatformPayouts();
+  const { data: allProfiles, refetch: refetchProfiles } = useProfiles();
+  const [showCreateUni, setShowCreateUni] = useState(false);
+  const [uniForm, setUniForm] = useState({ name: '', slug: '', city: '', country: 'Tunisia', contact_email: '', subscription_plan: 'basic', subscription_price: 0, max_seats: 500 });
+  const [showBanner, setShowBanner] = useState(false);
+  const [bannerForm, setBannerForm] = useState({ title: '', subtitle: '', link: '', image_url: '', position: 0, is_active: true });
+  const [showDiscount, setShowDiscount] = useState(false);
+  const [discForm, setDiscForm] = useState({ name: '', code: '', discount_percent: 10, max_uses: 100, is_active: true });
+  const [showRoleDialog, setShowRoleDialog] = useState<any>(null);
+
+  const createUniversity = async () => {
+    if (!uniForm.name || !uniForm.slug) return toast.error('Name and slug required');
+    const { error } = await supabase.from('universities').insert({ ...uniForm, status: 'active', activated_at: new Date().toISOString() });
+    if (error) return toast.error(error.message);
+    toast.success('University created');
+    setShowCreateUni(false);
+    setUniForm({ name: '', slug: '', city: '', country: 'Tunisia', contact_email: '', subscription_plan: 'basic', subscription_price: 0, max_seats: 500 });
+    refetchUnis();
+  };
+
+  const suspendUni = async (id: string) => {
+    await supabase.from('universities').update({ status: 'suspended', suspended_at: new Date().toISOString() }).eq('id', id);
+    toast.success('University suspended');
+    refetchUnis();
+  };
+
+  const reactivateUni = async (id: string) => {
+    await supabase.from('universities').update({ status: 'active', activated_at: new Date().toISOString(), suspended_at: null }).eq('id', id);
+    toast.success('University reactivated');
+    refetchUnis();
+  };
+
+  const createBanner = async () => {
+    if (!bannerForm.title) return toast.error('Title required');
+    const { error } = await supabase.from('platform_banners').insert(bannerForm);
+    if (error) return toast.error(error.message);
+    toast.success('Banner created');
+    setShowBanner(false);
+    setBannerForm({ title: '', subtitle: '', link: '', image_url: '', position: 0, is_active: true });
+    refetchBanners();
+  };
+
+  const createDiscount = async () => {
+    if (!discForm.name || !discForm.code) return toast.error('Name and code required');
+    const { error } = await supabase.from('platform_discounts').insert(discForm);
+    if (error) return toast.error(error.message);
+    toast.success('Discount created');
+    setShowDiscount(false);
+    setDiscForm({ name: '', code: '', discount_percent: 10, max_uses: 100, is_active: true });
+    refetchDisc();
+  };
+
+  const grantRole = async (userId: string, role: string) => {
+    const { error } = await supabase.from('user_roles').insert({ user_id: userId, role: role as any });
+    if (error) return toast.error(error.message);
+    toast.success(`Granted ${role}`);
+    refetchProfiles();
+    setShowRoleDialog(null);
+  };
+
+  const revokeRole = async (userId: string, role: string) => {
+    if (!confirm(`Revoke ${role}?`)) return;
+    await supabase.from('user_roles').delete().eq('user_id', userId).eq('role', role as any);
+    toast.success(`Revoked ${role}`);
+    refetchProfiles();
+  };
 
   const [selectedUniId, setSelectedUniId] = useState<string | null>(null);
   const [selectedSubmission, setSelectedSubmission] = useState<any>(null);
