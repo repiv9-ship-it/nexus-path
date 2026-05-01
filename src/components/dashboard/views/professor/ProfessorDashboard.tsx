@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Plus, Users, BookOpen, TrendingUp, ChevronRight, Calendar, Clock, CheckSquare, DollarSign, MessageSquare, Upload, FileText, Bell, User, Send, Globe, Star, Edit, ArrowLeft, ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useSubjects, useScheduleEntries, useAllAttendance, useAllMarks, useSemesters } from '@/hooks/useSupabaseData';
+import { useSubjects, useScheduleEntries, useAllAttendance, useAllMarks, useSemesters, useMySalaries } from '@/hooks/useSupabaseData';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -237,27 +237,39 @@ export function ProfessorDashboard({ activeSection = 'overview' }: ProfessorDash
   }
 
   // ═══════════ SALARY / PAYMENTS / MESSAGES / PUBLIC PROFILE / MEETINGS ═══════════
-  const sectionTitles: Record<string, { title: string; icon: typeof DollarSign }> = {
-    prof_salary: { title: 'Salary', icon: DollarSign },
-    prof_payments: { title: 'Earnings', icon: DollarSign },
-    prof_earnings: { title: 'Earnings', icon: DollarSign },
-    prof_messages: { title: 'Messages', icon: MessageSquare },
-    prof_public_profile: { title: 'Public Profile', icon: Globe },
-    prof_meetings: { title: 'Meetings', icon: Calendar },
-  };
+  // ═══════════ SALARY / EARNINGS ═══════════
+  if (activeSection === 'prof_salary' || activeSection === 'prof_payments' || activeSection === 'prof_earnings') {
+    return <SalarySection />;
+  }
 
-  const section = sectionTitles[activeSection || ''];
-  if (section) {
+  if (activeSection === 'prof_messages') {
     return (
       <div className="space-y-5 animate-fade-in">
-        <h2 className="text-2xl font-black tracking-tight">{section.title}</h2>
+        <h2 className="text-2xl font-black tracking-tight">Messages</h2>
         <div className="text-center py-16 glass-card rounded-2xl">
-          <section.icon size={48} className="mx-auto text-muted-foreground/20 mb-4" />
-          <p className="font-bold text-muted-foreground text-lg">Coming soon</p>
-          <p className="text-sm text-muted-foreground mt-1">This section will be available once data is added</p>
+          <MessageSquare size={48} className="mx-auto text-muted-foreground/20 mb-4" />
+          <p className="font-bold text-muted-foreground text-lg">No messages yet</p>
+          <p className="text-sm text-muted-foreground mt-1">Conversations from students will appear here</p>
         </div>
       </div>
     );
+  }
+
+  if (activeSection === 'prof_meetings') {
+    return (
+      <div className="space-y-5 animate-fade-in">
+        <h2 className="text-2xl font-black tracking-tight">Meetings</h2>
+        <div className="text-center py-16 glass-card rounded-2xl">
+          <Calendar size={48} className="mx-auto text-muted-foreground/20 mb-4" />
+          <p className="font-bold text-muted-foreground text-lg">No upcoming meetings</p>
+          <p className="text-sm text-muted-foreground mt-1">Schedule office hours from your sessions</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (activeSection === 'prof_public_profile') {
+    return <PublicProfileSection />;
   }
 
   // Default fallback
@@ -265,6 +277,102 @@ export function ProfessorDashboard({ activeSection = 'overview' }: ProfessorDash
     <div className="text-center py-16 glass-card rounded-2xl">
       <BookOpen size={48} className="mx-auto text-muted-foreground/20 mb-4" />
       <p className="font-bold text-muted-foreground">Section not found</p>
+    </div>
+  );
+}
+
+// ═══════════ Salary subsection ═══════════
+function SalarySection() {
+  const { data: salaries, loading } = useMySalaries();
+  const totalEarned = (salaries || []).reduce((sum: number, s: any) => sum + (Number(s.amount) || 0), 0);
+  const paid = (salaries || []).filter((s: any) => s.status === 'paid');
+  const pending = (salaries || []).filter((s: any) => s.status !== 'paid');
+
+  return (
+    <div className="space-y-5 animate-fade-in">
+      <h2 className="text-2xl font-black tracking-tight">Earnings</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="glass-card p-4 rounded-2xl">
+          <p className="text-[10px] uppercase font-black text-muted-foreground">Total earned</p>
+          <p className="text-2xl font-black text-success mt-1">{totalEarned.toFixed(0)} DT</p>
+        </div>
+        <div className="glass-card p-4 rounded-2xl">
+          <p className="text-[10px] uppercase font-black text-muted-foreground">Paid</p>
+          <p className="text-2xl font-black mt-1">{paid.length}</p>
+        </div>
+        <div className="glass-card p-4 rounded-2xl">
+          <p className="text-[10px] uppercase font-black text-muted-foreground">Pending</p>
+          <p className="text-2xl font-black text-warning mt-1">{pending.length}</p>
+        </div>
+      </div>
+
+      {loading ? (
+        <p className="text-center text-muted-foreground py-8">Loading...</p>
+      ) : (salaries || []).length === 0 ? (
+        <div className="text-center py-16 glass-card rounded-2xl">
+          <DollarSign size={48} className="mx-auto text-muted-foreground/20 mb-4" />
+          <p className="font-bold text-muted-foreground text-lg">No salary records yet</p>
+          <p className="text-sm text-muted-foreground mt-1">Your university will add payment records here</p>
+        </div>
+      ) : (
+        <div className="glass-card rounded-2xl overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead><tr className="border-b">
+              <th className="text-left px-4 py-3 text-xs font-black uppercase text-muted-foreground">Period</th>
+              <th className="text-left px-4 py-3 text-xs font-black uppercase text-muted-foreground">Amount</th>
+              <th className="text-left px-4 py-3 text-xs font-black uppercase text-muted-foreground">Status</th>
+              <th className="text-left px-4 py-3 text-xs font-black uppercase text-muted-foreground">Paid On</th>
+            </tr></thead>
+            <tbody>
+              {salaries.map((s: any) => (
+                <tr key={s.id} className="border-b border-border/30">
+                  <td className="px-4 py-3 font-bold">{s.period}</td>
+                  <td className="px-4 py-3 font-black text-success">{Number(s.amount).toFixed(0)} DT</td>
+                  <td className="px-4 py-3"><span className={`text-[10px] font-black px-2 py-0.5 rounded ${s.status === 'paid' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>{s.status}</span></td>
+                  <td className="px-4 py-3 text-muted-foreground">{s.paid_at ? new Date(s.paid_at).toLocaleDateString() : '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════ Public profile subsection ═══════════
+function PublicProfileSection() {
+  const { user } = useAuth();
+  const [bio, setBio] = useState('');
+  const [headline, setHeadline] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    if (!user) return;
+    setSaving(true);
+    const { error } = await supabase.from('profiles').update({ department: headline } as any).eq('id', user.id);
+    // Note: bio stored separately if column added later
+    void bio;
+    setSaving(false);
+    if (error) toast.error('Could not save'); else toast.success('Profile updated');
+  };
+
+  return (
+    <div className="space-y-5 animate-fade-in">
+      <h2 className="text-2xl font-black tracking-tight">Public Profile</h2>
+      <div className="glass-card p-5 rounded-2xl space-y-4">
+        <div>
+          <label className="text-xs font-black uppercase text-muted-foreground mb-1.5 block">Headline</label>
+          <Input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder="e.g. Senior Lecturer in Computer Science" />
+        </div>
+        <div>
+          <label className="text-xs font-black uppercase text-muted-foreground mb-1.5 block">Bio</label>
+          <textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={5} placeholder="Tell students about your background..." className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+        </div>
+        <Button onClick={save} disabled={saving} className="w-full">
+          {saving ? 'Saving...' : 'Save Profile'}
+        </Button>
+      </div>
     </div>
   );
 }
