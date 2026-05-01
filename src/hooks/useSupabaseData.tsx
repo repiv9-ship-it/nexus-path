@@ -365,3 +365,139 @@ export function useAllMarks(subjectId?: string) {
     return data || [];
   }, [subjectId]);
 }
+
+// ═══════════ Classes ═══════════
+export function useClasses(universityId?: string) {
+  return useQuery(async () => {
+    let q = supabase.from('classes').select('*').order('name');
+    if (universityId) q = q.eq('university_id', universityId);
+    const { data, error } = await q;
+    if (error) throw error;
+    return data || [];
+  }, [universityId]);
+}
+
+export function useClassMembers(classId?: string) {
+  return useQuery(async () => {
+    if (!classId) return [];
+    const { data, error } = await supabase
+      .from('class_members')
+      .select('*')
+      .eq('class_id', classId);
+    if (error) throw error;
+    return data || [];
+  }, [classId]);
+}
+
+// ═══════════ University Invitations ═══════════
+export function useMyInvitations() {
+  const { user } = useAuth();
+  return useQuery(async () => {
+    if (!user) return [];
+    const { data, error } = await supabase
+      .from('university_invitations')
+      .select('*, universities(name, logo_url), classes(name, level)')
+      .or(`invited_user_id.eq.${user.id},invited_email.eq.${user.email}`)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  }, [user?.id, user?.email]);
+}
+
+export function useUniversityInvitations(universityId?: string) {
+  return useQuery(async () => {
+    let q = supabase.from('university_invitations').select('*, classes(name, level)').order('created_at', { ascending: false });
+    if (universityId) q = q.eq('university_id', universityId);
+    const { data, error } = await q;
+    if (error) throw error;
+    return data || [];
+  }, [universityId]);
+}
+
+// ═══════════ Announcements ═══════════
+export function useAnnouncements(universityId?: string) {
+  return useQuery(async () => {
+    let q = supabase.from('announcements').select('*, classes(name)').order('created_at', { ascending: false }).limit(50);
+    if (universityId) q = q.eq('university_id', universityId);
+    const { data, error } = await q;
+    if (error) throw error;
+    return data || [];
+  }, [universityId]);
+}
+
+// ═══════════ Professor Salaries ═══════════
+export function useMySalaries() {
+  const { user } = useAuth();
+  return useQuery(async () => {
+    if (!user) return [];
+    const { data, error } = await supabase
+      .from('professor_salaries')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('period', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  }, [user?.id]);
+}
+
+export function useAllSalaries(universityId?: string) {
+  return useQuery(async () => {
+    let q = supabase.from('professor_salaries').select('*, professors(name, email)').order('period', { ascending: false });
+    if (universityId) q = q.eq('university_id', universityId);
+    const { data, error } = await q;
+    if (error) throw error;
+    return data || [];
+  }, [universityId]);
+}
+
+// ═══════════ University Modules ═══════════
+export function useUniversityModules(universityId?: string) {
+  return useQuery(async () => {
+    if (!universityId) return [];
+    const { data, error } = await supabase
+      .from('university_modules')
+      .select('*')
+      .eq('university_id', universityId);
+    if (error) throw error;
+    return data || [];
+  }, [universityId]);
+}
+
+// ═══════════ Search Events ═══════════
+export async function logSearchEvent(opts: { query?: string; category?: string; courseId?: string; eventType?: 'search' | 'click' | 'enroll' }) {
+  const { data: { user } } = await supabase.auth.getUser();
+  await supabase.from('search_events').insert({
+    user_id: user?.id || null,
+    query: opts.query || null,
+    category: opts.category || null,
+    course_id: opts.courseId || null,
+    event_type: opts.eventType || 'search',
+  });
+}
+
+export function useMySearchHistory() {
+  const { user } = useAuth();
+  return useQuery(async () => {
+    if (!user) return [];
+    const { data, error } = await supabase
+      .from('search_events')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(200);
+    if (error) throw error;
+    return data || [];
+  }, [user?.id]);
+}
+
+// ═══════════ All Profiles with roles (Super Admin) ═══════════
+export function useAllUsers() {
+  return useQuery(async () => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*, user_roles(role)')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  });
+}
