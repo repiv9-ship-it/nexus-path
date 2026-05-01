@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Plus, Users, BookOpen, TrendingUp, ChevronRight, Calendar, Clock, CheckSquare, DollarSign, MessageSquare, Upload, FileText, Bell, User, Send, Globe, Star, Edit, ArrowLeft, ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useSubjects, useScheduleEntries, useAllAttendance, useAllMarks, useSemesters } from '@/hooks/useSupabaseData';
+import { useSubjects, useScheduleEntries, useAllAttendance, useAllMarks, useSemesters, useMySalaries } from '@/hooks/useSupabaseData';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
