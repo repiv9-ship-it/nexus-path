@@ -272,16 +272,13 @@ export function SuperAdminDashboard({ activeSection }: SuperAdminDashboardProps)
           </div>
           <div className="flex gap-2">
             {selectedUni.status === 'pending' && (
-              <>
-                <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={async () => {
-                  await supabase.from('universities').update({ status: 'active', activated_at: new Date().toISOString() }).eq('id', selectedUni.id);
-                  toast.success('University activated');
-                }}><CheckCircle2 size={14} className="mr-1" /> Approve</Button>
-                <Button variant="destructive" size="sm" onClick={async () => {
-                  await supabase.from('universities').update({ status: 'suspended', suspended_at: new Date().toISOString() }).eq('id', selectedUni.id);
-                  toast.error('University rejected');
-                }}><XCircle size={14} className="mr-1" /> Reject</Button>
-              </>
+              <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={async () => { await supabase.from('universities').update({ status: 'active', activated_at: new Date().toISOString() }).eq('id', selectedUni.id); toast.success('University activated'); refetchUnis(); setSelectedUniId(null); }}><CheckCircle2 size={14} className="mr-1" /> Approve</Button>
+            )}
+            {selectedUni.status === 'active' && (
+              <Button variant="destructive" size="sm" onClick={() => suspendUni(selectedUni.id)}><XCircle size={14} className="mr-1" /> Suspend</Button>
+            )}
+            {selectedUni.status === 'suspended' && (
+              <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={() => reactivateUni(selectedUni.id)}><CheckCircle2 size={14} className="mr-1" /> Reactivate</Button>
             )}
           </div>
         </div>
@@ -290,7 +287,10 @@ export function SuperAdminDashboard({ activeSection }: SuperAdminDashboardProps)
 
     return (
       <div className="space-y-6 animate-fade-in">
-        <h1 className="text-2xl font-black">Universities</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-black">Universities</h1>
+          <Button onClick={() => setShowCreateUni(true)}><Plus size={14} className="mr-1" /> Create University</Button>
+        </div>
         {unis.length === 0 ? (
           <div className="text-center py-16 glass-card rounded-2xl"><Building2 size={48} className="mx-auto text-muted-foreground/20 mb-4" /><p className="font-bold text-muted-foreground">No universities registered</p></div>
         ) : (
