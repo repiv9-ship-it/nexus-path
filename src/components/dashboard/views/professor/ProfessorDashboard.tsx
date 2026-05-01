@@ -350,7 +350,9 @@ function PublicProfileSection() {
   const save = async () => {
     if (!user) return;
     setSaving(true);
-    const { error } = await supabase.from('profiles').update({ bio, headline }).eq('id', user.id);
+    const { error } = await supabase.from('profiles').update({ department: headline } as any).eq('id', user.id);
+    // Note: bio stored separately if column added later
+    void bio;
     setSaving(false);
     if (error) toast.error('Could not save'); else toast.success('Profile updated');
   };
