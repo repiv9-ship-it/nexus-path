@@ -86,6 +86,7 @@ export type Database = {
           session_date: string
           status: string
           subject_id: string
+          university_id: string | null
           user_id: string
         }
         Insert: {
@@ -96,6 +97,7 @@ export type Database = {
           session_date: string
           status?: string
           subject_id: string
+          university_id?: string | null
           user_id: string
         }
         Update: {
@@ -106,6 +108,7 @@ export type Database = {
           session_date?: string
           status?: string
           subject_id?: string
+          university_id?: string | null
           user_id?: string
         }
         Relationships: [
@@ -386,6 +389,7 @@ export type Database = {
           room: string | null
           semester_id: string
           subject_id: string
+          university_id: string | null
         }
         Insert: {
           created_at?: string
@@ -396,6 +400,7 @@ export type Database = {
           room?: string | null
           semester_id: string
           subject_id: string
+          university_id?: string | null
         }
         Update: {
           created_at?: string
@@ -406,6 +411,7 @@ export type Database = {
           room?: string | null
           semester_id?: string
           subject_id?: string
+          university_id?: string | null
         }
         Relationships: [
           {
@@ -473,6 +479,7 @@ export type Database = {
           is_published: boolean | null
           location: string | null
           title: string
+          university_id: string | null
         }
         Insert: {
           company: string
@@ -484,6 +491,7 @@ export type Database = {
           is_published?: boolean | null
           location?: string | null
           title: string
+          university_id?: string | null
         }
         Update: {
           company?: string
@@ -495,6 +503,7 @@ export type Database = {
           is_published?: boolean | null
           location?: string | null
           title?: string
+          university_id?: string | null
         }
         Relationships: []
       }
@@ -509,6 +518,7 @@ export type Database = {
           max_score: number
           score: number
           subject_id: string
+          university_id: string | null
           user_id: string
         }
         Insert: {
@@ -521,6 +531,7 @@ export type Database = {
           max_score?: number
           score: number
           subject_id: string
+          university_id?: string | null
           user_id: string
         }
         Update: {
@@ -533,6 +544,7 @@ export type Database = {
           max_score?: number
           score?: number
           subject_id?: string
+          university_id?: string | null
           user_id?: string
         }
         Relationships: [
@@ -750,6 +762,7 @@ export type Database = {
           name: string
           office_hours: string | null
           office_location: string | null
+          university_id: string | null
           user_id: string | null
         }
         Insert: {
@@ -762,6 +775,7 @@ export type Database = {
           name: string
           office_hours?: string | null
           office_location?: string | null
+          university_id?: string | null
           user_id?: string | null
         }
         Update: {
@@ -774,6 +788,7 @@ export type Database = {
           name?: string
           office_hours?: string | null
           office_location?: string | null
+          university_id?: string | null
           user_id?: string | null
         }
         Relationships: []
@@ -822,6 +837,7 @@ export type Database = {
       }
       schedule_entries: {
         Row: {
+          class_id: string | null
           created_at: string
           day_of_week: number
           end_time: string
@@ -832,8 +848,10 @@ export type Database = {
           semester_id: string
           start_time: string
           subject_id: string
+          university_id: string | null
         }
         Insert: {
+          class_id?: string | null
           created_at?: string
           day_of_week: number
           end_time: string
@@ -844,8 +862,10 @@ export type Database = {
           semester_id: string
           start_time: string
           subject_id: string
+          university_id?: string | null
         }
         Update: {
+          class_id?: string | null
           created_at?: string
           day_of_week?: number
           end_time?: string
@@ -856,6 +876,7 @@ export type Database = {
           semester_id?: string
           start_time?: string
           subject_id?: string
+          university_id?: string | null
         }
         Relationships: [
           {
@@ -957,6 +978,7 @@ export type Database = {
           recorded_by: string | null
           student_id: string
           total_due: number
+          university_id: string | null
         }
         Insert: {
           amount: number
@@ -969,6 +991,7 @@ export type Database = {
           recorded_by?: string | null
           student_id: string
           total_due?: number
+          university_id?: string | null
         }
         Update: {
           amount?: number
@@ -981,6 +1004,7 @@ export type Database = {
           recorded_by?: string | null
           student_id?: string
           total_due?: number
+          university_id?: string | null
         }
         Relationships: []
       }
@@ -995,6 +1019,7 @@ export type Database = {
           name: string
           professor_name: string | null
           semester_id: string
+          university_id: string | null
         }
         Insert: {
           class_id?: string | null
@@ -1006,6 +1031,7 @@ export type Database = {
           name: string
           professor_name?: string | null
           semester_id: string
+          university_id?: string | null
         }
         Update: {
           class_id?: string | null
@@ -1017,6 +1043,7 @@ export type Database = {
           name?: string
           professor_name?: string | null
           semester_id?: string
+          university_id?: string | null
         }
         Relationships: [
           {
@@ -1272,6 +1299,24 @@ export type Database = {
         Args: { _invitation_id: string }
         Returns: undefined
       }
+      admin_set_user_role: {
+        Args: {
+          _grant?: boolean
+          _role: Database["public"]["Enums"]["app_role"]
+          _target_user: string
+        }
+        Returns: undefined
+      }
+      bulk_invite_to_university: {
+        Args: {
+          _class_id?: string
+          _emails: string[]
+          _message?: string
+          _role?: string
+          _university_id: string
+        }
+        Returns: number
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1279,6 +1324,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_university_member: { Args: { _uni: string }; Returns: boolean }
     }
     Enums: {
       app_role:
