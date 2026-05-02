@@ -150,6 +150,7 @@ export function Dashboard() {
       case 'uni_certifications':
       case 'uni_modules':
       case 'uni_employees':
+      case 'uni_schedule':
         return <UniversityDashboard activeSection={view} />;
 
       // Super Admin views
