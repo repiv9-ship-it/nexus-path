@@ -250,14 +250,29 @@ export function useSupportTickets() {
 }
 
 // ═══════════ Student Payments ═══════════
-export function useStudentPayments(studentId?: string) {
+export function useStudentPayments(studentId?: string, universityId?: string) {
   return useQuery(async () => {
     let q = supabase.from('student_payments').select('*').order('created_at', { ascending: false });
     if (studentId) q = q.eq('student_id', studentId);
+    if (universityId) q = q.eq('university_id', universityId);
     const { data, error } = await q;
     if (error) throw error;
     return data || [];
-  }, [studentId]);
+  }, [studentId, universityId]);
+}
+
+// ═══════════ Class roster joined with profile ═══════════
+export function useClassRoster(classId?: string) {
+  return useQuery(async () => {
+    if (!classId) return [];
+    const { data: members, error } = await supabase
+      .from('class_members').select('*').eq('class_id', classId);
+    if (error) throw error;
+    if (!members || members.length === 0) return [];
+    const userIds = members.map((m: any) => m.user_id);
+    const { data: profs } = await supabase.from('profiles').select('*').in('user_id', userIds);
+    return members.map((m: any) => ({ ...m, profile: profs?.find((p: any) => p.user_id === m.user_id) }));
+  }, [classId]);
 }
 
 // ═══════════ Course Submissions ═══════════
