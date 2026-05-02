@@ -181,7 +181,22 @@ export function UniversityDashboard({ activeSection = 'overview' }: UniversityDa
     return <ReportsSection profiles={profiles || []} professors={professors || []} classes={classes || []} subjects={subjects || []} payments={payments || []} salaries={salaries || []} />;
   }
 
+  // ─── SCHEDULE EDITOR ───
+  if (activeSection === 'uni_schedule') {
+    return <ScheduleEditorSection entries={scheduleEntries || []} subjects={subjects || []} semesters={semesters || []} classes={classes || []} professors={professors || []} uniId={uniId} refetch={refetchSched} />;
+  }
+
   return null;
+}
+
+function NoUniversityBanner() {
+  return (
+    <div className="glass-card p-8 rounded-2xl text-center">
+      <Building2 size={36} className="mx-auto text-muted-foreground/30 mb-3" />
+      <p className="font-bold">No university linked to your account</p>
+      <p className="text-xs text-muted-foreground mt-1">Ask the platform super admin to attach you to a university workspace.</p>
+    </div>
+  );
 }
 
 // ════════════════ CLASSES SECTION ════════════════
