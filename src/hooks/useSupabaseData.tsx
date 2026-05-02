@@ -70,14 +70,24 @@ export function useSemesters(academicYearId?: string) {
   }, [academicYearId]);
 }
 
-export function useSubjects(semesterId?: string) {
+export function useSubjects(semesterId?: string, universityId?: string) {
   return useQuery(async () => {
     let q = supabase.from('subjects').select('*').order('name', { ascending: true });
     if (semesterId) q = q.eq('semester_id', semesterId);
+    if (universityId) q = q.eq('university_id', universityId);
     const { data, error } = await q;
     if (error) throw error;
     return data || [];
-  }, [semesterId]);
+  }, [semesterId, universityId]);
+}
+
+export function useClassSubjects(classId?: string) {
+  return useQuery(async () => {
+    if (!classId) return [];
+    const { data, error } = await supabase.from('subjects').select('*').eq('class_id', classId).order('name');
+    if (error) throw error;
+    return data || [];
+  }, [classId]);
 }
 
 // ═══════════ Marks ═══════════
@@ -111,36 +121,37 @@ export function useAttendance() {
 }
 
 // ═══════════ Schedule ═══════════
-export function useScheduleEntries(semesterId?: string) {
+export function useScheduleEntries(semesterId?: string, universityId?: string) {
   return useQuery(async () => {
-    let q = supabase.from('schedule_entries').select('*, subjects(name, code)').order('day_of_week').order('start_time');
+    let q = supabase.from('schedule_entries').select('*, subjects(name, code), classes(name)').order('day_of_week').order('start_time');
     if (semesterId) q = q.eq('semester_id', semesterId);
+    if (universityId) q = q.eq('university_id', universityId);
     const { data, error } = await q;
     if (error) throw error;
     return data || [];
-  }, [semesterId]);
+  }, [semesterId, universityId]);
 }
 
-export function useExamSchedule(semesterId?: string) {
+export function useExamSchedule(semesterId?: string, universityId?: string) {
   return useQuery(async () => {
     let q = supabase.from('exam_schedule').select('*, subjects(name, code)').order('exam_date');
     if (semesterId) q = q.eq('semester_id', semesterId);
+    if (universityId) q = q.eq('university_id', universityId);
     const { data, error } = await q;
     if (error) throw error;
     return data || [];
-  }, [semesterId]);
+  }, [semesterId, universityId]);
 }
 
 // ═══════════ Professors ═══════════
-export function useProfessors() {
+export function useProfessors(universityId?: string) {
   return useQuery(async () => {
-    const { data, error } = await supabase
-      .from('professors')
-      .select('*')
-      .order('name');
+    let q = supabase.from('professors').select('*').order('name');
+    if (universityId) q = q.eq('university_id', universityId);
+    const { data, error } = await q;
     if (error) throw error;
     return data || [];
-  });
+  }, [universityId]);
 }
 
 // ═══════════ Universities ═══════════
