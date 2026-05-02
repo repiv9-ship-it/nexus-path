@@ -16,7 +16,7 @@ export type ViewType =
   // Professor views (university)
   | 'professor' | 'prof_sessions' | 'prof_courses' | 'prof_schedule' | 'prof_payments' | 'prof_messages' | 'prof_salary' | 'prof_meetings'
   // University admin views
-  | 'university' | 'uni_classes' | 'uni_finance' | 'uni_announcements' | 'uni_exams' | 'uni_stages' | 'uni_documents' | 'uni_reports' | 'uni_certifications' | 'uni_salaries' | 'uni_modules' | 'uni_employees'
+  | 'university' | 'uni_classes' | 'uni_finance' | 'uni_announcements' | 'uni_exams' | 'uni_stages' | 'uni_documents' | 'uni_reports' | 'uni_certifications' | 'uni_salaries' | 'uni_modules' | 'uni_employees' | 'uni_schedule'
   // Super Admin views
   | 'super_admin' | 'sa_universities' | 'sa_courses' | 'sa_analytics' | 'sa_support' | 'sa_cms' | 'sa_requests' | 'sa_users'
   // Legacy compat
@@ -106,6 +106,9 @@ export const uniAdminNav: NavSection[] = [
     items: [
       { id: 'university', label: 'Dashboard', icon: Building2 },
       { id: 'uni_classes', label: 'Classes', icon: Users },
+      { id: 'uni_students', label: 'Students', icon: GraduationCap },
+      { id: 'uni_professors', label: 'Professors', icon: UserPlus },
+      { id: 'uni_schedule', label: 'Schedule', icon: Calendar },
     ],
   },
   {

@@ -70,14 +70,24 @@ export function useSemesters(academicYearId?: string) {
   }, [academicYearId]);
 }
 
-export function useSubjects(semesterId?: string) {
+export function useSubjects(semesterId?: string, universityId?: string) {
   return useQuery(async () => {
     let q = supabase.from('subjects').select('*').order('name', { ascending: true });
     if (semesterId) q = q.eq('semester_id', semesterId);
+    if (universityId) q = q.eq('university_id', universityId);
     const { data, error } = await q;
     if (error) throw error;
     return data || [];
-  }, [semesterId]);
+  }, [semesterId, universityId]);
+}
+
+export function useClassSubjects(classId?: string) {
+  return useQuery(async () => {
+    if (!classId) return [];
+    const { data, error } = await supabase.from('subjects').select('*').eq('class_id', classId).order('name');
+    if (error) throw error;
+    return data || [];
+  }, [classId]);
 }
 
 // ═══════════ Marks ═══════════
@@ -111,36 +121,37 @@ export function useAttendance() {
 }
 
 // ═══════════ Schedule ═══════════
-export function useScheduleEntries(semesterId?: string) {
+export function useScheduleEntries(semesterId?: string, universityId?: string) {
   return useQuery(async () => {
-    let q = supabase.from('schedule_entries').select('*, subjects(name, code)').order('day_of_week').order('start_time');
+    let q = supabase.from('schedule_entries').select('*, subjects(name, code), classes(name)').order('day_of_week').order('start_time');
     if (semesterId) q = q.eq('semester_id', semesterId);
+    if (universityId) q = q.eq('university_id', universityId);
     const { data, error } = await q;
     if (error) throw error;
     return data || [];
-  }, [semesterId]);
+  }, [semesterId, universityId]);
 }
 
-export function useExamSchedule(semesterId?: string) {
+export function useExamSchedule(semesterId?: string, universityId?: string) {
   return useQuery(async () => {
     let q = supabase.from('exam_schedule').select('*, subjects(name, code)').order('exam_date');
     if (semesterId) q = q.eq('semester_id', semesterId);
+    if (universityId) q = q.eq('university_id', universityId);
     const { data, error } = await q;
     if (error) throw error;
     return data || [];
-  }, [semesterId]);
+  }, [semesterId, universityId]);
 }
 
 // ═══════════ Professors ═══════════
-export function useProfessors() {
+export function useProfessors(universityId?: string) {
   return useQuery(async () => {
-    const { data, error } = await supabase
-      .from('professors')
-      .select('*')
-      .order('name');
+    let q = supabase.from('professors').select('*').order('name');
+    if (universityId) q = q.eq('university_id', universityId);
+    const { data, error } = await q;
     if (error) throw error;
     return data || [];
-  });
+  }, [universityId]);
 }
 
 // ═══════════ Universities ═══════════
@@ -169,16 +180,15 @@ export function useUniversity(id?: string) {
 }
 
 // ═══════════ Internships ═══════════
-export function useInternships() {
+export function useInternships(universityId?: string) {
   return useQuery(async () => {
-    const { data, error } = await supabase
-      .from('internships')
-      .select('*')
-      .eq('is_published', true)
-      .order('created_at', { ascending: false });
+    let q = supabase.from('internships').select('*').order('created_at', { ascending: false });
+    if (universityId) q = q.eq('university_id', universityId);
+    else q = q.eq('is_published', true);
+    const { data, error } = await q;
     if (error) throw error;
     return data || [];
-  });
+  }, [universityId]);
 }
 
 export function useInternshipApplications() {
@@ -240,14 +250,29 @@ export function useSupportTickets() {
 }
 
 // ═══════════ Student Payments ═══════════
-export function useStudentPayments(studentId?: string) {
+export function useStudentPayments(studentId?: string, universityId?: string) {
   return useQuery(async () => {
     let q = supabase.from('student_payments').select('*').order('created_at', { ascending: false });
     if (studentId) q = q.eq('student_id', studentId);
+    if (universityId) q = q.eq('university_id', universityId);
     const { data, error } = await q;
     if (error) throw error;
     return data || [];
-  }, [studentId]);
+  }, [studentId, universityId]);
+}
+
+// ═══════════ Class roster joined with profile ═══════════
+export function useClassRoster(classId?: string) {
+  return useQuery(async () => {
+    if (!classId) return [];
+    const { data: members, error } = await supabase
+      .from('class_members').select('*').eq('class_id', classId);
+    if (error) throw error;
+    if (!members || members.length === 0) return [];
+    const userIds = members.map((m: any) => m.user_id);
+    const { data: profs } = await supabase.from('profiles').select('*').in('user_id', userIds);
+    return members.map((m: any) => ({ ...m, profile: profs?.find((p: any) => p.user_id === m.user_id) }));
+  }, [classId]);
 }
 
 // ═══════════ Course Submissions ═══════════

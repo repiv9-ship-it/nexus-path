@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Building2, Users, BookOpen, GraduationCap, Plus, Settings, Calendar, DollarSign, FileText, Bell, BarChart3, CheckCircle, Mail, Send, Trash2, Award, Briefcase, Layout, UserPlus, ClipboardList, CreditCard, QrCode } from 'lucide-react';
+import { Building2, Users, BookOpen, GraduationCap, Plus, Settings, Calendar, DollarSign, FileText, Bell, BarChart3, CheckCircle, Mail, Send, Trash2, Award, Briefcase, Layout, UserPlus, ClipboardList, CreditCard, QrCode, Download, ArrowLeft, Shield, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,7 +10,7 @@ import {
   useProfiles, useSubjects, useSemesters, useAcademicYears, useAllDocumentRequests,
   useAllCertificationRequests, useScheduleEntries, useProfessors, useClasses,
   useUniversityInvitations, useAnnouncements, useAllSalaries, useUniversityModules,
-  useStudentPayments, useExamSchedule, useInternships,
+  useStudentPayments, useExamSchedule, useInternships, useClassRoster, useClassSubjects,
 } from '@/hooks/useSupabaseData';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -46,21 +46,21 @@ export function UniversityDashboard({ activeSection = 'overview' }: UniversityDa
   const uniId = user?.universityId;
 
   const { data: profiles, refetch: refetchProfiles } = useProfiles(uniId);
-  const { data: subjects, refetch: refetchSubjects } = useSubjects();
+  const { data: subjects, refetch: refetchSubjects } = useSubjects(undefined, uniId);
   const { data: semesters, refetch: refetchSemesters } = useSemesters();
   const { data: academicYears, refetch: refetchYears } = useAcademicYears();
   const { data: docRequests, refetch: refetchDocs } = useAllDocumentRequests();
   const { data: certRequests, refetch: refetchCerts } = useAllCertificationRequests();
-  const { data: professors, refetch: refetchProfs } = useProfessors();
+  const { data: professors, refetch: refetchProfs } = useProfessors(uniId);
   const { data: classes, refetch: refetchClasses } = useClasses(uniId);
   const { data: invitations, refetch: refetchInvites } = useUniversityInvitations(uniId);
   const { data: announcements, refetch: refetchAnn } = useAnnouncements(uniId);
   const { data: salaries, refetch: refetchSalaries } = useAllSalaries(uniId);
   const { data: modules, refetch: refetchModules } = useUniversityModules(uniId);
-  const { data: payments, refetch: refetchPayments } = useStudentPayments();
-  const { data: exams, refetch: refetchExams } = useExamSchedule();
-  const { data: internships, refetch: refetchInt } = useInternships();
-  const { data: scheduleEntries, refetch: refetchSched } = useScheduleEntries();
+  const { data: payments, refetch: refetchPayments } = useStudentPayments(undefined, uniId);
+  const { data: exams, refetch: refetchExams } = useExamSchedule(undefined, uniId);
+  const { data: internships, refetch: refetchInt } = useInternships(uniId);
+  const { data: scheduleEntries, refetch: refetchSched } = useScheduleEntries(undefined, uniId);
 
   // ─── OVERVIEW ───
   if (activeSection === 'overview' || activeSection === 'university') {
@@ -181,7 +181,22 @@ export function UniversityDashboard({ activeSection = 'overview' }: UniversityDa
     return <ReportsSection profiles={profiles || []} professors={professors || []} classes={classes || []} subjects={subjects || []} payments={payments || []} salaries={salaries || []} />;
   }
 
+  // ─── SCHEDULE EDITOR ───
+  if (activeSection === 'uni_schedule') {
+    return <ScheduleEditorSection entries={scheduleEntries || []} subjects={subjects || []} semesters={semesters || []} classes={classes || []} professors={professors || []} uniId={uniId} refetch={refetchSched} />;
+  }
+
   return null;
+}
+
+function NoUniversityBanner() {
+  return (
+    <div className="glass-card p-8 rounded-2xl text-center">
+      <Building2 size={36} className="mx-auto text-muted-foreground/30 mb-3" />
+      <p className="font-bold">No university linked to your account</p>
+      <p className="text-xs text-muted-foreground mt-1">Ask the platform super admin to attach you to a university workspace.</p>
+    </div>
+  );
 }
 
 // ════════════════ CLASSES SECTION ════════════════
@@ -235,7 +250,7 @@ function ClassesSection({ classes, uniId, academicYears, subjects, semesters, re
 
   const createSubject = async () => {
     if (!subForm.name || !subForm.semester_id) return toast.error('Name and semester required');
-    const { error } = await supabase.from('subjects').insert({ ...subForm, class_id: selectedClass?.id });
+    const { error } = await supabase.from('subjects').insert({ ...subForm, class_id: selectedClass?.id || null, university_id: uniId });
     if (error) return toast.error(error.message);
     toast.success('Subject added');
     setShowSubject(false);
@@ -487,7 +502,7 @@ function ProfessorsSection({ professors, classes, uniId, refetch, refetchInvites
 
   const createProf = async () => {
     if (!profForm.name) return toast.error('Name required');
-    const { error } = await supabase.from('professors').insert(profForm);
+    const { error } = await supabase.from('professors').insert({ ...profForm, university_id: uniId });
     if (error) return toast.error(error.message);
     toast.success('Professor added');
     setShowCreate(false);
