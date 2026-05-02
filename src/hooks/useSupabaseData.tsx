@@ -180,16 +180,15 @@ export function useUniversity(id?: string) {
 }
 
 // ═══════════ Internships ═══════════
-export function useInternships() {
+export function useInternships(universityId?: string) {
   return useQuery(async () => {
-    const { data, error } = await supabase
-      .from('internships')
-      .select('*')
-      .eq('is_published', true)
-      .order('created_at', { ascending: false });
+    let q = supabase.from('internships').select('*').order('created_at', { ascending: false });
+    if (universityId) q = q.eq('university_id', universityId);
+    else q = q.eq('is_published', true);
+    const { data, error } = await q;
     if (error) throw error;
     return data || [];
-  });
+  }, [universityId]);
 }
 
 export function useInternshipApplications() {
