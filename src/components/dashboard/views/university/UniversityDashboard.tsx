@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Building2, Users, BookOpen, GraduationCap, Plus, Settings, Calendar, DollarSign, FileText, Bell, BarChart3, CheckCircle, Mail, Send, Trash2, Award, Briefcase, Layout, UserPlus, ClipboardList, CreditCard, QrCode } from 'lucide-react';
+import { Building2, Users, BookOpen, GraduationCap, Plus, Settings, Calendar, DollarSign, FileText, Bell, BarChart3, CheckCircle, Mail, Send, Trash2, Award, Briefcase, Layout, UserPlus, ClipboardList, CreditCard, QrCode, Download, ArrowLeft, Shield, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,7 +10,7 @@ import {
   useProfiles, useSubjects, useSemesters, useAcademicYears, useAllDocumentRequests,
   useAllCertificationRequests, useScheduleEntries, useProfessors, useClasses,
   useUniversityInvitations, useAnnouncements, useAllSalaries, useUniversityModules,
-  useStudentPayments, useExamSchedule, useInternships,
+  useStudentPayments, useExamSchedule, useInternships, useClassRoster, useClassSubjects,
 } from '@/hooks/useSupabaseData';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -46,21 +46,21 @@ export function UniversityDashboard({ activeSection = 'overview' }: UniversityDa
   const uniId = user?.universityId;
 
   const { data: profiles, refetch: refetchProfiles } = useProfiles(uniId);
-  const { data: subjects, refetch: refetchSubjects } = useSubjects();
+  const { data: subjects, refetch: refetchSubjects } = useSubjects(undefined, uniId);
   const { data: semesters, refetch: refetchSemesters } = useSemesters();
   const { data: academicYears, refetch: refetchYears } = useAcademicYears();
   const { data: docRequests, refetch: refetchDocs } = useAllDocumentRequests();
   const { data: certRequests, refetch: refetchCerts } = useAllCertificationRequests();
-  const { data: professors, refetch: refetchProfs } = useProfessors();
+  const { data: professors, refetch: refetchProfs } = useProfessors(uniId);
   const { data: classes, refetch: refetchClasses } = useClasses(uniId);
   const { data: invitations, refetch: refetchInvites } = useUniversityInvitations(uniId);
   const { data: announcements, refetch: refetchAnn } = useAnnouncements(uniId);
   const { data: salaries, refetch: refetchSalaries } = useAllSalaries(uniId);
   const { data: modules, refetch: refetchModules } = useUniversityModules(uniId);
-  const { data: payments, refetch: refetchPayments } = useStudentPayments();
-  const { data: exams, refetch: refetchExams } = useExamSchedule();
-  const { data: internships, refetch: refetchInt } = useInternships();
-  const { data: scheduleEntries, refetch: refetchSched } = useScheduleEntries();
+  const { data: payments, refetch: refetchPayments } = useStudentPayments(undefined, uniId);
+  const { data: exams, refetch: refetchExams } = useExamSchedule(undefined, uniId);
+  const { data: internships, refetch: refetchInt } = useInternships(uniId);
+  const { data: scheduleEntries, refetch: refetchSched } = useScheduleEntries(undefined, uniId);
 
   // ─── OVERVIEW ───
   if (activeSection === 'overview' || activeSection === 'university') {
