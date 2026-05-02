@@ -250,7 +250,7 @@ function ClassesSection({ classes, uniId, academicYears, subjects, semesters, re
 
   const createSubject = async () => {
     if (!subForm.name || !subForm.semester_id) return toast.error('Name and semester required');
-    const { error } = await supabase.from('subjects').insert({ ...subForm, class_id: selectedClass?.id });
+    const { error } = await supabase.from('subjects').insert({ ...subForm, class_id: selectedClass?.id || null, university_id: uniId });
     if (error) return toast.error(error.message);
     toast.success('Subject added');
     setShowSubject(false);
@@ -502,7 +502,7 @@ function ProfessorsSection({ professors, classes, uniId, refetch, refetchInvites
 
   const createProf = async () => {
     if (!profForm.name) return toast.error('Name required');
-    const { error } = await supabase.from('professors').insert(profForm);
+    const { error } = await supabase.from('professors').insert({ ...profForm, university_id: uniId });
     if (error) return toast.error(error.message);
     toast.success('Professor added');
     setShowCreate(false);
