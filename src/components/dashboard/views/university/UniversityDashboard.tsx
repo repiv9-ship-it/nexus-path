@@ -1045,6 +1045,121 @@ function EmployeesSection({ profiles, refetch }: any) {
   );
 }
 
+// ════════════════ SCHEDULE EDITOR ════════════════
+const DOW_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+function ScheduleEditorSection({ entries, subjects, semesters, classes, professors, uniId, refetch }: any) {
+  const [show, setShow] = useState(false);
+  const [form, setForm] = useState({
+    subject_id: '', semester_id: '', class_id: '', professor_name: '',
+    day_of_week: 1, start_time: '08:00', end_time: '10:00', room: '', entry_type: 'lecture',
+  });
+
+  const create = async () => {
+    if (!form.subject_id || !form.semester_id) return toast.error('Subject and semester required');
+    const { error } = await supabase.from('schedule_entries').insert({
+      ...form,
+      class_id: form.class_id || null,
+      professor_name: form.professor_name || null,
+      university_id: uniId,
+    });
+    if (error) return toast.error(error.message);
+    toast.success('Entry added');
+    setShow(false);
+    setForm({ subject_id: '', semester_id: '', class_id: '', professor_name: '', day_of_week: 1, start_time: '08:00', end_time: '10:00', room: '', entry_type: 'lecture' });
+    refetch();
+  };
+
+  const remove = async (id: string) => {
+    if (!confirm('Delete this entry?')) return;
+    await supabase.from('schedule_entries').delete().eq('id', id);
+    refetch();
+  };
+
+  const grouped: Record<number, any[]> = {};
+  entries.forEach((e: any) => { (grouped[e.day_of_week] = grouped[e.day_of_week] || []).push(e); });
+
+  return (
+    <div className="space-y-5 animate-fade-in">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <h2 className="text-2xl font-black tracking-tight">Schedule Editor</h2>
+        <Button onClick={() => setShow(true)} className="gradient-primary"><Plus size={14} className="mr-1" /> Entry</Button>
+      </div>
+
+      {entries.length === 0 ? (
+        <div className="text-center py-16 glass-card rounded-2xl">
+          <Calendar size={48} className="mx-auto text-muted-foreground/20 mb-4" />
+          <p className="font-bold text-muted-foreground">No schedule entries yet</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {[1, 2, 3, 4, 5, 6, 0].map(dow => {
+            const items = (grouped[dow] || []).sort((a: any, b: any) => a.start_time.localeCompare(b.start_time));
+            if (items.length === 0) return null;
+            return (
+              <div key={dow} className="glass-card p-4 rounded-2xl">
+                <h4 className="font-black text-sm mb-2">{DOW_NAMES[dow]}</h4>
+                <div className="space-y-2">
+                  {items.map((e: any) => (
+                    <div key={e.id} className="flex items-center justify-between p-2 bg-muted/30 rounded-xl">
+                      <div className="flex items-center gap-3">
+                        <span className="font-black text-xs shrink-0">{e.start_time?.slice(0, 5)}–{e.end_time?.slice(0, 5)}</span>
+                        <span className="font-bold text-xs">{e.subjects?.name || 'Subject'}</span>
+                        <Badge variant="outline" className="text-[10px]">{e.entry_type}</Badge>
+                        {e.classes?.name && <span className="text-[10px] text-muted-foreground">{e.classes.name}</span>}
+                        {e.room && <span className="text-[10px] text-muted-foreground">{e.room}</span>}
+                        {e.professor_name && <span className="text-[10px] text-muted-foreground">· {e.professor_name}</span>}
+                      </div>
+                      <Button size="sm" variant="ghost" onClick={() => remove(e.id)}><Trash2 size={12} className="text-destructive" /></Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <Dialog open={show} onOpenChange={setShow}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Add Schedule Entry</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" value={form.subject_id} onChange={e => setForm({ ...form, subject_id: e.target.value })}>
+              <option value="">Subject</option>
+              {subjects.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
+            <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" value={form.semester_id} onChange={e => setForm({ ...form, semester_id: e.target.value })}>
+              <option value="">Semester</option>
+              {semesters.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
+            <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" value={form.class_id} onChange={e => setForm({ ...form, class_id: e.target.value })}>
+              <option value="">Class (optional)</option>
+              {classes.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+            <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" value={form.professor_name} onChange={e => setForm({ ...form, professor_name: e.target.value })}>
+              <option value="">Professor (optional)</option>
+              {professors.map((p: any) => <option key={p.id} value={p.name}>{p.name}</option>)}
+            </select>
+            <div className="grid grid-cols-3 gap-2">
+              <select className="h-10 rounded-md border border-input bg-background px-2 text-sm" value={form.day_of_week} onChange={e => setForm({ ...form, day_of_week: parseInt(e.target.value) })}>
+                {DOW_NAMES.map((d, i) => <option key={i} value={i}>{d}</option>)}
+              </select>
+              <Input type="time" value={form.start_time} onChange={e => setForm({ ...form, start_time: e.target.value })} />
+              <Input type="time" value={form.end_time} onChange={e => setForm({ ...form, end_time: e.target.value })} />
+            </div>
+            <Input placeholder="Room" value={form.room} onChange={e => setForm({ ...form, room: e.target.value })} />
+            <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" value={form.entry_type} onChange={e => setForm({ ...form, entry_type: e.target.value })}>
+              <option value="lecture">Lecture</option>
+              <option value="td">TD</option>
+              <option value="tp">TP / Lab</option>
+            </select>
+          </div>
+          <DialogFooter><Button onClick={create}>Add</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
 // ════════════════ REPORTS ════════════════
 function ReportsSection({ profiles, professors, classes, subjects, payments, salaries }: any) {
   const totalRevenue = payments.reduce((s: number, p: any) => s + Number(p.amount), 0);
