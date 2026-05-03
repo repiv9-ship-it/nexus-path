@@ -41,10 +41,12 @@ function getCountdownColor(dateStr: string): string {
 
 export function ScheduleView() {
   const [activeView, setActiveView] = useState<'weekly' | 'exams'>('weekly');
+  const { user } = useAuth();
+  const uniId = user?.universityId;
   const { data: semesters } = useSemesters();
   const currentSemester = semesters?.find((s: any) => s.is_current);
-  const { data: scheduleEntries, loading: schedLoading } = useScheduleEntries(currentSemester?.id);
-  const { data: examSchedule, loading: examLoading } = useExamSchedule(currentSemester?.id);
+  const { data: scheduleEntries, loading: schedLoading } = useScheduleEntries(currentSemester?.id, uniId);
+  const { data: examSchedule, loading: examLoading } = useExamSchedule(currentSemester?.id, uniId);
 
   const todayDow = new Date().getDay();
   const entries = scheduleEntries || [];
