@@ -91,8 +91,10 @@ export function UniHomeView({ onNavigate }: UniHomeViewProps) {
   const ABSENCE_LIMIT = 3;
   const absenceWarning = unjustifiedAbsences.length >= ABSENCE_LIMIT;
 
-  // Announcements from notifications
-  const announcements = (notifications || []).slice(0, 5);
+  // Announcements: real announcements first, fall back to notifications
+  const announcements = ((announcementsData || []).length > 0
+    ? (announcementsData || []).slice(0, 5).map((a: any) => ({ id: a.id, title: a.title, message: a.content, category: a.priority === 'urgent' ? 'exam' : 'admin', created_at: a.created_at, is_read: true }))
+    : (notifications || []).slice(0, 5));
 
   return (
     <div className="space-y-6 animate-fade-in">
