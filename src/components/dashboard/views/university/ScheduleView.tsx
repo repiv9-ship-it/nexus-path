@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Calendar, Clock, MapPin, User, AlertCircle, Download } from 'lucide-react';
 import { useScheduleEntries, useExamSchedule, useSemesters } from '@/hooks/useSupabaseData';
+import { useAuth } from '@/hooks/useAuth';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const WEEKDAYS = [1, 2, 3, 4, 5]; // Mon-Fri
