@@ -13,10 +13,11 @@ interface ProfessorDashboardProps {
 
 export function ProfessorDashboard({ activeSection = 'overview' }: ProfessorDashboardProps) {
   const { user } = useAuth();
-  const { data: subjects, loading: subjectsLoading } = useSubjects();
+  const uniId = user?.universityId;
+  const { data: subjects, loading: subjectsLoading } = useSubjects(undefined, uniId);
   const { data: semesters } = useSemesters();
   const currentSemester = semesters?.find((s: any) => s.is_current);
-  const { data: scheduleEntries } = useScheduleEntries(currentSemester?.id);
+  const { data: scheduleEntries } = useScheduleEntries(currentSemester?.id, uniId);
   const { data: allAttendance } = useAllAttendance();
   const { data: allMarks } = useAllMarks();
 
