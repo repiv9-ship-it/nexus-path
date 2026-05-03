@@ -25,8 +25,9 @@ function StatusBadge({ status }: { status: 'passed' | 'failed' | 'pending' }) {
 }
 
 export function UniMarksView() {
+  const { user } = useAuth();
   const { data: marks, loading: marksLoading } = useMarks();
-  const { data: subjects } = useSubjects();
+  const { data: subjects } = useSubjects(undefined, user?.universityId);
   const { data: semesters } = useSemesters();
   const { data: academicYears } = useAcademicYears();
 
