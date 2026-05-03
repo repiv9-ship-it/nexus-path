@@ -53,18 +53,20 @@ const ANNOUNCEMENT_ICONS: Record<string, typeof Bell> = {
 
 export function UniHomeView({ onNavigate }: UniHomeViewProps) {
   const { user } = useAuth();
+  const uniId = user?.universityId;
   const [expandedAnnouncement, setExpandedAnnouncement] = useState<string | null>(null);
 
   const { data: notifications } = useNotifications();
+  const { data: announcementsData } = useAnnouncements(uniId);
   const { data: marks } = useMarks();
   const { data: attendance } = useAttendance();
   const { data: semesters } = useSemesters();
-  const { data: subjects } = useSubjects();
+  const { data: subjects } = useSubjects(undefined, uniId);
 
   // Find current semester
   const currentSemester = semesters?.find((s: any) => s.is_current);
-  const { data: scheduleEntries } = useScheduleEntries(currentSemester?.id);
-  const { data: examSchedule } = useExamSchedule(currentSemester?.id);
+  const { data: scheduleEntries } = useScheduleEntries(currentSemester?.id, uniId);
+  const { data: examSchedule } = useExamSchedule(currentSemester?.id, uniId);
 
   // Get today's schedule (day_of_week: 0=Sunday, 1=Monday... or 0=Monday depending on DB)
   const todayDow = new Date().getDay(); // 0=Sun
