@@ -3,6 +3,7 @@ import { ChevronDown, ChevronUp, TrendingUp, Award, Download, CheckCircle, XCirc
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { useMarks, useSubjects, useSemesters, useAcademicYears } from '@/hooks/useSupabaseData';
+import { useAuth } from '@/hooks/useAuth';
 
 function getGradeColor(grade: number, max: number = 20) {
   const pct = (grade / max) * 100;
