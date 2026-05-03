@@ -3,6 +3,7 @@ import { ChevronDown, ChevronUp, TrendingUp, Award, Download, CheckCircle, XCirc
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { useMarks, useSubjects, useSemesters, useAcademicYears } from '@/hooks/useSupabaseData';
+import { useAuth } from '@/hooks/useAuth';
 
 function getGradeColor(grade: number, max: number = 20) {
   const pct = (grade / max) * 100;
@@ -24,8 +25,9 @@ function StatusBadge({ status }: { status: 'passed' | 'failed' | 'pending' }) {
 }
 
 export function UniMarksView() {
+  const { user } = useAuth();
   const { data: marks, loading: marksLoading } = useMarks();
-  const { data: subjects } = useSubjects();
+  const { data: subjects } = useSubjects(undefined, user?.universityId);
   const { data: semesters } = useSemesters();
   const { data: academicYears } = useAcademicYears();
 

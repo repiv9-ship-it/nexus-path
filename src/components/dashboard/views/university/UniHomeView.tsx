@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Bell, BarChart3, Calendar, BookOpen, UserX, ChevronRight, AlertTriangle, CheckCircle, Clock, TrendingUp, Megaphone, Zap, MapPin, User } from 'lucide-react';
-import { useNotifications, useMarks, useScheduleEntries, useExamSchedule, useAttendance, useSubjects, useSemesters } from '@/hooks/useSupabaseData';
+import { useNotifications, useMarks, useScheduleEntries, useExamSchedule, useAttendance, useSubjects, useSemesters, useAnnouncements } from '@/hooks/useSupabaseData';
 import { useAuth } from '@/hooks/useAuth';
 import type { ViewType } from '@/lib/navigation';
 
@@ -53,18 +53,20 @@ const ANNOUNCEMENT_ICONS: Record<string, typeof Bell> = {
 
 export function UniHomeView({ onNavigate }: UniHomeViewProps) {
   const { user } = useAuth();
+  const uniId = user?.universityId;
   const [expandedAnnouncement, setExpandedAnnouncement] = useState<string | null>(null);
 
   const { data: notifications } = useNotifications();
+  const { data: announcementsData } = useAnnouncements(uniId);
   const { data: marks } = useMarks();
   const { data: attendance } = useAttendance();
   const { data: semesters } = useSemesters();
-  const { data: subjects } = useSubjects();
+  const { data: subjects } = useSubjects(undefined, uniId);
 
   // Find current semester
   const currentSemester = semesters?.find((s: any) => s.is_current);
-  const { data: scheduleEntries } = useScheduleEntries(currentSemester?.id);
-  const { data: examSchedule } = useExamSchedule(currentSemester?.id);
+  const { data: scheduleEntries } = useScheduleEntries(currentSemester?.id, uniId);
+  const { data: examSchedule } = useExamSchedule(currentSemester?.id, uniId);
 
   // Get today's schedule (day_of_week: 0=Sunday, 1=Monday... or 0=Monday depending on DB)
   const todayDow = new Date().getDay(); // 0=Sun
@@ -89,8 +91,10 @@ export function UniHomeView({ onNavigate }: UniHomeViewProps) {
   const ABSENCE_LIMIT = 3;
   const absenceWarning = unjustifiedAbsences.length >= ABSENCE_LIMIT;
 
-  // Announcements from notifications
-  const announcements = (notifications || []).slice(0, 5);
+  // Announcements: real announcements first, fall back to notifications
+  const announcements = ((announcementsData || []).length > 0
+    ? (announcementsData || []).slice(0, 5).map((a: any) => ({ id: a.id, title: a.title, message: a.content, category: a.priority === 'urgent' ? 'exam' : 'admin', created_at: a.created_at, is_read: true }))
+    : (notifications || []).slice(0, 5));
 
   return (
     <div className="space-y-6 animate-fade-in">

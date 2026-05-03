@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Calendar, Clock, MapPin, User, AlertCircle, Download } from 'lucide-react';
 import { useScheduleEntries, useExamSchedule, useSemesters } from '@/hooks/useSupabaseData';
+import { useAuth } from '@/hooks/useAuth';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const WEEKDAYS = [1, 2, 3, 4, 5]; // Mon-Fri
@@ -40,10 +41,12 @@ function getCountdownColor(dateStr: string): string {
 
 export function ScheduleView() {
   const [activeView, setActiveView] = useState<'weekly' | 'exams'>('weekly');
+  const { user } = useAuth();
+  const uniId = user?.universityId;
   const { data: semesters } = useSemesters();
   const currentSemester = semesters?.find((s: any) => s.is_current);
-  const { data: scheduleEntries, loading: schedLoading } = useScheduleEntries(currentSemester?.id);
-  const { data: examSchedule, loading: examLoading } = useExamSchedule(currentSemester?.id);
+  const { data: scheduleEntries, loading: schedLoading } = useScheduleEntries(currentSemester?.id, uniId);
+  const { data: examSchedule, loading: examLoading } = useExamSchedule(currentSemester?.id, uniId);
 
   const todayDow = new Date().getDay();
   const entries = scheduleEntries || [];
