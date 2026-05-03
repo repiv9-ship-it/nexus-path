@@ -59,9 +59,9 @@ function ProfessorsTab() {
 }
 
 function InternshipsTab() {
-  const { data: internships, loading } = useInternships();
-  const { data: applications } = useInternshipApplications();
   const { user } = useAuth();
+  const { data: internships, loading } = useInternships(user?.universityId);
+  const { data: applications } = useInternshipApplications();
 
   const appliedIds = new Set((applications || []).map((a: any) => a.internship_id));
 
