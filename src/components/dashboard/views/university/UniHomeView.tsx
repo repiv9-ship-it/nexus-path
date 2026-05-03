@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Bell, BarChart3, Calendar, BookOpen, UserX, ChevronRight, AlertTriangle, CheckCircle, Clock, TrendingUp, Megaphone, Zap, MapPin, User } from 'lucide-react';
-import { useNotifications, useMarks, useScheduleEntries, useExamSchedule, useAttendance, useSubjects, useSemesters } from '@/hooks/useSupabaseData';
+import { useNotifications, useMarks, useScheduleEntries, useExamSchedule, useAttendance, useSubjects, useSemesters, useAnnouncements } from '@/hooks/useSupabaseData';
 import { useAuth } from '@/hooks/useAuth';
 import type { ViewType } from '@/lib/navigation';
 
