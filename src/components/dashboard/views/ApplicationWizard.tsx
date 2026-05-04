@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { CheckCircle, ChevronRight, ChevronLeft, Upload, GraduationCap, Building2, User, FileText, Send, Globe, BookOpen, Briefcase, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 type ApplicationType = 'professor' | 'university';
 
