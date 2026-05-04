@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { useUniversities, useCourseSubmissions, useAllSupportTickets, usePlatformBanners, usePlatformDiscounts, usePlatformPayouts, useProfiles } from '@/hooks/useSupabaseData';
+import { useUniversities, useCourseSubmissions, useAllSupportTickets, usePlatformBanners, usePlatformDiscounts, usePlatformPayouts, useProfiles, useApplicationRequests } from '@/hooks/useSupabaseData';
 import { supabase } from '@/integrations/supabase/client';
 
 interface SuperAdminDashboardProps {
