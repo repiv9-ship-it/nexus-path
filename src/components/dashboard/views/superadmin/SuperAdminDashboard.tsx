@@ -40,6 +40,7 @@ export function SuperAdminDashboard({ activeSection }: SuperAdminDashboardProps)
   const { data: discounts, refetch: refetchDisc } = usePlatformDiscounts();
   const { data: payouts, refetch: refetchPayouts } = usePlatformPayouts();
   const { data: allProfiles, refetch: refetchProfiles } = useProfiles();
+  const { data: applications, refetch: refetchApps } = useApplicationRequests();
   const [showCreateUni, setShowCreateUni] = useState(false);
   const [uniForm, setUniForm] = useState({ name: '', slug: '', city: '', country: 'Tunisia', contact_email: '', subscription_plan: 'basic', subscription_price: 0, max_seats: 500 });
   const [showBanner, setShowBanner] = useState(false);
