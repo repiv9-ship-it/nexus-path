@@ -526,3 +526,67 @@ export function useAllUsers() {
     return data || [];
   });
 }
+
+// ═══════════ Application Requests ═══════════
+export function useApplicationRequests(status?: string) {
+  return useQuery(async () => {
+    let q = supabase.from('application_requests' as any).select('*').order('created_at', { ascending: false });
+    if (status) q = q.eq('status', status);
+    const { data, error } = await q;
+    if (error) throw error;
+    return data || [];
+  }, [status]);
+}
+
+export function useMyUniversityMemberships() {
+  const { user } = useAuth();
+  return useQuery(async () => {
+    if (!user) return [];
+    const { data, error } = await supabase
+      .from('university_members' as any)
+      .select('*, universities(id, name, slug, logo_url)')
+      .eq('user_id', user.id);
+    if (error) throw error;
+    return data || [];
+  }, [user?.id]);
+}
+
+export function useCourseMaterials(opts: { subjectId?: string; classId?: string; courseId?: string } = {}) {
+  return useQuery(async () => {
+    let q = supabase.from('course_materials' as any).select('*').order('created_at', { ascending: false });
+    if (opts.subjectId) q = q.eq('subject_id', opts.subjectId);
+    if (opts.classId) q = q.eq('class_id', opts.classId);
+    if (opts.courseId) q = q.eq('course_submission_id', opts.courseId);
+    const { data, error } = await q;
+    if (error) throw error;
+    return data || [];
+  }, [opts.subjectId, opts.classId, opts.courseId]);
+}
+
+export function useMyMeetings() {
+  const { user } = useAuth();
+  return useQuery(async () => {
+    if (!user) return [];
+    const { data, error } = await supabase
+      .from('meetings' as any)
+      .select('*, classes(name)')
+      .or(`host_id.eq.${user.id},with_user_id.eq.${user.id}`)
+      .order('scheduled_at', { ascending: true });
+    if (error) throw error;
+    return data || [];
+  }, [user?.id]);
+}
+
+export function useUniversityBySlug(slug?: string) {
+  return useQuery(async () => {
+    if (!slug) return null;
+    const { data, error } = await supabase
+      .from('universities')
+      .select('*')
+      .eq('slug', slug)
+      .eq('status', 'active')
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  }, [slug]);
+}

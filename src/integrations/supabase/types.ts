@@ -77,6 +77,45 @@ export type Database = {
         }
         Relationships: []
       }
+      application_requests: {
+        Row: {
+          applicant_id: string
+          created_at: string
+          id: string
+          payload: Json
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          applicant_id: string
+          created_at?: string
+          id?: string
+          payload?: Json
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          applicant_id?: string
+          created_at?: string
+          id?: string
+          payload?: Json
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       attendance: {
         Row: {
           created_at: string
@@ -229,52 +268,135 @@ export type Database = {
         }
         Relationships: []
       }
+      course_materials: {
+        Row: {
+          class_id: string | null
+          course_submission_id: string | null
+          created_at: string
+          description: string | null
+          file_url: string | null
+          id: string
+          link_url: string | null
+          material_type: string
+          subject_id: string | null
+          title: string
+          university_id: string | null
+          uploaded_by: string
+        }
+        Insert: {
+          class_id?: string | null
+          course_submission_id?: string | null
+          created_at?: string
+          description?: string | null
+          file_url?: string | null
+          id?: string
+          link_url?: string | null
+          material_type?: string
+          subject_id?: string | null
+          title: string
+          university_id?: string | null
+          uploaded_by: string
+        }
+        Update: {
+          class_id?: string | null
+          course_submission_id?: string | null
+          created_at?: string
+          description?: string | null
+          file_url?: string | null
+          id?: string
+          link_url?: string | null
+          material_type?: string
+          subject_id?: string | null
+          title?: string
+          university_id?: string | null
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_materials_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_materials_course_submission_id_fkey"
+            columns: ["course_submission_id"]
+            isOneToOne: false
+            referencedRelation: "course_submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_materials_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_materials_university_id_fkey"
+            columns: ["university_id"]
+            isOneToOne: false
+            referencedRelation: "universities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       course_submissions: {
         Row: {
           category: string
+          cover_url: string | null
           created_at: string
           description: string | null
           id: string
           instructor_name: string | null
           price: number
+          professor_user_id: string | null
           rejection_reason: string | null
           review_note: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           status: string
           submitted_by: string
+          target_audience: string | null
           title: string
           university_id: string | null
         }
         Insert: {
           category?: string
+          cover_url?: string | null
           created_at?: string
           description?: string | null
           id?: string
           instructor_name?: string | null
           price?: number
+          professor_user_id?: string | null
           rejection_reason?: string | null
           review_note?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
           submitted_by: string
+          target_audience?: string | null
           title: string
           university_id?: string | null
         }
         Update: {
           category?: string
+          cover_url?: string | null
           created_at?: string
           description?: string | null
           id?: string
           instructor_name?: string | null
           price?: number
+          professor_user_id?: string | null
           rejection_reason?: string | null
           review_note?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
           submitted_by?: string
+          target_audience?: string | null
           title?: string
           university_id?: string | null
         }
@@ -557,6 +679,66 @@ export type Database = {
           },
         ]
       }
+      meetings: {
+        Row: {
+          class_id: string | null
+          created_at: string
+          description: string | null
+          duration_minutes: number | null
+          host_id: string
+          id: string
+          meeting_url: string | null
+          scheduled_at: string
+          status: string
+          title: string
+          university_id: string | null
+          with_user_id: string | null
+        }
+        Insert: {
+          class_id?: string | null
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          host_id: string
+          id?: string
+          meeting_url?: string | null
+          scheduled_at: string
+          status?: string
+          title: string
+          university_id?: string | null
+          with_user_id?: string | null
+        }
+        Update: {
+          class_id?: string | null
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          host_id?: string
+          id?: string
+          meeting_url?: string | null
+          scheduled_at?: string
+          status?: string
+          title?: string
+          university_id?: string | null
+          with_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meetings_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meetings_university_id_fkey"
+            columns: ["university_id"]
+            isOneToOne: false
+            referencedRelation: "universities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           category: string
@@ -754,40 +936,52 @@ export type Database = {
       professors: {
         Row: {
           avatar_url: string | null
+          banner_url: string | null
           bio: string | null
           created_at: string
           department: string | null
           email: string | null
+          headline: string | null
           id: string
+          is_independent: boolean | null
           name: string
           office_hours: string | null
           office_location: string | null
+          rating: number | null
           university_id: string | null
           user_id: string | null
         }
         Insert: {
           avatar_url?: string | null
+          banner_url?: string | null
           bio?: string | null
           created_at?: string
           department?: string | null
           email?: string | null
+          headline?: string | null
           id?: string
+          is_independent?: boolean | null
           name: string
           office_hours?: string | null
           office_location?: string | null
+          rating?: number | null
           university_id?: string | null
           user_id?: string | null
         }
         Update: {
           avatar_url?: string | null
+          banner_url?: string | null
           bio?: string | null
           created_at?: string
           department?: string | null
           email?: string | null
+          headline?: string | null
           id?: string
+          is_independent?: boolean | null
           name?: string
           office_hours?: string | null
           office_location?: string | null
+          rating?: number | null
           university_id?: string | null
           user_id?: string | null
         }
@@ -796,10 +990,13 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          banner_url: string | null
+          bio: string | null
           created_at: string
           department: string | null
           email: string | null
           first_name: string
+          headline: string | null
           id: string
           last_name: string
           level: string | null
@@ -809,10 +1006,13 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          banner_url?: string | null
+          bio?: string | null
           created_at?: string
           department?: string | null
           email?: string | null
           first_name?: string
+          headline?: string | null
           id?: string
           last_name?: string
           level?: string | null
@@ -822,10 +1022,13 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          banner_url?: string | null
+          bio?: string | null
           created_at?: string
           department?: string | null
           email?: string | null
           first_name?: string
+          headline?: string | null
           id?: string
           last_name?: string
           level?: string | null
@@ -1248,6 +1451,38 @@ export type Database = {
         }
         Relationships: []
       }
+      university_members: {
+        Row: {
+          created_at: string
+          id: string
+          role: string
+          university_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: string
+          university_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: string
+          university_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "university_members_university_id_fkey"
+            columns: ["university_id"]
+            isOneToOne: false
+            referencedRelation: "universities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       university_modules: {
         Row: {
           id: string
@@ -1307,6 +1542,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      approve_application: {
+        Args: { _id: string; _note?: string }
+        Returns: string
+      }
       bulk_invite_to_university: {
         Args: {
           _class_id?: string
@@ -1325,6 +1564,15 @@ export type Database = {
         Returns: boolean
       }
       is_university_member: { Args: { _uni: string }; Returns: boolean }
+      reject_application: {
+        Args: { _id: string; _note?: string }
+        Returns: undefined
+      }
+      set_active_university: { Args: { _uni: string }; Returns: undefined }
+      submit_application: {
+        Args: { _payload: Json; _type: string }
+        Returns: string
+      }
     }
     Enums: {
       app_role:

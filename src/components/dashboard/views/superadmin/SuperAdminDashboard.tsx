@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { useUniversities, useCourseSubmissions, useAllSupportTickets, usePlatformBanners, usePlatformDiscounts, usePlatformPayouts, useProfiles } from '@/hooks/useSupabaseData';
+import { useUniversities, useCourseSubmissions, useAllSupportTickets, usePlatformBanners, usePlatformDiscounts, usePlatformPayouts, useProfiles, useApplicationRequests } from '@/hooks/useSupabaseData';
 import { supabase } from '@/integrations/supabase/client';
 
 interface SuperAdminDashboardProps {
@@ -40,6 +40,7 @@ export function SuperAdminDashboard({ activeSection }: SuperAdminDashboardProps)
   const { data: discounts, refetch: refetchDisc } = usePlatformDiscounts();
   const { data: payouts, refetch: refetchPayouts } = usePlatformPayouts();
   const { data: allProfiles, refetch: refetchProfiles } = useProfiles();
+  const { data: applications, refetch: refetchApps } = useApplicationRequests();
   const [showCreateUni, setShowCreateUni] = useState(false);
   const [uniForm, setUniForm] = useState({ name: '', slug: '', city: '', country: 'Tunisia', contact_email: '', subscription_plan: 'basic', subscription_price: 0, max_seats: 500 });
   const [showBanner, setShowBanner] = useState(false);
