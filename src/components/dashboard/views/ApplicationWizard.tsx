@@ -46,9 +46,19 @@ export function ApplicationWizard({ type, onClose }: ApplicationWizardProps) {
   const EXPERTISE_OPTIONS = ['Computer Science', 'Data Science', 'Mathematics', 'Business', 'Design', 'Engineering', 'Languages', 'Medicine'];
   const DEPT_OPTIONS = ['Computer Science', 'Business Administration', 'Engineering', 'Mathematics', 'Languages', 'Medicine', 'Law', 'Arts & Design'];
 
+  const [submitting, setSubmitting] = useState(false);
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    const payload = type === 'professor' ? profData : uniData;
+    const { error } = await supabase.rpc('submit_application' as any, { _type: type, _payload: payload as any });
+    setSubmitting(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success('Application submitted');
+    setSubmitted(true);
+  };
   const handleNext = () => {
     if (step < steps.length - 1) setStep(step + 1);
-    else { setSubmitted(true); }
+    else handleSubmit();
   };
 
   if (submitted) {
