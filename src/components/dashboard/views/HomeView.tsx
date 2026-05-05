@@ -3,8 +3,9 @@ import { Search, Filter, Star, BookOpen, Award, Zap, X, GraduationCap, Building2
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
-import { useCourseSubmissions, useProfessors } from '@/hooks/useSupabaseData';
+import { useCourseSubmissions, useProfessors, logSearchEvent } from '@/hooks/useSupabaseData';
 import { CATEGORIES } from '@/lib/constants';
+import { useEffect } from 'react';
 import type { ViewType } from '@/lib/navigation';
 
 interface HomeViewProps {
@@ -20,6 +21,12 @@ export function HomeView({ onNavigate, onApplyProfessor, onApplyUniversity }: Ho
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [viewingProfessor, setViewingProfessor] = useState<any | null>(null);
+
+  useEffect(() => {
+    if (!search.trim()) return;
+    const t = setTimeout(() => { logSearchEvent({ query: search, category: selectedCategory, eventType: 'search' }); }, 800);
+    return () => clearTimeout(t);
+  }, [search, selectedCategory]);
 
   const filteredCourses = (courses || []).filter(c => {
     if (selectedCategory !== 'All' && c.category !== selectedCategory) return false;
