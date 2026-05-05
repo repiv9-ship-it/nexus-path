@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import UniversityPublicPage from "./pages/UniversityPublicPage";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/u/:slug" element={<UniversityPublicPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
