@@ -342,8 +342,90 @@ export function SuperAdminDashboard({ activeSection }: SuperAdminDashboardProps)
     );
   }
 
+  // ──── REQUESTS (Applications) ────
+  if (activeSection === 'sa_requests') {
+    const apps = applications || [];
+    const handleApprove = async (id: string) => {
+      const { error } = await supabase.rpc('approve_application', { _id: id });
+      if (error) return toast.error(error.message);
+      toast.success('Application approved');
+      refetchApps();
+    };
+    const handleReject = async (id: string) => {
+      const note = prompt('Reason for rejection (optional)') || '';
+      const { error } = await supabase.rpc('reject_application', { _id: id, _note: note });
+      if (error) return toast.error(error.message);
+      toast.success('Application rejected');
+      refetchApps();
+    };
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <h1 className="text-2xl font-black">Applications & Requests</h1>
+        <Tabs defaultValue="apps">
+          <TabsList>
+            <TabsTrigger value="apps">Applications ({apps.filter((a:any)=>a.status==='pending').length})</TabsTrigger>
+            <TabsTrigger value="tickets">Support Tickets ({tix.filter((t:any)=>t.status==='open').length})</TabsTrigger>
+          </TabsList>
+          <TabsContent value="apps" className="mt-4 space-y-3">
+            {apps.length === 0 ? (
+              <div className="text-center py-12 glass-card rounded-2xl"><UserPlus size={40} className="mx-auto text-muted-foreground/20 mb-3" /><p className="text-muted-foreground">No applications yet</p></div>
+            ) : apps.map((a: any) => (
+              <Card key={a.id} className="border-border/50">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Badge variant="outline" className="capitalize">{a.type}</Badge>
+                        <Badge variant="outline" className={statusColors[a.status]}>{a.status}</Badge>
+                        <span className="text-xs text-muted-foreground">{new Date(a.created_at).toLocaleDateString()}</span>
+                      </div>
+                      <p className="font-black text-sm">{a.payload?.fullName || a.payload?.name || 'Applicant'}</p>
+                      <p className="text-xs text-muted-foreground">{a.payload?.email || a.payload?.adminEmail}</p>
+                      {a.payload?.bio && <p className="text-xs mt-1 line-clamp-2">{a.payload.bio}</p>}
+                      {a.payload?.headline && <p className="text-xs text-muted-foreground italic mt-1">{a.payload.headline}</p>}
+                      {a.review_note && <p className="text-xs text-muted-foreground mt-1">Note: {a.review_note}</p>}
+                    </div>
+                    {a.status === 'pending' && (
+                      <div className="flex gap-2 shrink-0">
+                        <Button variant="destructive" size="sm" onClick={() => handleReject(a.id)}><XCircle size={14} className="mr-1" />Reject</Button>
+                        <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={() => handleApprove(a.id)}><CheckCircle2 size={14} className="mr-1" />Approve</Button>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </TabsContent>
+          <TabsContent value="tickets" className="mt-4 space-y-3">
+            {tix.length === 0 ? <p className="text-muted-foreground text-center py-8">No tickets</p> : tix.map((t: any) => (
+              <Card key={t.id} className="border-border/50 cursor-pointer hover:border-primary/30" onClick={() => setSelectedTicket(t)}>
+                <CardContent className="p-4 flex items-center justify-between">
+                  <div><p className="font-bold text-sm">{t.subject}</p><p className="text-xs text-muted-foreground">{t.universities?.name || 'User'} · {new Date(t.created_at).toLocaleDateString()}</p></div>
+                  <div className="flex gap-2">
+                    <Badge variant="outline" className={priorityColors[t.priority]}>{t.priority}</Badge>
+                    <Badge variant="outline" className={statusColors[t.status]}>{t.status}</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </TabsContent>
+        </Tabs>
+        {selectedTicket && (
+          <Dialog open={!!selectedTicket} onOpenChange={() => setSelectedTicket(null)}>
+            <DialogContent className="max-w-lg">
+              <DialogHeader><DialogTitle>{selectedTicket.subject}</DialogTitle></DialogHeader>
+              <p className="text-sm text-muted-foreground">{selectedTicket.message}</p>
+              <Textarea value={ticketReply} onChange={e => setTicketReply(e.target.value)} placeholder="Reply..." />
+              <DialogFooter><Button onClick={() => handleReplyTicket(selectedTicket.id)}><Send size={14} className="mr-1" /> Send</Button></DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
+      </div>
+    );
+  }
+
   // ──── SUPPORT ────
-  if (activeSection === 'sa_support' || activeSection === 'sa_requests') {
+  if (activeSection === 'sa_support') {
     return (
       <div className="space-y-6 animate-fade-in">
         <h1 className="text-2xl font-black">Support Tickets</h1>
