@@ -152,12 +152,12 @@ export function Sidebar({ currentView, onViewChange, onSwitchRole }: SidebarProp
           </div>
         </div>
 
-        {onSwitchRole && user.roles.length > 1 && (
+        {onSwitchRole && (
           <button
             onClick={onSwitchRole}
             className="w-full flex items-center gap-2 text-sidebar-muted hover:text-primary font-semibold px-3 py-2 transition-colors text-sm bg-sidebar-accent rounded-lg"
           >
-            <ArrowLeftRight size={14} /> Switch Account
+            <ArrowLeftRight size={14} /> Switch Account ({user.roles.length})
           </button>
         )}
       </div>
