@@ -59,11 +59,22 @@ function SectionDivider({ title, icon: Icon }: { title: string; icon?: any }) {
 }
 
 export function Sidebar({ currentView, onViewChange, onSwitchRole }: SidebarProps) {
-  const { user, signOut } = useAuth();
+  const { user, signOut, refreshUser } = useAuth();
+  const { data: memberships } = useMyUniversityMemberships();
+  const [showUniSwitcher, setShowUniSwitcher] = useState(false);
   if (!user) return null;
 
   const sections = getNavSections(user.activeRole, !!user.university);
   const showInvitations = user.activeRole === 'student';
+  const unis = (memberships || []) as any[];
+
+  const switchUniversity = async (uniId: string) => {
+    const { error } = await supabase.rpc('set_active_university', { _uni: uniId });
+    if (error) return toast.error(error.message);
+    toast.success('Workspace switched');
+    setShowUniSwitcher(false);
+    await refreshUser();
+  };
 
   return (
     <aside className="w-64 lg:w-72 bg-sidebar h-screen fixed left-0 top-0 z-50 text-sidebar-foreground p-4 lg:p-5 flex flex-col shadow-2xl transform transition-transform lg:translate-x-0 -translate-x-full lg:block hidden overflow-y-auto">
@@ -81,16 +92,29 @@ export function Sidebar({ currentView, onViewChange, onSwitchRole }: SidebarProp
         <p className="font-bold text-sm text-primary mt-0.5 capitalize">{user.activeRole.replace('_', ' ')}</p>
       </div>
 
-      {/* University selector */}
-      {(user.activeRole === 'university_student' || user.activeRole === 'professor') && user.university && (
-        <button className="mb-3 w-full px-3 py-2.5 bg-sidebar-accent rounded-xl flex items-center gap-2 hover:bg-sidebar-accent/80 transition-colors text-left">
-          <Building2 size={15} className="text-primary shrink-0" />
-          <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-semibold text-sidebar-muted uppercase tracking-widest">University</p>
-            <p className="font-semibold text-sm truncate mt-0.5">{user.university}</p>
-          </div>
-          <ChevronDown size={14} className="text-sidebar-muted shrink-0" />
-        </button>
+      {/* University workspace switcher */}
+      {unis.length > 0 && (
+        <div className="mb-3 relative">
+          <button onClick={() => setShowUniSwitcher(s => !s)} className="w-full px-3 py-2.5 bg-sidebar-accent rounded-xl flex items-center gap-2 hover:bg-sidebar-accent/80 transition-colors text-left">
+            <Building2 size={15} className="text-primary shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-semibold text-sidebar-muted uppercase tracking-widest">Workspace</p>
+              <p className="font-semibold text-sm truncate mt-0.5">{user.university || 'Personal'}</p>
+            </div>
+            <ChevronDown size={14} className="text-sidebar-muted shrink-0" />
+          </button>
+          {showUniSwitcher && (
+            <div className="absolute left-0 right-0 top-full mt-1 bg-popover border border-border rounded-xl shadow-xl z-50 overflow-hidden">
+              {unis.map((m: any) => (
+                <button key={m.university_id} onClick={() => switchUniversity(m.university_id)} className="w-full px-3 py-2 flex items-center gap-2 text-left hover:bg-muted text-sm">
+                  <Building2 size={14} className="text-primary shrink-0" />
+                  <span className="flex-1 truncate">{m.universities?.name}</span>
+                  {user.universityId === m.university_id && <Check size={14} className="text-success" />}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       )}
 
       {/* Navigation */}
