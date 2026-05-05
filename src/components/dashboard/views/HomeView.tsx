@@ -3,8 +3,9 @@ import { Search, Filter, Star, BookOpen, Award, Zap, X, GraduationCap, Building2
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
-import { useCourseSubmissions, useProfessors } from '@/hooks/useSupabaseData';
+import { useCourseSubmissions, useProfessors, logSearchEvent } from '@/hooks/useSupabaseData';
 import { CATEGORIES } from '@/lib/constants';
+import { useEffect } from 'react';
 import type { ViewType } from '@/lib/navigation';
 
 interface HomeViewProps {
