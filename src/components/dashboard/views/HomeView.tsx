@@ -22,6 +22,12 @@ export function HomeView({ onNavigate, onApplyProfessor, onApplyUniversity }: Ho
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [viewingProfessor, setViewingProfessor] = useState<any | null>(null);
 
+  useEffect(() => {
+    if (!search.trim()) return;
+    const t = setTimeout(() => { logSearchEvent({ query: search, category: selectedCategory, eventType: 'search' }); }, 800);
+    return () => clearTimeout(t);
+  }, [search, selectedCategory]);
+
   const filteredCourses = (courses || []).filter(c => {
     if (selectedCategory !== 'All' && c.category !== selectedCategory) return false;
     if (search.trim()) {
