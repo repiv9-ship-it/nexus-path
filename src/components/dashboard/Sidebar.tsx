@@ -1,5 +1,9 @@
-import { LogOut, Zap, Building2, ChevronDown, ArrowLeftRight, Mail } from 'lucide-react';
+import { LogOut, Zap, Building2, ChevronDown, ArrowLeftRight, Mail, Check } from 'lucide-react';
+import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useMyUniversityMemberships } from '@/hooks/useSupabaseData';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import {
   studentNav, uniStudentNav, independentProfessorNav, uniProfessorNav,
   uniAdminNav, superAdminNav,
