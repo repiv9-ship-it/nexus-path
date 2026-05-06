@@ -1419,7 +1419,7 @@ export type Database = {
           responded_at: string | null
           role: string
           status: string
-          university_id: string
+          university_id: string | null
         }
         Insert: {
           class_id?: string | null
@@ -1433,7 +1433,7 @@ export type Database = {
           responded_at?: string | null
           role?: string
           status?: string
-          university_id: string
+          university_id?: string | null
         }
         Update: {
           class_id?: string | null
@@ -1447,7 +1447,7 @@ export type Database = {
           responded_at?: string | null
           role?: string
           status?: string
-          university_id?: string
+          university_id?: string | null
         }
         Relationships: []
       }
