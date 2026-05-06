@@ -313,6 +313,20 @@ export function SuperAdminDashboard({ activeSection }: SuperAdminDashboardProps)
             ))}
           </div>
         )}
+
+        <Dialog open={showCreateUni} onOpenChange={setShowCreateUni}>
+          <DialogContent>
+            <DialogHeader><DialogTitle>Create University</DialogTitle></DialogHeader>
+            <div className="space-y-3">
+              <Input placeholder="Name" value={uniForm.name} onChange={e => setUniForm({ ...uniForm, name: e.target.value })} />
+              <Input placeholder="Slug (e.g. tek-up)" value={uniForm.slug} onChange={e => setUniForm({ ...uniForm, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g,'-') })} />
+              <Input placeholder="City" value={uniForm.city} onChange={e => setUniForm({ ...uniForm, city: e.target.value })} />
+              <Input placeholder="Contact email" value={uniForm.contact_email} onChange={e => setUniForm({ ...uniForm, contact_email: e.target.value })} />
+              <Input type="number" placeholder="Max seats" value={uniForm.max_seats} onChange={e => setUniForm({ ...uniForm, max_seats: parseInt(e.target.value)||500 })} />
+            </div>
+            <DialogFooter><Button onClick={createUniversity}>Create</Button></DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
