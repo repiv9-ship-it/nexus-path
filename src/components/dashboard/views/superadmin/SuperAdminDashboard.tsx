@@ -388,6 +388,7 @@ export function SuperAdminDashboard({ activeSection }: SuperAdminDashboardProps)
                     </div>
                     {a.status === 'pending' && (
                       <div className="flex gap-2 shrink-0">
+                        <Button variant="outline" size="sm" onClick={() => setSelectedApplication(a)}><Eye size={14} className="mr-1" />Details</Button>
                         <Button variant="destructive" size="sm" onClick={() => handleReject(a.id)}><XCircle size={14} className="mr-1" />Reject</Button>
                         <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={() => handleApprove(a.id)}><CheckCircle2 size={14} className="mr-1" />Approve</Button>
                       </div>
