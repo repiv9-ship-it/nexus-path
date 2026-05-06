@@ -482,6 +482,7 @@ export function SuperAdminDashboard({ activeSection }: SuperAdminDashboardProps)
 
   // ──── USERS ────
   if (activeSection === 'sa_users') {
+    const ROLES = ['student','university_student','professor','admin','super_admin'];
     return (
       <div className="space-y-6 animate-fade-in">
         <h1 className="text-2xl font-black">All Users</h1>
@@ -490,22 +491,63 @@ export function SuperAdminDashboard({ activeSection }: SuperAdminDashboardProps)
         ) : (
           <div className="glass-card rounded-2xl overflow-x-auto">
             <table className="w-full text-sm">
-              <thead><tr className="border-b"><th className="text-left px-4 py-3 text-xs font-black uppercase text-muted-foreground">Name</th><th className="text-left px-4 py-3 text-xs font-black uppercase text-muted-foreground">Email</th><th className="text-left px-4 py-3 text-xs font-black uppercase text-muted-foreground">Roles</th></tr></thead>
+              <thead><tr className="border-b"><th className="text-left px-4 py-3 text-xs font-black uppercase text-muted-foreground">Name</th><th className="text-left px-4 py-3 text-xs font-black uppercase text-muted-foreground">Email</th><th className="text-left px-4 py-3 text-xs font-black uppercase text-muted-foreground">Roles</th><th className="text-right px-4 py-3 text-xs font-black uppercase text-muted-foreground">Actions</th></tr></thead>
               <tbody>
-                {(allProfiles || []).slice(0, 50).map((p: any) => (
+                {(allProfiles || []).slice(0, 100).map((p: any) => (
                   <tr key={p.id} className="border-b border-border/30">
                     <td className="px-4 py-3 font-bold">{p.first_name} {p.last_name}</td>
                     <td className="px-4 py-3 text-muted-foreground">{p.email}</td>
                     <td className="px-4 py-3">{(p.user_roles || []).map((r: any) => <Badge key={r.role} variant="outline" className="mr-1 text-[10px]">{r.role}</Badge>)}</td>
+                    <td className="px-4 py-3 text-right"><Button size="sm" variant="outline" onClick={() => setShowRoleDialog(p)}><Shield size={12} className="mr-1" />Manage</Button></td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         )}
+
+        {showRoleDialog && (
+          <Dialog open onOpenChange={() => setShowRoleDialog(null)}>
+            <DialogContent>
+              <DialogHeader><DialogTitle>Manage Roles · {showRoleDialog.first_name} {showRoleDialog.last_name}</DialogTitle></DialogHeader>
+              <div className="space-y-2">
+                {ROLES.map(r => {
+                  const has = (showRoleDialog.user_roles || []).some((x: any) => x.role === r);
+                  return (
+                    <div key={r} className="flex items-center justify-between p-2 rounded-lg bg-muted/40">
+                      <span className="text-sm capitalize font-semibold">{r.replace('_',' ')}</span>
+                      {has
+                        ? <Button size="sm" variant="destructive" onClick={() => revokeRole(showRoleDialog.user_id, r)}>Revoke</Button>
+                        : <Button size="sm" onClick={() => grantRole(showRoleDialog.user_id, r)}>Grant</Button>}
+                    </div>
+                  );
+                })}
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
     );
   }
 
-  return <div className="text-center py-16"><p className="text-muted-foreground">Section not found</p></div>;
+  return (
+    <>
+      <div className="text-center py-16"><p className="text-muted-foreground">Section not found</p></div>
+
+      {/* Create University Dialog (always mounted so it can be opened from anywhere) */}
+      <Dialog open={showCreateUni} onOpenChange={setShowCreateUni}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Create University</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <Input placeholder="Name" value={uniForm.name} onChange={e => setUniForm({ ...uniForm, name: e.target.value })} />
+            <Input placeholder="Slug (e.g. tek-up)" value={uniForm.slug} onChange={e => setUniForm({ ...uniForm, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g,'-') })} />
+            <Input placeholder="City" value={uniForm.city} onChange={e => setUniForm({ ...uniForm, city: e.target.value })} />
+            <Input placeholder="Contact email" value={uniForm.contact_email} onChange={e => setUniForm({ ...uniForm, contact_email: e.target.value })} />
+            <Input type="number" placeholder="Max seats" value={uniForm.max_seats} onChange={e => setUniForm({ ...uniForm, max_seats: parseInt(e.target.value)||500 })} />
+          </div>
+          <DialogFooter><Button onClick={createUniversity}>Create</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 }
