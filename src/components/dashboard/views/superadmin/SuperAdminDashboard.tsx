@@ -109,6 +109,7 @@ export function SuperAdminDashboard({ activeSection }: SuperAdminDashboardProps)
   const [selectedUniId, setSelectedUniId] = useState<string | null>(null);
   const [selectedSubmission, setSelectedSubmission] = useState<any>(null);
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
+  const [selectedApplication, setSelectedApplication] = useState<any>(null);
   const [ticketReply, setTicketReply] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
   const [rejectionDialog, setRejectionDialog] = useState(false);
