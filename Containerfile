@@ -1,5 +1,6 @@
 FROM node:20-alpine AS builder
-
+label author "*Louay Bouzidi"
+MAINTAINER louaybouzidi72@gmail.com
 # Set working directory
 WORKDIR /app
 
